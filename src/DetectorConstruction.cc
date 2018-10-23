@@ -19,6 +19,7 @@
 #include "HeedInterfaceModel.hh"
 #include "HeedOnlyModel.hh"
 #include "DegradModel.hh"
+#include "G4SDManager.hh"
 
 DetectorConstruction::DetectorConstruction()
     : checkOverlaps(0),
@@ -210,15 +211,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
 void DetectorConstruction::ConstructSDandField(){
   G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");
-  HeedOnlyModel* HOM = new HeedOnlyModel("HeedOnlyModel",region);
-  HeedInterfaceModel* HIM = new HeedInterfaceModel("HeedInterfaceModel",region);
-  DegradModel* DM = new DegradModel("DegradModel",region)
+  HeedOnlyModel* HOM = new HeedOnlyModel("HeedOnlyModel",region,this);
+  HeedInterfaceModel* HIM = new HeedInterfaceModel("HeedInterfaceModel",region,this);
+  DegradModel* DM = new DegradModel("DegradModel",region,this);
 
-  G4SDManager* SDM = G4SDManager::GetSDMpointer();
+  G4SDManager* SDManager = G4SDManager::GetSDMpointer();
   G4String GasBoxSDname = "gasbox/myGasBoxSD";
-  GasBoxSD* myGasBoxSD = new GasBoxSD(GasBoxSDname,garfieldmodel);
-  SDM->SetVerboseLevel(1);
-  SDM->AddNewDetector(myGasBoxSD);
+  GasBoxSD* myGasBoxSD = new GasBoxSD(GasBoxSDname);
+  SDManager->SetVerboseLevel(1);
+  SDManager->AddNewDetector(myGasBoxSD);
   SetSensitiveDetector(logicGasBox,myGasBoxSD);
 
 }

@@ -15,7 +15,7 @@ class G4TouchableHistory;
 class GasBoxSD : public G4VSensitiveDetector{
 	public:
 	
-	GasBoxSD(G4String, GarfieldModel*);
+	GasBoxSD(G4String);
 	~GasBoxSD();
 	
 	virtual void 	Initialize (G4HCofThisEvent *);

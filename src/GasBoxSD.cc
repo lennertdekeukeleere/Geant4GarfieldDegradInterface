@@ -6,13 +6,12 @@
 #include "G4Step.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4TouchableHistory.hh"
-#include "GarfieldModel.hh"
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
 #include "DetectorConstruction.hh"
 #include "G4VPhysicalVolume.hh"
 
-GasBoxSD::GasBoxSD(G4String name, GarfieldModel* gm) : G4VSensitiveDetector(name), garfieldModel(gm), fGasBoxHitsCollection(NULL){
+GasBoxSD::GasBoxSD(G4String name) : G4VSensitiveDetector(name), fGasBoxHitsCollection(NULL){
     collectionName.insert("GBHC");
     HCID=-1;
 }
@@ -36,34 +35,15 @@ G4bool GasBoxSD::ProcessHits(G4Step* aStep, G4TouchableHistory* hist){
     G4StepPoint* thePrePoint = aStep->GetPreStepPoint();
 	edep+=aStep->GetTotalEnergyDeposit();
 
-    if(garfieldModel->GetGarfieldPhysics()->GetAnalyzePAI()){
-       if(aStep->GetPostStepPoint()->GetStepStatus()==fGeomBoundary){
-            if(aTrack->GetTrackID()==1)
-                ef=aStep->GetPostStepPoint()->GetKineticEnergy();
-            aStep->GetTrack()->SetTrackStatus(fStopAndKill);
-       } 
-       if(thePrePoint->GetKineticEnergy() < garfieldModel->GetGarfieldPhysics()->GetELimit() && !(garfieldModel->GetGarfieldPhysics()->GetCreateHeedSecondaries())) {
-          if(aTrack->GetParentID()==1)
-            secEnergiesFirstGen.push_back(thePrePoint->GetKineticEnergy()/keV);
-          else if(aTrack->GetParentID()>1)
-            secEnergiesSecGen.push_back(thePrePoint->GetKineticEnergy()/keV);
-          aStep->GetTrack()->SetTrackStatus(fStopAndKill);
-        }
-           
-    }
+    
 
     if(aTrack->GetCurrentStepNumber() == 1 &&
-       aTrack->GetDefinition()->GetParticleName() == "e-" && aTrack->GetTrackID()>1 && !(garfieldModel->GetGarfieldPhysics()->GetCreateHeedSecondaries())){
+       aTrack->GetDefinition()->GetParticleName() == "e-" && aTrack->GetTrackID()>1){
         GasBoxHit* hit = new GasBoxHit();
         G4ThreeVector pos = thePrePoint->GetPosition();
         hit->SetX(pos.x());
         hit->SetY(pos.y());
         hit->SetZ(pos.z());
-        
-//        G4ThreeVector mom = aTrack->GetMomentumDirection();
-//        hit->SetXmomentum(mom.x());
-//        hit->SetYmomentum(mom.y());
-//        hit->SetZmomentum(mom.z());
         
         hit->SetEkin(thePrePoint->GetKineticEnergy());
         hit->SetTime(aTrack->GetGlobalTime());
