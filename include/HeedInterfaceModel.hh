@@ -31,10 +31,6 @@ class HeedInterfaceModel : public HeedModel {
   void Initialise();
   
 
-  //This is the threshold energy below which the particle is simulated by the model
-  inline void SetELimit(G4double energy){ELimit=energy;};
-  inline G4double GetELimit(){return ELimit;};
-  
   /*The following public methods are user-dependent*/
 
   //This method is called after each event, to record the relevant data
@@ -51,55 +47,7 @@ class HeedInterfaceModel : public HeedModel {
             double y_cm, double z_cm, double dx, double dy, double dz);
   
   
-  /*The following private methods and variables are user-dependent*/
 
-  void makeGas();
-  void buildBox();
-  void loadComsol();
-  void BuildCompField();
-  void BuildSensor();
-  void SetTracking();
-  void CreateChamberView();
-  void CreateSignalView();
-  void CreateFieldView();
-
-  G4String gasFile;
-  G4String ionMobFile;
-  
-  bool driftElectrons;
-  bool trackMicro;
-  bool createAval;
-  bool fVisualizeChamber;
-  bool fVisualizeSignal;
-  bool fVisualizeField;
-  bool driftRKF;
-  
-  G4double ELimit;
-
-  double vPlaneOne;
-  double vPlaneTwo;
-  double vAnodeWires;
-  double vCathodeWires;
-  double vGate;
-  double vDeltaGate;
-
-  Garfield::MediumMagboltz* fMediumMagboltz;
-  Garfield::Sensor* fSensor;
-  Garfield::TrackHeed* fTrackHeed;
-  Garfield::GeometrySimple* geo;
-  Garfield::SolidBox* box; 
-  Garfield::ComponentVoxel* voxfield;
-  Garfield::ComponentAnalyticField* comp;
-  Garfield::AvalancheMC* fDrift;
-  Garfield::DriftLineRKF* fDriftRKF;
-  Garfield::AvalancheMicroscopic* fAvalanche;
-  TCanvas* fChamber;
-  TCanvas* fSignal;
-  TCanvas* fField;
-  Garfield::ViewCell* cellView;
-  Garfield::ViewDrift* viewDrift;
-  Garfield::ViewSignal* viewSignal;
-  Garfield::ViewField* viewField;
   
 };
 

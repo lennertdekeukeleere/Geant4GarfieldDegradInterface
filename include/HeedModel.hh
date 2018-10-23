@@ -21,6 +21,10 @@
 #include "ViewSignal.hh"
 #include "ViewField.hh"
 #include "G4VFastSimulationModel.hh"
+#include "MediumMagboltz.hh"
+#include "TrackHeed.hh"
+#include "GeometrySimple.hh"
+
 
 class G4VPhysicalVolume;
 class DetectorConstruction;
@@ -40,7 +44,7 @@ class HeedModel : public G4VFastSimulationModel {
 
   virtual G4bool IsApplicable(const G4ParticleDefinition&);
   virtual G4bool ModelTrigger(const G4FastTrack&) = 0;
-  virtual void DoIt(const G4FastTrack&, G4FastStep&);
+  virtual void DoIt(const G4FastTrack&, G4FastStep&) = 0;
   void Initialise();
   void InitialisePhysics();
   
