@@ -17,13 +17,5 @@ SteppingAction::SteppingAction(){
 
 
 void SteppingAction::UserSteppingAction(const G4Step *aStep) {
-
-    
-    G4StepPoint* thePostPoint = aStep->GetPostStepPoint();
-    G4StepPoint* thePrePoint = aStep->GetPreStepPoint();
-    G4VPhysicalVolume *pVol =
-      thePrePoint->GetTouchableHandle()->GetVolume();
-    G4VPhysicalVolume *pVolPost =
-    thePostPoint->GetTouchableHandle()->GetVolume();
 	
 }

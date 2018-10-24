@@ -23,7 +23,7 @@ class RunAction : public G4UserRunAction {
   // Run action class needs a pointer of the detector construction class in
   // order to get details of the readout geometry.
   // Accepts pointer to detector construction class:
-  RunAction(PhysicsList *, EventAction *);
+  RunAction();
   ~RunAction();
 
   void BeginOfRunAction(const G4Run *);
@@ -31,8 +31,6 @@ class RunAction : public G4UserRunAction {
 
 
  private:
-  PhysicsList *myPhysicsList;
-  EventAction* evAct;
-};
+
 
 #endif

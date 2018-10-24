@@ -47,6 +47,8 @@ int main(int argc, char** argv) {
   G4cout << "Creation of DetectorConstruction" << G4endl;
   DetectorConstruction* detector = new DetectorConstruction();
   runManager->SetUserInitialization(detector);
+
+  GasModels* gm = new GasModels(detector);
   
   G4cout << "Creation of PhysicsList" << G4endl;
   PhysicsList* physics = new PhysicsList();
