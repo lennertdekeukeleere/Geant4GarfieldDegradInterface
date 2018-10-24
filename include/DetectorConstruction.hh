@@ -73,6 +73,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   
  private:
   DetectorMessenger* detectorMessenger;
+  G4LogicalVolume* logicGasBox;
   G4bool checkOverlaps; // Check overlaps in the detector geometry if true
   G4double worldHalfLength; //World volume is a cube with side length = 2m;
   G4double gasboxR; // radius of tube filled with gas

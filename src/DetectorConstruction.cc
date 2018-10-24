@@ -23,13 +23,13 @@
 
 DetectorConstruction::DetectorConstruction()
     : checkOverlaps(0),
-    worldHalfLength(3.*m), //World volume is a cube with side length = 2m;
+    worldHalfLength(3.*m), //World volume is a cube with side length = 3m;
     gasboxR(0.25*m), // radius of tube filled with gas
     gasboxH (2.5*m), // length of the tube
     wallThickness(0.05*m), //thickness of the aluminum walls
     caloThickness(1.*mm), // thickness of the silicon detectors
-    temperature(273.15*kelvin),
     gasPressure(0.6*bar),
+    temperature(273.15*kelvin),
     gasName("HeIso")
 {
   detectorMessenger = new DetectorMessenger(this);
@@ -176,15 +176,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   myRotation->rotateY(0.*deg);
   myRotation->rotateZ(0.*rad);
   G4Tubs* solidGasBox = new G4Tubs("solid_gasbox_tube",0,gasboxR,gasboxH, 0., twopi);
-  G4LogicalVolume* logicGasBox =
+  logicGasBox =
       new G4LogicalVolume(solidGasBox, mixture, "solidGasBox_log");
-  G4VPhysicalVolume* physiGasBox = new G4PVPlacement(myRotation,G4ThreeVector(), logicGasBox,"solidGasBox_phys",logicWorld,false,0,checkOverlaps);
+  new G4PVPlacement(myRotation,G4ThreeVector(), logicGasBox,"solidGasBox_phys",logicWorld,false,0,checkOverlaps);
 
   //Silicon calorimeters
   G4Tubs* solidCalo = new G4Tubs("solid_tube_Calo",gasboxR,gasboxR+caloThickness,1.*m, 0., twopi);
   G4LogicalVolume* logicCalo =
       new G4LogicalVolume(solidCalo, siliconMaterial, "solidCalo_log");
-  G4VPhysicalVolume* physiCalo = new G4PVPlacement(myRotation,G4ThreeVector(), logicCalo,"solidCalo_phys",logicWorld,false,0,checkOverlaps);
+  new G4PVPlacement(myRotation,G4ThreeVector(), logicCalo,"solidCalo_phys",logicWorld,false,0,checkOverlaps);
 
   //Aluminum Walls
   G4Tubs* solidWalls = new G4Tubs("solid_tube_wall",0,gasboxR,wallThickness, 0., twopi);
@@ -192,9 +192,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       new G4LogicalVolume(solidWalls, aluminiumMaterial, "solidWall1_log");
   G4LogicalVolume* logicWall2 =
       new G4LogicalVolume(solidWalls, aluminiumMaterial, "solidWall2_log");
-  G4VPhysicalVolume* physiWall1 = new G4PVPlacement(myRotation,G4ThreeVector(0,(gasboxH+wallThickness)/2.,0), logicWall1,
+  new G4PVPlacement(myRotation,G4ThreeVector(0,(gasboxH+wallThickness)/2.,0), logicWall1,
     "solidCalo1_phys",logicWorld,false,0,checkOverlaps);
-  G4VPhysicalVolume* physiWall2 = new G4PVPlacement(myRotation,G4ThreeVector(0,-(gasboxH+wallThickness)/2.,0), logicWall2,
+  new G4PVPlacement(myRotation,G4ThreeVector(0,-(gasboxH+wallThickness)/2.,0), logicWall2,
     "solidCalo2_phys",logicWorld,false,0,checkOverlaps);
 
 
@@ -206,6 +206,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   logicWall1->SetVisAttributes(red);
   logicWall2->SetVisAttributes(blue);
   logicCalo->SetVisAttributes(yellow);
+    
+  return physiWorld;
 
 }
 
