@@ -50,7 +50,6 @@ class DegradModel : public G4VFastSimulationModel {
   G4bool FindParticleName(G4String name);
   G4bool FindParticleNameEnergy(G4String name,double ekin_keV);
   DetectorConstruction* detCon;
-  DegradMessenger* fDegradMessenger;
 
   MapParticlesEnergy* fMapParticlesEnergy;
   

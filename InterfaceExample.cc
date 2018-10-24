@@ -24,9 +24,8 @@ https://svs.icts.kuleuven.be/projects/svs_project014/wiki/Wiki
 
 #include "DetectorConstruction.hh"
 #include "PhysicsList.hh"
-#include "RunAction.hh"
-#include "EventAction.hh"
 #include "MyUserActionInitialization.hh"
+#include "GasModels.hh"
 
 int main(int argc, char** argv) {
   G4Random::setTheEngine(new CLHEP::RanecuEngine);

@@ -60,6 +60,6 @@ class GasModelsMessenger : public G4UImessenger {
 
   G4String fParticleName;
   G4double fEmin;
-  G4double fEmax,
+  G4double fEmax;
   
 };

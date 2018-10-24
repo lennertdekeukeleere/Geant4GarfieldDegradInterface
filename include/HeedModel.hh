@@ -63,8 +63,8 @@ class HeedModel : public G4VFastSimulationModel {
   //Determines if the electrons are drifted, or only primary ionization is simulated
   inline void SetDriftElectrons(G4bool b) { driftElectrons = b; };
   inline bool GetDriftElectrons(){return driftElectrons;};
-  inline void SetVoltagePlaneHV(G4double v){vPlaneOne = v;};
-  inline void SetVoltagePlaneLow(G4double v){vPlaneTwo = v;};
+  inline void SetVoltagePlaneHV(G4double v){vPlaneHV = v;};
+  inline void SetVoltagePlaneLow(G4double v){vPlaneLow = v;};
   inline void SetVoltageAnodeWires(G4double v){vAnodeWires = v;};
   inline void SetVoltageCathodeWires(G4double v){vCathodeWires = v;};
   inline void SetVoltageGate(G4double v){vGate = v;};
@@ -80,7 +80,7 @@ class HeedModel : public G4VFastSimulationModel {
   void InitialisePhysics();
   virtual void Run(G4String particleName, double ekin_keV, double t, double x_cm,
             double y_cm, double z_cm, double dx, double dy, double dz) = 0;
-  void Drift()
+  void Drift();
   G4bool FindParticleName(G4String name);
   G4bool FindParticleNameEnergy(G4String name,double ekin_keV);
   DetectorConstruction* detCon;
