@@ -14,7 +14,6 @@ class GarfieldModel;
 class EventAction : public G4UserEventAction {
  public:
   EventAction();
-  EventAction(SteppingAction*);
   ~EventAction();
 
  public:

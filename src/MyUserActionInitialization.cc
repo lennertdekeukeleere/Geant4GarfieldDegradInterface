@@ -6,33 +6,21 @@
 #include "G4SDManager.hh"
 #include "GasBoxSD.hh"
 #include "SteppingAction.hh"
-#include "StackingAction.hh"
-#include "MBTrackingAction.hh"
 
-MyUserActionInitialization::MyUserActionInitialization(DetectorConstruction* dc, PhysicsList* phys):detCon(dc), physics(phys){}
+MyUserActionInitialization::MyUserActionInitialization(){}
 
-MyUserActionInitialization::~MyUserActionInitialization(){
-	G4cout << "Deleting MyUserActionInitialization" << G4endl;
-}
+MyUserActionInitialization::~MyUserActionInitialization(){}
 
 void MyUserActionInitialization::Build() const {
-	PrimaryGeneratorAction* primary = new PrimaryGeneratorAction(detCon->GetGunPosition());
+	PrimaryGeneratorAction* primary = new PrimaryGeneratorAction();
 	SetUserAction(primary);
-	SteppingAction* stepAct = new SteppingAction(detCon);
+	SteppingAction* stepAct = new SteppingAction();
 	SetUserAction(stepAct);
-	EventAction* evt = new EventAction(stepAct);
+	EventAction* evt = new EventAction();
 	SetUserAction(evt);
-	SetUserAction(new RunAction(detCon,primary,physics,evt));
-	if(detCon->GetFilterEvents()){
-		G4cout << "Events will be filtered" << G4endl;
-		SetUserAction(new StackingAction());
-	}
-//	SetUserAction(new MBTrackingAction());
-	
+	SetUserAction(new RunAction());
 }
 
 void MyUserActionInitialization::BuildForMaster() const {
-	PrimaryGeneratorAction* primary = new PrimaryGeneratorAction(detCon->GetGunPosition());
-	EventAction* evt = new EventAction();
-	SetUserAction(new RunAction(detCon,primary,physics,evt));
+	SetUserAction(new RunAction());
 }

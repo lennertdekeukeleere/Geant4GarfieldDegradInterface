@@ -3,11 +3,9 @@
 #include "G4Run.hh"
 #include "Randomize.hh"
 #include "PrimaryGeneratorAction.hh"
-#include "RunMessenger.hh"
 #include "Analysis.hh"
 #include "EventAction.hh"
-#include "GarfieldModel.hh"
-#include "GarfieldPhysics.hh"
+
 #include "GasBoxSD.hh"
 #include "G4SDManager.hh"
 #include "G4RunManager.hh"
@@ -18,7 +16,7 @@ RunAction::RunAction(){
 //  analysisManager->SetNtupleMerging(true,0,0,10000000);
   analysisManager->SetVerboseLevel(1);
   analysisManager->SetActivation(true);  
-  analysisManager->SetFileName(outputFileName); 
+  analysisManager->SetFileName("output.root"); 
   analysisManager->SetHistoDirectoryName("histo");
   analysisManager->SetNtupleDirectoryName("ntuple");
   

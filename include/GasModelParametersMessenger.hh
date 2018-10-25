@@ -1,11 +1,11 @@
-#ifndef GasModelsMessenger_h
-#define GasModelsMessenger_h 1
+#ifndef GasModelParametersMessenger_h
+#define GasModelParametersMessenger_h 1
 
 #include "G4SystemOfUnits.hh"
 #include "G4UImessenger.hh"
 
 class G4UIcommand;
-class GasModels;
+class GasModelParameters;
 class G4UIdirectory;
 class G4UIcmdWithAString;
 class G4UIcmdWithABool;
@@ -14,14 +14,14 @@ class G4UIcmdWithoutParameter;
 class G4UIcmdWithADouble;
 class G4UIcmdWithAnInteger;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-/*! \class GasModelsMessenger*/
+/*! \class GasModelParametersMessenger*/
 /*! class derived from G4UImessenger*/
 /*! List of available commands*/
 
-class GasModelsMessenger : public G4UImessenger {
+class GasModelParametersMessenger : public G4UImessenger {
  public:
-  GasModelsMessenger(GasModels*);
-  ~GasModelsMessenger();
+  GasModelParametersMessenger(GasModelParameters*);
+  ~GasModelParametersMessenger();
 
   void SetNewValue(G4UIcommand*, G4String);
 
@@ -32,8 +32,8 @@ class GasModelsMessenger : public G4UImessenger {
   void AddParticleHeedOnlyCommand(G4String newValues);
   void ConvertParameters(G4String newValues);
 
-  GasModels* fGasModels;
-  G4UIdirectory GasModelsDir;
+  GasModelParameters* fGasModelParameters;
+  G4UIdirectory* GasModelParametersDir;
   G4UIdirectory* HeedDir;
   G4UIdirectory* DegradDir;
   G4UIdirectory* HeedOnlyDir;
@@ -63,3 +63,5 @@ class GasModelsMessenger : public G4UImessenger {
   G4double fEmax;
   
 };
+
+#endif

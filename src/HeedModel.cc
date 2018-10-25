@@ -9,15 +9,17 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4Electron.hh"
 #include "G4Gamma.hh"
-
 #include "G4SystemOfUnits.hh"
+#include "DetectorConstruction.hh"
+
+#include "G4AutoLock.hh"
+namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 
 const static G4double torr = 1. / 760. * atmosphere;
 
 
-HeedModel::HeedModel(G4String modelName, G4Region* envelope, DetectorConstruction* dc)
-    : G4VFastSimulationModel(modelName, envelope),detCon(dc)	{
-      fMapParticlesEnergy = new MapParticlesEnergy();
+HeedModel::HeedModel(G4String modelName, G4Region* envelope,DetectorConstruction* dc)
+: G4VFastSimulationModel(modelName, envelope), detCon(dc)	{
     }
 
 HeedModel::~HeedModel() {}
@@ -53,18 +55,6 @@ void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 	fastStep.SetTotalEnergyDeposited(ekin);
 }
 
-
-void HeedModel::AddParticleName(const G4String particleName,
-                                      double ekin_min_keV,
-                                      double ekin_max_keV) {
-  if (ekin_min_keV >= ekin_max_keV) {
-    return;
-  }
-  fMapParticlesEnergy->insert(
-      std::make_pair(particleName, std::make_pair(ekin_min_keV, ekin_max_keV)));
-  G4cout << "Particle added: " << ekin_min_keV << " " << ekin_max_keV << G4endl;    
-}
-
 G4bool HeedModel::FindParticleName(G4String name) {
   MapParticlesEnergy::iterator it;
   it = fMapParticlesEnergy->find(name);
@@ -93,8 +83,6 @@ void HeedModel::InitialisePhysics(){
   makeGas();
     
   buildBox();
-  
-  if(loadComsolfield) loadComsol();
   
   BuildCompField();
   
@@ -155,16 +143,39 @@ void HeedModel::buildBox(){
 }
 
 void HeedModel::BuildCompField(){
-  int cn = 0;
-  comp = new Garfield::ComponentAnalyticField();
-  comp->SetGeometry(geo);
+    // Switch between IROC and OROC.
+    const bool iroc = false;
+    // Switch gating on or off.
+    bool gating = false;
+    // y-axis gap between rows of wires [cm]
+    const double gap = iroc ? 0.2 : 0.3;
+    
+    // y coordinates of the wires [cm]
+    const double ys = gap;            // anode wires
+    const double yc = 2. * gap;       // cathode
+    const double yg = 2. * gap + 0.3; // gate
+    // Periodicity (wire spacing)
+    const double period = 0.25;
+    const int nRep = 10;
+    
+    const double dc = period;
+    const double dg = period / 2;
+    
+    // Wire diameters [cm]
+    const double dSens = 0.0020;
+    const double dCath = 0.0075;
+    const double dGate = 0.0075;
+    
+    comp = new Garfield::ComponentAnalyticField();
+    comp->SetGeometry(geo);
+    
   
   
 }
 
 void HeedModel::BuildSensor(){
   fSensor = new Garfield::Sensor();
-  fSensor->SetTimeWindow(0.,fBinWidth,fNbins); //Lowest time [ns], time bins [ns], number of bins
+  //fSensor->SetTimeWindow(0.,fBinWidth,fNbins); //Lowest time [ns], time bins [ns], number of bins
 }
 
 void HeedModel::SetTracking(){

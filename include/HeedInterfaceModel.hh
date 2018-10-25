@@ -13,6 +13,7 @@
 class G4VPhysicalVolume;
 class DetectorConstruction;
 class HeedInterfaceMessenger;
+class GasModelParameters;
 
 typedef std::pair<double, double> EnergyRange_keV;
 typedef std::multimap<const G4String, EnergyRange_keV> MapParticlesEnergy;
@@ -22,7 +23,7 @@ class HeedInterfaceModel : public HeedModel {
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  HeedInterfaceModel(G4String, G4Region*,DetectorConstruction*);
+  HeedInterfaceModel(GasModelParameters *,G4String, G4Region*,DetectorConstruction*);
   ~HeedInterfaceModel();
   
 

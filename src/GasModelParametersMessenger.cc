@@ -1,4 +1,4 @@
-#include "GasModelsMessenger.hh"
+#include "GasModelParametersMessenger.hh"
 
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAString.hh"
@@ -9,35 +9,40 @@
 #include "G4UIcmdWithoutParameter.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
-
+#include "G4UIparameter.hh"
+#include "GasModelParameters.hh"
+#include "HeedInterfaceModel.hh"
+#include "HeedOnlyModel.hh"
+#include "HeedModel.hh"
+#include "DegradModel.hh"
 
 #include "G4Tokenizer.hh"
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-GasModelsMessenger::GasModelsMessenger(GasModels* gm)
-    : fGasModels(gm) {
-  GasModelsDir = new G4UIdirectory("/gasmodels/");
-  GasModelsDir->SetGuidance("GasModels specific controls");
-  HeedDir = new G4UIdirectory("/gasmodels/heed/");
+GasModelParametersMessenger::GasModelParametersMessenger(GasModelParameters* gm)
+    : fGasModelParameters(gm) {
+  GasModelParametersDir = new G4UIdirectory("/gasModelParameters/");
+  GasModelParametersDir->SetGuidance("GasModelParameters specific controls");
+  HeedDir = new G4UIdirectory("/gasModelParameters/heed/");
   HeedDir->SetGuidance("Heed specific controls");
-  HeedOnlyDir = new G4UIdirectory("/gasmodels/heed/heedonly/");
+  HeedOnlyDir = new G4UIdirectory("/gasModelParameters/heed/heedonly/");
   HeedOnlyDir->SetGuidance("HeedOnly specific controls");
-  HeedInterfaceDir = new G4UIdirectory("/gasmodels/heed/heedinterface/");
+  HeedInterfaceDir = new G4UIdirectory("/gasModelParameters/heed/heedinterface/");
   HeedInterfaceDir->SetGuidance("HeedInterface specific controls");
-  DegradDir = new G4UIdirectory("/gasmodels/degrad/");
+  DegradDir = new G4UIdirectory("/gasModelParameters/degrad/");
   HeedDir->SetGuidance("Degrad specific controls");
 
-  addParticleDegradCmd = new G4UIcommand("/gasmodels/degrad/addparticle",this);
+  addParticleDegradCmd = new G4UIcommand("/gasModelParameters/degrad/addparticle",this);
   addParticleDegradCmd->SetGuidance("Set properties of the particle to be included");
-  addParticleDegradCmd->SetGuidance("[usage] /gasModels/degrad/addparticle P Emin Emax");
+  addParticleDegradCmd->SetGuidance("[usage] /gasModelParameters/degrad/addparticle P Emin Emax");
   addParticleDegradCmd->SetGuidance("        P:(String) particle name (e-, e+, p, mu+, mu-, mu, pi,...");
   addParticleDegradCmd->SetGuidance("        Emin:(double) Minimum energy for the model to be activated");
   addParticleDegradCmd->SetGuidance("        Emax:(double Maximum energy for the model to be activated");
 
   G4UIparameter* paramD;
-  paramD = new G4UIparameter("P");
+  paramD = new G4UIparameter("P",'s',false);
   paramD->SetDefaultValue("e-");
   addParticleDegradCmd->SetParameter(paramD);
   paramD = new G4UIparameter("Emin",'d',true);
@@ -47,15 +52,15 @@ GasModelsMessenger::GasModelsMessenger(GasModels* gm)
   paramD->SetDefaultValue("1000.");
   addParticleDegradCmd->SetParameter(paramD);
 
-  addParticleHeedInterfaceCmd = new G4UIcommand("/gasmodels/heed/heedinterface/addparticle",this);
+  addParticleHeedInterfaceCmd = new G4UIcommand("/gasModelParameters/heed/heedinterface/addparticle",this);
   addParticleHeedInterfaceCmd->SetGuidance("Set properties of the particle to be included");
-  addParticleHeedInterfaceCmd->SetGuidance("[usage] /gasmodels/heedinterface/addparticle P Emin Emax");
+  addParticleHeedInterfaceCmd->SetGuidance("[usage] /gasModelParameters/heedinterface/addparticle P Emin Emax");
   addParticleHeedInterfaceCmd->SetGuidance("        P:(String) particle name (e-, e+, p, mu+, mu-, mu, pi,...");
   addParticleHeedInterfaceCmd->SetGuidance("        Emin:(double) Minimum energy for the model to be activated");
   addParticleHeedInterfaceCmd->SetGuidance("        Emax:(double Maximum energy for the model to be activated");
 
   G4UIparameter* paramHI;
-  paramHI = new G4UIparameter("P");
+  paramHI = new G4UIparameter("P",'s',false);
   paramHI->SetDefaultValue("e-");
   addParticleHeedInterfaceCmd->SetParameter(paramHI);
   paramHI = new G4UIparameter("Emin",'d',true);
@@ -65,15 +70,15 @@ GasModelsMessenger::GasModelsMessenger(GasModels* gm)
   paramHI->SetDefaultValue("1000.");
   addParticleHeedInterfaceCmd->SetParameter(paramHI);
 
-  addParticleHeedOnlyCmd = new G4UIcommand("/gasmodels/heed/heedonly/addparticle",this);
+  addParticleHeedOnlyCmd = new G4UIcommand("/gasModelParameters/heed/heedonly/addparticle",this);
   addParticleHeedOnlyCmd->SetGuidance("Set properties of the particle to be included");
-  addParticleHeedOnlyCmd->SetGuidance("[usage] /gasmodels/heed/heedonly/addparticle P Emin Emax");
+  addParticleHeedOnlyCmd->SetGuidance("[usage] /gasModelParameters/heed/heedonly/addparticle P Emin Emax");
   addParticleHeedOnlyCmd->SetGuidance("        P:(String) particle name (e-, e+, p, mu+, mu-, mu, pi,...");
   addParticleHeedOnlyCmd->SetGuidance("        Emin:(double) Minimum energy for the model to be activated");
   addParticleHeedOnlyCmd->SetGuidance("        Emax:(double Maximum energy for the model to be activated");
 
   G4UIparameter* paramHO;
-  paramHO = new G4UIparameter("P");
+  paramHO = new G4UIparameter("P",'s',false);
   paramHO->SetDefaultValue("e-");
   addParticleHeedOnlyCmd->SetParameter(paramHO);
   paramHO = new G4UIparameter("Emin",'d',true);
@@ -83,49 +88,49 @@ GasModelsMessenger::GasModelsMessenger(GasModels* gm)
   paramHO->SetDefaultValue("1000.");
   addParticleHeedOnlyCmd->SetParameter(paramHO);
 
-  gasFileCmd =  new G4UIcmdWithAString("/gasmodels/heed/gasfile",this);
+  gasFileCmd =  new G4UIcmdWithAString("/gasModelParameters/heed/gasfile",this);
   gasFileCmd->SetGuidance("Set name of the gas file");
 
-  ionMobFileCmd =  new G4UIcmdWithAString("/gasmodels/heed/ionmobilityfile",this);
+  ionMobFileCmd =  new G4UIcmdWithAString("/gasModelParameters/heed/ionmobilityfile",this);
   ionMobFileCmd->SetGuidance("Set name of the ion mobility file");
 
-  driftElectronsCmd = new G4UIcmdWithABool("/gasmodels/heed/drift");
+  driftElectronsCmd = new G4UIcmdWithABool("/gasModelParameters/heed/drift",this);
   driftElectronsCmd->SetGuidance("true if ions and electrons are to be drifted in the electric field");
 
-  driftRKFCmd = new G4UIcmdWithABool("gasmodels/heed/drift");
+  driftRKFCmd = new G4UIcmdWithABool("gasModelParameters/heed/drift",this);
   driftRKFCmd->SetGuidance("true if runge kutta is used for the drift");
 
-  createAvalCmd = new G4UIcmdWithABool("/gasmodels/heed/trackmicroscopic");
+  createAvalCmd = new G4UIcmdWithABool("/gasModelParameters/heed/trackmicroscopic",this);
   createAvalCmd->SetGuidance("true if monte carlo simulation of an avalanches is to be used");
 
-  trackMicroCmd = new G4UIcmdWithABool("/gasmodels/heed/trackmicroscopic");
+  trackMicroCmd = new G4UIcmdWithABool("/gasModelParameters/heed/trackmicroscopic",this);
   trackMicroCmd->SetGuidance("true if microscopic tracking of the drift electrons/ions and avalanche is to be used");
 
-  visualizeChamberCmd = new G4UIcmdWithABool("/gasmodels/heed/visualizechamber");
+  visualizeChamberCmd = new G4UIcmdWithABool("/gasModelParameters/heed/visualizechamber",this);
   visualizeChamberCmd->SetGuidance("true if visualization of the chamber configuration has to be shown");
 
-  visualizeSignalsCmd = new G4UIcmdWithABool("/gasmodels/heed/visualizesignals");
+  visualizeSignalsCmd = new G4UIcmdWithABool("/gasModelParameters/heed/visualizesignals",this);
   visualizeSignalsCmd->SetGuidance("true if signal on the pads have to be visualized");  
 
-  visualizeFieldCmd = new G4UIcmdWithABool("/gasmodels/heed/visualizefield");
+  visualizeFieldCmd = new G4UIcmdWithABool("/gasModelParameters/heed/visualizefield",this);
   visualizeFieldCmd->SetGuidance("true if the electric field has to be shown");
 
-  voltagePlaneHVCmd = new G4UIcmdWithADouble("/gasmodels/heed/voltageplanehv");
+  voltagePlaneHVCmd = new G4UIcmdWithADouble("/gasModelParameters/heed/voltageplanehv",this);
   voltagePlaneHVCmd->SetGuidance("Set the voltage on the high voltage plane");
 
-  voltagePlaneLowCmd = new G4UIcmdWithADouble("/gasmodels/heed/voltageplanelow");
+  voltagePlaneLowCmd = new G4UIcmdWithADouble("/gasModelParameters/heed/voltageplanelow",this);
   voltagePlaneLowCmd->SetGuidance("Set the voltage on the low voltage plane");
 
-  voltageAnodeWiresCmd = new G4UIcmdWithADouble("/gasmodels/heed/voltageanodewire");
+  voltageAnodeWiresCmd = new G4UIcmdWithADouble("/gasModelParameters/heed/voltageanodewire",this);
   voltageAnodeWiresCmd->SetGuidance("Set the voltage on the anode wire");
 
-  voltageCathodeWiresCmd = new G4UIcmdWithADouble("/gasmodels/heed/voltagecathodewire");
+  voltageCathodeWiresCmd = new G4UIcmdWithADouble("/gasModelParameters/heed/voltagecathodewire",this);
   voltageCathodeWiresCmd->SetGuidance("Set the voltage on the cathode wire");
 
-  voltageGateCmd = new G4UIcmdWithADouble("/gasmodels/heed/voltagegate");
+  voltageGateCmd = new G4UIcmdWithADouble("/gasModelParameters/heed/voltagegate",this);
   voltageGateCmd->SetGuidance("Set the voltage of the gate centroid value");
 
-  voltageDeltaGateCmd = new G4UIcmdWithADouble("/gasmodels/heed/voltagedeltagate");
+  voltageDeltaGateCmd = new G4UIcmdWithADouble("/gasModelParameters/heed/voltagedeltagate",this);
   voltageDeltaGateCmd->SetGuidance("Set the voltage difference of the gate wires with respect to the centroid: v + dv, v-dv");
 
   
@@ -133,8 +138,8 @@ GasModelsMessenger::GasModelsMessenger(GasModels* gm)
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-GasModelsMessenger::~GasModelsMessenger() {
-  delete GasModelsDir;
+GasModelParametersMessenger::~GasModelParametersMessenger() {
+  delete GasModelParametersDir;
   delete HeedDir;
   delete DegradDir;
   delete HeedOnlyDir;
@@ -163,7 +168,7 @@ GasModelsMessenger::~GasModelsMessenger() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void GasModelsMessenger::SetNewValue(G4UIcommand* command, G4String newValues) {
+void GasModelParametersMessenger::SetNewValue(G4UIcommand* command, G4String newValues) {
 	  if(command == addParticleDegradCmd)
 	  	AddParticleDegradCommand(newValues);
 	  else if(command == addParticleHeedInterfaceCmd)
@@ -171,84 +176,69 @@ void GasModelsMessenger::SetNewValue(G4UIcommand* command, G4String newValues) {
 	  else if(command == addParticleHeedOnlyCmd)
 	  	AddParticleHeedOnlyCommand(newValues);
 	  else if(command == gasFileCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetGasFile(newValues);
-	  	(fGasModels->GetHeedOnlyModel())->SetGasFile(newValues);
+	  	fGasModelParameters->SetGasFile(newValues);
 	  }
 	  else if(command == ionMobFileCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetIonMobilityFile(newValues);
-	  	(fGasModels->GetHeedOnlyModel())->SetIonMobilityFile(newValues);
+	  	fGasModelParameters->SetIonMobilityFile(newValues);
 	  }
 	  else if(command == driftElectronsCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetDriftElectrons(driftElectronsCmd->GetNewBoolValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetDriftElectrons(driftElectronsCmd->GetNewBoolValue(newValues));
+	  	fGasModelParameters->SetDriftElectrons(driftElectronsCmd->GetNewBoolValue(newValues));
 	  }
 	  else if(command == driftRKFCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetDriftRKF(driftRKFCmd->GetNewBoolValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetDriftRKF(driftRKFCmd->GetNewBoolValue(newValues));
+	  	fGasModelParameters->SetDriftRKF(driftRKFCmd->GetNewBoolValue(newValues));
 	  }
 	  else if(command == createAvalCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetCreateAvalancheMC(createAvalCmd->GetNewBoolValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetCreateAvalancheMC(createAvalCmd->GetNewBoolValue(newValues));
+	  	fGasModelParameters->SetCreateAvalancheMC(createAvalCmd->GetNewBoolValue(newValues));
 	  }
 	  else if(command == trackMicroCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetTrackMicroscopic(trackMicroCmd->GetNewBoolValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetTrackMicroscopic(trackMicroCmd->GetNewBoolValue(newValues));
+	  	fGasModelParameters->SetTrackMicroscopic(trackMicroCmd->GetNewBoolValue(newValues));
 	  }
 	  else if(command == visualizeChamberCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetVisualizeChamber(visualizeChamberCmd->GetNewBoolValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetVisualizeChamber(visualizeChamberCmd->GetNewBoolValue(newValues));
+	  	fGasModelParameters->SetVisualizeChamber(visualizeChamberCmd->GetNewBoolValue(newValues));
 	  }
 	  else if(command == visualizeSignalsCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetVisualizeSignals(visualizeSignalsCmd->GetNewBoolValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetVisualizeSignals(visualizeSignalsCmd->GetNewBoolValue(newValues));
+	  	fGasModelParameters->SetVisualizeSignals(visualizeSignalsCmd->GetNewBoolValue(newValues));
 	  }
 	  else if(command == visualizeFieldCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetVisualizeField(visualizeFieldCmd->GetNewBoolValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetVisualizeField(visualizeFieldCmd->GetNewBoolValue(newValues));
+	  	fGasModelParameters->SetVisualizeField(visualizeFieldCmd->GetNewBoolValue(newValues));
 	  }
 	  else if(command == voltagePlaneHVCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetVoltagePlaneHV(voltagePlaneHVCmd->GetNewDoubleValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetVoltagePlaneHV(voltagePlaneHVCmd->GetNewDoubleValue(newValues));
+	  	fGasModelParameters->SetVoltagePlaneHV(voltagePlaneHVCmd->GetNewDoubleValue(newValues));
 	  }
 	  else if(command == voltagePlaneLowCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetVoltagePlaneLow(voltagePlaneLowCmd->GetNewDoubleValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetVoltagePlaneLow(voltagePlaneLowCmd->GetNewDoubleValue(newValues));
+	  	fGasModelParameters->SetVoltagePlaneLow(voltagePlaneLowCmd->GetNewDoubleValue(newValues));
 	  }
 	  else if(command == voltageAnodeWiresCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetVoltageAnodeWires(voltageAnodeWiresCmd->GetNewDoubleValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetVoltageAnodeWires(voltageAnodeWiresCmd->GetNewDoubleValue(newValues));
+	  	fGasModelParameters->SetVoltageAnodeWires(voltageAnodeWiresCmd->GetNewDoubleValue(newValues));
 	  }
 	  else if(command == voltageCathodeWiresCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetVoltageCathodeWires(voltageCathodeWiresCmd->GetNewDoubleValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetVoltageCathodeWires(voltageCathodeWiresCmd->GetNewDoubleValue(newValues));
+	  	fGasModelParameters->SetVoltageCathodeWires(voltageCathodeWiresCmd->GetNewDoubleValue(newValues));
 	  }
 	  else if(command == voltageGateCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetVoltageGate(voltageGateCmd->GetNewDoubleValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetVoltageGate(voltageGateCmd->GetNewDoubleValue(newValues));
-	  }
+	  	fGasModelParameters->SetVoltageGate(voltageGateCmd->GetNewDoubleValue(newValues));
+      }
 	  else if(command == voltageDeltaGateCmd){
-	  	(fGasModels->GetHeedInterfaceModel())->SetVoltageDeltaGate(voltageDeltaGateCmd->GetNewDoubleValue(newValues));
-	  	(fGasModels->GetHeedOnlyModel())->SetVoltageDeltaGate(voltageDeltaGateCmd->GetNewDoubleValue(newValues));
+	  	fGasModelParameters->SetVoltageDeltaGate(voltageDeltaGateCmd->GetNewDoubleValue(newValues));
 	  }
 
 }
 
-void GasModelsMessenger::AddParticleDegradCommand(G4String newValues){
-	ConvertParameters();
-	(fGasModels->GetDegradModel())->AddParticleName(fParticleName,fEmin/keV,fEmax/keV);
+void GasModelParametersMessenger::AddParticleDegradCommand(G4String newValues){
+	ConvertParameters(newValues);
+	fGasModelParameters->AddParticleNameDegrad(fParticleName,fEmin/keV,fEmax/keV);
 }
 
-void GasModelsMessenger::AddParticleHeedInterfaceCommand(G4String newValues){
-	ConvertParameters();
-	(fGasModels->GetHeedInterfaceModel())->AddParticleName(fParticleName,fEmin/keV,fEmax/keV);
+void GasModelParametersMessenger::AddParticleHeedInterfaceCommand(G4String newValues){
+	ConvertParameters(newValues);
+	fGasModelParameters->AddParticleNameHeedInterface(fParticleName,fEmin/keV,fEmax/keV);
 }
 
-void GasModelsMessenger::AddParticleHeedOnlyCommand(G4String newValues){
-	ConvertParameters();
-	(fGasModels->GetHeedOnlyModel())->AddParticleName(fParticleName,fEmin/keV,fEmax/keV);
+void GasModelParametersMessenger::AddParticleHeedOnlyCommand(G4String newValues){
+	ConvertParameters(newValues);
+	fGasModelParameters->AddParticleNameHeedOnly(fParticleName,fEmin/keV,fEmax/keV);
 }
 
-void GasModels::ConvertParameters(G4String newValues){
+void GasModelParametersMessenger::ConvertParameters(G4String newValues){
 	G4Tokenizer next( newValues );
 	fParticleName = next();
 	G4String Semin = next();

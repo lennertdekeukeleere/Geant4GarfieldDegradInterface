@@ -10,26 +10,24 @@
 
 #include "G4ThreeVector.hh"
 #include "G4VFastSimulationModel.hh"
+#include "GasModelParameters.hh"
 
 class G4VPhysicalVolume;
 class DetectorConstruction;
 
-typedef std::pair<double, double> EnergyRange_keV;
-typedef std::multimap<const G4String, EnergyRange_keV> MapParticlesEnergy;
 
 class DegradModel : public G4VFastSimulationModel {
  public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  DegradModel(G4String, G4Region*,DetectorConstruction*);
+  DegradModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*);
   ~DegradModel();
 
 
   virtual G4bool IsApplicable(const G4ParticleDefinition&);
   virtual G4bool ModelTrigger(const G4FastTrack&);
   virtual void DoIt(const G4FastTrack&, G4FastStep&);
-  void AddParticleName(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
   
   
   /*The following public methods are user-dependent*/

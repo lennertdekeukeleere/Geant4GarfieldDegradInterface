@@ -9,13 +9,11 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4Electron.hh"
 #include "G4Gamma.hh"
-
 #include "G4SystemOfUnits.hh"
+#include "GasModelParameters.hh"
+#include "DetectorConstruction.hh"
 
-const static G4double torr = 1. / 760. * atmosphere;
-
-
-DegradModel::DegradModel(G4String modelName, G4Region* envelope, DetectorConstruction* dc)
+DegradModel::DegradModel(GasModelParameters* gmp, G4String modelName, G4Region* envelope,DetectorConstruction* dc)
     : G4VFastSimulationModel(modelName, envelope),detCon(dc)	{
       fMapParticlesEnergy = new MapParticlesEnergy();
     }
@@ -59,17 +57,6 @@ void DegradModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 
 }
 
-
-void DegradModel::AddParticleName(const G4String particleName,
-                                      double ekin_min_keV,
-                                      double ekin_max_keV) {
-  if (ekin_min_keV >= ekin_max_keV) {
-    return;
-  }
-  fMapParticlesEnergy->insert(
-      std::make_pair(particleName, std::make_pair(ekin_min_keV, ekin_max_keV)));
-  G4cout << "Particle added: " << ekin_min_keV << " " << ekin_max_keV << G4endl;    
-}
 
 G4bool DegradModel::FindParticleName(G4String name) {
   MapParticlesEnergy::iterator it;

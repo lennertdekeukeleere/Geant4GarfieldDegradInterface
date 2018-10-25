@@ -24,14 +24,12 @@
 #include "MediumMagboltz.hh"
 #include "TrackHeed.hh"
 #include "GeometrySimple.hh"
+#include "GasModelParameters.hh"
 
 
 class G4VPhysicalVolume;
 class DetectorConstruction;
 class HeedMessenger;
-
-typedef std::pair<double, double> EnergyRange_keV;
-typedef std::multimap<const G4String, EnergyRange_keV> MapParticlesEnergy;
 
 class HeedModel : public G4VFastSimulationModel {
  public:
@@ -45,7 +43,6 @@ class HeedModel : public G4VFastSimulationModel {
   virtual G4bool IsApplicable(const G4ParticleDefinition&);
   virtual G4bool ModelTrigger(const G4FastTrack&);
   virtual void DoIt(const G4FastTrack&, G4FastStep&);
-  void AddParticleName(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
   
   /*The following public methods are user-dependent*/
 
@@ -53,28 +50,6 @@ class HeedModel : public G4VFastSimulationModel {
   virtual void ProcessEvent() = 0;
   //This method is called at the beginning of an event to reset some variables of the class
   virtual void Reset() = 0;
-  
-  /*Getters and Setters*/
-
-  //Name of the Magboltz file to be used (if needed)
-  inline void SetGasFile(G4String s) { gasFile = s;};
-  //Name of the Ion mobility file (if needed)
-  inline void SetIonMobilityFile(G4String s) { ionMobFile = s; };
-  //Determines if the electrons are drifted, or only primary ionization is simulated
-  inline void SetDriftElectrons(G4bool b) { driftElectrons = b; };
-  inline bool GetDriftElectrons(){return driftElectrons;};
-  inline void SetVoltagePlaneHV(G4double v){vPlaneHV = v;};
-  inline void SetVoltagePlaneLow(G4double v){vPlaneLow = v;};
-  inline void SetVoltageAnodeWires(G4double v){vAnodeWires = v;};
-  inline void SetVoltageCathodeWires(G4double v){vCathodeWires = v;};
-  inline void SetVoltageGate(G4double v){vGate = v;};
-  inline void SetVoltageDeltaGate(G4double v){vDeltaGate = v;};
-  inline void SetTrackMicroscopic(bool b){trackMicro=b;};
-  inline void SetCreateAvalancheMC(bool b){createAval=b;};
-  inline void SetVisualizeChamber(bool b){fVisualizeChamber = b;};
-  inline void SetVisualizeSignals(bool b){fVisualizeSignal = b;};
-  inline void SetVisualizeField(bool b){fVisualizeField = b;};
-  inline void SetDriftRKF(bool b){driftRKF=b;};
 
  protected:
   void InitialisePhysics();

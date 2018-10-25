@@ -213,9 +213,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
 void DetectorConstruction::ConstructSDandField(){
   G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");
-  HeedOnlyModel* HOM = new HeedOnlyModel("HeedOnlyModel",region,this);
-  HeedInterfaceModel* HIM = new HeedInterfaceModel("HeedInterfaceModel",region,this);
-  DegradModel* DM = new DegradModel("DegradModel",region,this);
+  HeedOnlyModel* HOM = new HeedOnlyModel(fGasModelParameters,"HeedOnlyModel",region,this);
+  HeedInterfaceModel* HIM = new HeedInterfaceModel(fGasModelParameters,"HeedInterfaceModel",region,this);
+  DegradModel* DM = new DegradModel(fGasModelParameters,"DegradModel",region,this);
 
   G4SDManager* SDManager = G4SDManager::GetSDMpointer();
   G4String GasBoxSDname = "gasbox/myGasBoxSD";
