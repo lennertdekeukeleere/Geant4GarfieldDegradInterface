@@ -39,7 +39,7 @@
 #include "G4BraggIonGasModel.hh"
 #include "G4BetheBlochIonGasModel.hh"
 
-
+#include "PhysListEmStandard.hh"
 #include "G4FastSimulationManagerProcess.hh"
 #include "G4PAIPhotModel.hh"
 #include "G4PAIModel.hh"
