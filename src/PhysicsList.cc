@@ -39,7 +39,7 @@
 #include "G4BraggIonGasModel.hh"
 #include "G4BetheBlochIonGasModel.hh"
 
-#include "PhysListEmStandard.hh"
+
 #include "G4FastSimulationManagerProcess.hh"
 #include "G4PAIPhotModel.hh"
 #include "G4PAIModel.hh"
@@ -107,9 +107,7 @@ void PhysicsList::ReplacePhysicsList(const G4String& name) {
     G4cout << "PhysicsList::AddPhysicsList: <" << name << ">" << G4endl;
   }
 
-  if (name == "local") {
-    ReplacePhysics(new PhysListEmStandard(name));
-  } else if (name == "emstandard_opt0") {
+  if (name == "emstandard_opt0") {
     ReplacePhysics(new G4EmStandardPhysics(1));
   } else if (name == "emstandard_opt1") {
     ReplacePhysics(new G4EmStandardPhysics_option1());

@@ -44,7 +44,7 @@ class DegradModel : public G4VFastSimulationModel {
  private:
   void InitialisePhysics();
   void Run(G4String particleName, double ekin_keV, double t, double x_cm,
-            double y_cm, double z_cm, double dx, double dy, double dz);
+           double y_cm, double z_cm, double dx, double dy, double dz){};
   G4bool FindParticleName(G4String name);
   G4bool FindParticleNameEnergy(G4String name,double ekin_keV);
   DetectorConstruction* detCon;
