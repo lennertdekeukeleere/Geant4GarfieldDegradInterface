@@ -107,7 +107,9 @@ void PhysicsList::ReplacePhysicsList(const G4String& name) {
     G4cout << "PhysicsList::AddPhysicsList: <" << name << ">" << G4endl;
   }
 
-  if (name == "emstandard_opt0") {
+  if (name == "local") {
+        ReplacePhysics(new PhysListEmStandard(name));
+  } else if (name == "emstandard_opt0") {
     ReplacePhysics(new G4EmStandardPhysics(1));
   } else if (name == "emstandard_opt1") {
     ReplacePhysics(new G4EmStandardPhysics_option1());
