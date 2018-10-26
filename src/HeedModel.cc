@@ -169,7 +169,7 @@ void HeedModel::BuildCompField(){
     comp = new Garfield::ComponentAnalyticField();
     comp->SetGeometry(geo);
     
-  
+    
   
 }
 

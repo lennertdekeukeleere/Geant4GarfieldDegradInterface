@@ -28,7 +28,7 @@ DetectorConstruction::DetectorConstruction()
     gasboxH (2.5*m), // length of the tube
     wallThickness(0.05*m), //thickness of the aluminum walls
     caloThickness(1.*mm), // thickness of the silicon detectors
-    gasPressure(0.6*bar),
+    gasPressure(1.*bar),
     temperature(273.15*kelvin),
     gasName("HeIso")
 {

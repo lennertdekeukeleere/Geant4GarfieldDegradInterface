@@ -70,7 +70,6 @@
 #include "G4EmModelActivator.hh"
 
 #include "G4FastSimulationManagerProcess.hh"
-#include "GarfieldPhysics.hh"
 
 #ifdef theParticleIterator
 #undef theParticleIterator
