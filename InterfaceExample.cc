@@ -24,9 +24,8 @@ https://svs.icts.kuleuven.be/projects/svs_project014/wiki/Wiki
 
 #include "DetectorConstruction.hh"
 #include "PhysicsList.hh"
-#include "RunAction.hh"
-#include "EventAction.hh"
 #include "MyUserActionInitialization.hh"
+#include "GasModelParameters.hh"
 
 int main(int argc, char** argv) {
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
@@ -47,12 +46,14 @@ int main(int argc, char** argv) {
   G4cout << "Creation of DetectorConstruction" << G4endl;
   DetectorConstruction* detector = new DetectorConstruction();
   runManager->SetUserInitialization(detector);
+
+  GasModelParameters* gmp = new GasModelParameters(detector);
   
   G4cout << "Creation of PhysicsList" << G4endl;
-  PhysicsList* physics = new PhysicsList();
+  PhysicsList* physics = new PhysicsList(gmp);
   runManager->SetUserInitialization(physics);
   
-  runManager->SetUserInitialization(new MyUserActionInitialization(detector,physics));
+  runManager->SetUserInitialization(new MyUserActionInitialization());
  
    // get the pointer to the User Interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();

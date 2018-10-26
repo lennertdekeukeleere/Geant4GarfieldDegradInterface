@@ -1,9 +1,5 @@
 #include "PhysicsList.hh"
 #include "PhysicsListMessenger.hh"
-#include "PhysListEmStandard.hh"
-#include "PhysListEmStandardSS.hh"   //single scattering model
-#include "PhysListEmStandardGS.hh"   //Goudsmit-Saunderson
-#include "PhysListEmStandardWVI.hh"  //Wentzel-VI MSC model
 
 #include "G4EmStandardPhysics.hh"
 #include "G4EmStandardPhysics_option1.hh"
@@ -43,8 +39,8 @@
 #include "G4BraggIonGasModel.hh"
 #include "G4BetheBlochIonGasModel.hh"
 
+#include "PhysListEmStandard.hh"
 #include "G4FastSimulationManagerProcess.hh"
-#include "GarfieldPhysics.hh"
 #include "G4PAIPhotModel.hh"
 #include "G4PAIModel.hh"
 
@@ -59,14 +55,16 @@
 #include "G4MesonConstructor.hh"
 #include "G4BosonConstructor.hh"
 
+#include "GasModelParameters.hh"
+
 #ifdef theParticleIterator
 #undef theParticleIterator
 #endif
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PhysicsList::PhysicsList(GarfieldPhysics* gp)
-    : G4VModularPhysicsList(), garfieldPhysics(gp), lowE(10.* eV) {
+PhysicsList::PhysicsList(GasModelParameters* gmp)
+    : G4VModularPhysicsList(), lowE(10.* eV), fGasModelParameters(gmp) {
   G4LossTableManager::Instance();
   defaultCutValue = 10. * um;
   cutForGamma = defaultCutValue;
@@ -90,15 +88,6 @@ PhysicsList::PhysicsList(GarfieldPhysics* gp)
 
   RegisterPhysics(new G4StepLimiterPhysics());
 
-  G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
-  RegisterPhysics( opticalPhysics );
-  
-
-  opticalPhysics->SetScintillationYieldFactor(0.005);
-  opticalPhysics->SetScintillationExcitationRatio(0.);
-
-  opticalPhysics->SetTrackSecondariesFirst(kCerenkov,true);
-  opticalPhysics->SetTrackSecondariesFirst(kScintillation,true);
   
 }
 
@@ -111,20 +100,6 @@ PhysicsList::~PhysicsList() {
 
 
 
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-/*void PhysicsList::ConstructProcess() {
-
-  if (garfieldPhysics->GetCreateSecondaries()) AddParametrisation();
-
-  G4ProcessManager* pmanager = G4Electron::Electron()->GetProcessManager();
-  pmanager->AddDiscreteProcess(new G4StepLimiter);
-
-}*/
-
-
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PhysicsList::ReplacePhysicsList(const G4String& name) {
@@ -133,7 +108,7 @@ void PhysicsList::ReplacePhysicsList(const G4String& name) {
   }
 
   if (name == "local") {
-    ReplacePhysics(new PhysListEmStandard(name,garfieldPhysics));
+        ReplacePhysics(new PhysListEmStandard(name));
   } else if (name == "emstandard_opt0") {
     ReplacePhysics(new G4EmStandardPhysics(1));
   } else if (name == "emstandard_opt1") {
@@ -142,12 +117,6 @@ void PhysicsList::ReplacePhysicsList(const G4String& name) {
     ReplacePhysics(new G4EmStandardPhysics_option2());
   } else if (name == "emstandard_opt3") {
     ReplacePhysics(new G4EmStandardPhysics_option3());
-  } else if (name == "standardSS") {
-    ReplacePhysics(new PhysListEmStandardSS(name,garfieldPhysics));
-  } else if (name == "standardWVI") {
-    ReplacePhysics(new PhysListEmStandardWVI(name,garfieldPhysics));
-  } else if (name == "standardGS") {
-    ReplacePhysics(new PhysListEmStandardGS(name,garfieldPhysics));
   } else if (name == "emlivermore") {
     ReplacePhysics(new G4EmLivermorePhysics());
   } else if (name == "empenelope") {
@@ -159,7 +128,8 @@ void PhysicsList::ReplacePhysicsList(const G4String& name) {
     G4cout << "PhysicsList::AddPhysicsList: <" << name << ">"
            << " is not defined" << G4endl;
     ReplacePhysics(new G4EmStandardPhysics(1));
-  } 
+  }
+  AddParametrisation();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -174,11 +144,10 @@ void PhysicsList::SetCuts() {
   SetCutValue(cutForGamma, "gamma");
   SetCutValue(cutForElectron, "e-");
   SetCutValue(cutForPositron, "e+");
+  if(!(fGasModelParameters->NoParticlesForModel()))
+      G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(lowE, 100. * MeV);
   
-  if (garfieldPhysics->GetCreateSecondaries())
-	G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(lowE, 100. * MeV);
-  
-  G4Region* region = G4RegionStore::GetInstance()->GetRegion("RegionGarfield");
+  G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");
   G4ProductionCuts* cuts = new G4ProductionCuts();
   cuts->SetProductionCut(1 * um, G4ProductionCuts::GetIndex("gamma"));
   cuts->SetProductionCut(1 * um, G4ProductionCuts::GetIndex("e-"));
@@ -235,6 +204,19 @@ void PhysicsList::AddIonGasModels() {
   }
 }
 
+void PhysicsList::AddParametrisation() {
+    G4FastSimulationManagerProcess* fastSimProcess_garfield =
+    new G4FastSimulationManagerProcess("G4FSMP_gasmodel");
+    
+    theParticleTable->GetIterator()->reset();
+    while ((*theParticleTable->GetIterator())()) {
+        G4ParticleDefinition* particle = theParticleTable->GetIterator()->value();
+        G4ProcessManager* pmanager = particle->GetProcessManager();
+        if (fGasModelParameters->FindParticleName(particle->GetParticleName())) {
+            pmanager->AddDiscreteProcess(fastSimProcess_garfield);
+        }
+    }
+}
 
 
 

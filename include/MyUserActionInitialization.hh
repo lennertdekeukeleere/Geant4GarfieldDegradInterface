@@ -8,15 +8,13 @@ class PhysicsList;
 
 class MyUserActionInitialization : public G4VUserActionInitialization{
 	public:
-	MyUserActionInitialization(DetectorConstruction* dc, PhysicsList* phys);
+	MyUserActionInitialization();
 	~MyUserActionInitialization();
 	
 	void Build() const;
 	void BuildForMaster() const;
 	
 	private:
-	DetectorConstruction* detCon;
-	PhysicsList* physics;
 	
 };
 

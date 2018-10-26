@@ -27,7 +27,7 @@
 #include "G4UnionSolid.hh"
 #include "G4Region.hh"
 #include "G4Orb.hh"
-
+#include "GasModelParameters.hh"
 
 
 
@@ -35,6 +35,7 @@ class G4VSolid;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
 class G4UniformMagField;
+
 
 using namespace std;
 /*! \class  DetectorConstruction*/
@@ -68,11 +69,14 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   inline G4double GetCaloThickness(){return caloThickness;};
   inline G4double GetGasPressure(){return gasPressure;};
   inline G4double GetTemperature(){return temperature;};
+    inline G4double GetAddmixturePercentage(){return addmixturePercentage;};
   inline G4String GetGasName(){return gasName;};
-
+  inline void SetGasModelParameters(GasModelParameters * const & gm){fGasModelParameters=gm;}
   
  private:
   DetectorMessenger* detectorMessenger;
+  G4LogicalVolume* logicGasBox;
+  GasModelParameters* fGasModelParameters;
   G4bool checkOverlaps; // Check overlaps in the detector geometry if true
   G4double worldHalfLength; //World volume is a cube with side length = 2m;
   G4double gasboxR; // radius of tube filled with gas

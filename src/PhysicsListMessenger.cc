@@ -1,6 +1,6 @@
 #include "PhysicsListMessenger.hh"
 #include "PhysicsList.hh"
-#include "MySpectrumGenerator.hh"
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

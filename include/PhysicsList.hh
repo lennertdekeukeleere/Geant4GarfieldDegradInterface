@@ -9,12 +9,13 @@
 class G4VPhysicsConstructor;
 class PhysicsListMessenger;
 class DetectorConstruction;
+class GasModelParameters;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class PhysicsList : public G4VModularPhysicsList {
  public:
-  PhysicsList();
+  PhysicsList(GasModelParameters*);
   virtual ~PhysicsList();
 
   void SetCuts();
@@ -29,6 +30,7 @@ class PhysicsList : public G4VModularPhysicsList {
 
  private:
   void AddIonGasModels();
+  void AddParametrisation();
 
   G4double cutForGamma;
   G4double cutForElectron;
@@ -36,6 +38,7 @@ class PhysicsList : public G4VModularPhysicsList {
   G4double lowE;
 
   PhysicsListMessenger* pMessenger;
+  GasModelParameters* fGasModelParameters;
 
 };
 

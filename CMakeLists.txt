@@ -44,19 +44,6 @@ link_directories($ENV{GARFIELD_LIB})
 #--------------------------------------------------------------------------
 #Create a shared library with the generated dictionary
 
-
-
-
-#---------------------------------------------------------------------------
-# Find CADMESH (required package)
-#
-find_package(cadmesh)
-if(NOT cadmesh_FOUND)
-  message(STATUS "InterfaceExample: CADMesh library not found. --> InterfaceExample disabled")
-  return()
-endif()
-include_directories(${CADMESH_INCLUDE_DIRS})
-
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
@@ -69,9 +56,9 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 and GARFIELD++ libraries
 #
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 add_executable(InterfaceExample InterfaceExample.cc ${sources} ${headers})
-
+target_link_libraries(InterfaceExample -lGarfield -lgfortran ${ROOT_LIBRARIES} ${Geant4_LIBRARIES})
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build B1. This is so that we can run the executable directly because it
