@@ -34,24 +34,6 @@ GasModelParametersMessenger::GasModelParametersMessenger(GasModelParameters* gm)
   DegradDir = new G4UIdirectory("/gasModelParameters/degrad/");
   HeedDir->SetGuidance("Degrad specific controls");
 
-  addParticleDegradCmd = new G4UIcommand("/gasModelParameters/degrad/addparticle",this);
-  addParticleDegradCmd->SetGuidance("Set properties of the particle to be included");
-  addParticleDegradCmd->SetGuidance("[usage] /gasModelParameters/degrad/addparticle P Emin Emax");
-  addParticleDegradCmd->SetGuidance("        P:(String) particle name (e-, e+, p, mu+, mu-, mu, pi,...");
-  addParticleDegradCmd->SetGuidance("        Emin:(double) Minimum energy for the model to be activated");
-  addParticleDegradCmd->SetGuidance("        Emax:(double Maximum energy for the model to be activated");
-
-  G4UIparameter* paramD;
-  paramD = new G4UIparameter("P",'s',false);
-  paramD->SetDefaultValue("e-");
-  addParticleDegradCmd->SetParameter(paramD);
-  paramD = new G4UIparameter("Emin",'d',true);
-  paramD->SetDefaultValue("0.001");
-  addParticleDegradCmd->SetParameter(paramD);
-  paramD = new G4UIparameter("Emax",'d',true);
-  paramD->SetDefaultValue("1000.");
-  addParticleDegradCmd->SetParameter(paramD);
-
   addParticleHeedInterfaceCmd = new G4UIcommand("/gasModelParameters/heed/heedinterface/addparticle",this);
   addParticleHeedInterfaceCmd->SetGuidance("Set properties of the particle to be included");
   addParticleHeedInterfaceCmd->SetGuidance("[usage] /gasModelParameters/heedinterface/addparticle P Emin Emax");
@@ -133,7 +115,8 @@ GasModelParametersMessenger::GasModelParametersMessenger(GasModelParameters* gm)
   voltageDeltaGateCmd = new G4UIcmdWithADouble("/gasModelParameters/heed/voltagedeltagate",this);
   voltageDeltaGateCmd->SetGuidance("Set the voltage difference of the gate wires with respect to the centroid: v + dv, v-dv");
 
-  
+  thermalEnergyCmd = new G4UIcmdWithADoubleAndUnit("/gasModelParameters/degrad/thermalenergy",this);
+  thermalEnergyCmd->SetGuidance("Set the thermal energy to be used by degrad");
   
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -145,7 +128,6 @@ GasModelParametersMessenger::~GasModelParametersMessenger() {
   delete HeedOnlyDir;
   delete HeedInterfaceDir;
 
-  delete addParticleDegradCmd;
   delete addParticleHeedInterfaceCmd;
   delete addParticleHeedOnlyCmd;
   delete gasFileCmd;
@@ -163,15 +145,14 @@ GasModelParametersMessenger::~GasModelParametersMessenger() {
   delete voltageCathodeWiresCmd;
   delete voltageGateCmd;
   delete voltageDeltaGateCmd;
+  delete thermalEnergyCmd;
 
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void GasModelParametersMessenger::SetNewValue(G4UIcommand* command, G4String newValues) {
-	  if(command == addParticleDegradCmd)
-	  	AddParticleDegradCommand(newValues);
-	  else if(command == addParticleHeedInterfaceCmd)
+	  if(command == addParticleHeedInterfaceCmd)
 	  	AddParticleHeedInterfaceCommand(newValues);
 	  else if(command == addParticleHeedOnlyCmd)
 	  	AddParticleHeedOnlyCommand(newValues);
@@ -220,12 +201,10 @@ void GasModelParametersMessenger::SetNewValue(G4UIcommand* command, G4String new
 	  else if(command == voltageDeltaGateCmd){
 	  	fGasModelParameters->SetVoltageDeltaGate(voltageDeltaGateCmd->GetNewDoubleValue(newValues));
 	  }
+    else if(command == thermalEnergyCmd){
+      fGasModelParameters->SetThermalEnergy(thermalEnergyCmd->GetNewDoubleValue(newValues));
+    }
 
-}
-
-void GasModelParametersMessenger::AddParticleDegradCommand(G4String newValues){
-	ConvertParameters(newValues);
-	fGasModelParameters->AddParticleNameDegrad(fParticleName,fEmin/keV,fEmax/keV);
 }
 
 void GasModelParametersMessenger::AddParticleHeedInterfaceCommand(G4String newValues){

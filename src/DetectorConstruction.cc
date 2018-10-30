@@ -24,13 +24,11 @@
 DetectorConstruction::DetectorConstruction()
     : checkOverlaps(0),
     worldHalfLength(3.*m), //World volume is a cube with side length = 3m;
-    gasboxR(0.25*m), // radius of tube filled with gas
-    gasboxH (2.5*m), // length of the tube
     wallThickness(0.05*m), //thickness of the aluminum walls
     caloThickness(1.*mm), // thickness of the silicon detectors
     gasPressure(1.*bar),
     temperature(273.15*kelvin),
-    setup("TPC")
+    setup("TPC"),
 {
   detectorMessenger = new DetectorMessenger(this);
 
@@ -51,6 +49,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   G4VisAttributes* green = new G4VisAttributes(G4Colour(0., 1., 0.));
   G4VisAttributes* blue = new G4VisAttributes(G4Colour(0., 0., 1.));
   G4VisAttributes* yellow = new G4VisAttributes(G4Colour(1.0, 1.0, 0.));
+  G4VisAttributes* purple = new G4VisAttributes(G4Colour(1.0, 0., 1.0));
 
   /*First: build materials
     World: vacuum
@@ -71,6 +70,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   G4VPhysicalVolume* physiWorld = NULL;
     
   if(setup == "TPC"){
+      gasboxR = 0.25*m;
+      gasboxH = 2.5*m;
+
       G4Element* elC = man->FindOrBuildElement("C");
       G4Element* elO = man->FindOrBuildElement("O");
       G4Element* elN = man->FindOrBuildElement("N");
@@ -167,6 +169,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                         "solidWall1_phys",logicWorld,false,0,checkOverlaps);
       new G4PVPlacement(myRotation,G4ThreeVector(0,-(gasboxH+wallThickness)/2.,0), logicWall2,
                         "solidWall2_phys",logicWorld,false,0,checkOverlaps);
+
+      logicGasBox->SetVisAttributes(green);
+      logicWall1->SetVisAttributes(red);
+      logicWall2->SetVisAttributes(blue);
+      logicCalo->SetVisAttributes(yellow);
       
       
   }
@@ -180,13 +187,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       G4Material* ceramic=man->FindOrBuildMaterial("ceramic");  //MACOR
       G4Material* CsIPhotocathode= man->FindOrBuildMaterial("G4_CESIUM_IODIDE");
       
+
+      gasboxR = 3.5*cm;
+      gasboxH = 25.*mm;
+
       G4double halfColimatorLength=0.2*cm;
       G4double rIntColimator=1.0*mm;
       G4double rIntColimator2=3.75*mm;
       G4double rExtColimator=5.*cm;
-      G4double detectorRadius=3.5*cm;
-      G4double vesselExtRadius=detectorRadius+0.5*cm;
-      G4double detectorHalfY=12.5*mm;
+      G4double vesselExtRadius=gasboxR+0.5*cm;
       //detectorHalfZ=5*cm;
       G4double pmtHalfLength=0.5*cm;
       G4double photoCathodeHalfLength=10.*um;
@@ -271,12 +280,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       
       
       
-      G4VSolid* detectorSolid=new  G4Tubs("detectorBox",0,detectorRadius,detectorHalfY,0.,twopi);
+      G4VSolid* detectorSolid=new  G4Tubs("detectorBox",0,gasboxR,gasboxH*0.5,0.,twopi);
       
       ////Place Detector in world
       logicGasBox = new G4LogicalVolume(detectorSolid,Xenon,"detectorLogical");
       
-      G4ThreeVector position3 = G4ThreeVector(0.,detectorHalfY,0.*mm);
+      G4ThreeVector position3 = G4ThreeVector(0.,gasboxH*0.5,0.*mm);
       G4Transform3D transform3 = G4Transform3D(rotm,position3);
       
       G4VPhysicalVolume* detectorPhysical=    new G4PVPlacement(transform3,             //rotation and position
@@ -291,7 +300,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       //Macor
       
       
-      G4VSolid* macorSolid=new  G4Tubs("macorTube",detectorRadius,rExtColimator,macorHalfY,0.,twopi);
+      G4VSolid* macorSolid=new  G4Tubs("macorTube",gasboxR,rExtColimator,macorHalfY,0.,twopi);
       
       ////Place macor in world
       G4LogicalVolume* macorLogical = new G4LogicalVolume(macorSolid,ceramic,"macorLogical");
@@ -313,7 +322,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       
       
       //MAke pmtLogical mother and photocathode daugther
-      G4ThreeVector positionPMT = G4ThreeVector(0.,pmtHalfLength+2*detectorHalfY,0.*mm);
+      G4ThreeVector positionPMT = G4ThreeVector(0.,pmtHalfLength+2*gasboxH*0.5,0.*mm);
       
       
       G4Transform3D transformPMT = G4Transform3D(rotm,positionPMT);
@@ -335,75 +344,20 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       
       G4LogicalBorderSurface* XenonGlass = new G4LogicalBorderSurface("XenonGlass",detectorPhysical,pmtPhysical,opXenon_Glass);
       
-      
-      ////GLASS-PHOTOCATHODE
-      
-      //G4OpticalSurface* opPMT=    new G4OpticalSurface("opPMT",glisur,polished,dielectric_metal);
-      
-      //G4MaterialPropertiesTable *photoMPT=fMaterials->GetPhotoMPT();
-      //opPMT->SetMaterialPropertiesTable(photoMPT);
-      
-      //////**Create logical skin surfaces
-      //G4LogicalSkinSurface *pmtSkinSurf=new G4LogicalSkinSurface("PhotocathodeSurface",photocathodeLogical,opPMT);
-      
-      
-      
       //    // visualization attributes ------------------------------------------------
       
-      G4VisAttributes* visAttributes = new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-      visAttributes->SetVisibility(true);
-      worldLogical->SetVisAttributes(visAttributes);
-      fVisAttributes.push_back(visAttributes);
-      
-      visAttributes = new G4VisAttributes(G4Colour(1.0,0.0,1.0));
-      visAttributes->SetVisibility(true);
-      collimatorLogical->SetVisAttributes(visAttributes);
-      fVisAttributes.push_back(visAttributes);
-      
-      
-      visAttributes = new G4VisAttributes(G4Colour(0.5,0.5,1.0));
-      visAttributes->SetVisibility(true);
-      collimatorLogical2->SetVisAttributes(visAttributes);
-      fVisAttributes.push_back(visAttributes);
-      
-      visAttributes = new G4VisAttributes(G4Colour(1.0,1.0,0.0));
-      visAttributes->SetVisibility(true);
-      detectorLogical->SetVisAttributes(visAttributes);
-      fVisAttributes.push_back(visAttributes);
-      
-      visAttributes = new G4VisAttributes(G4Colour(0.0,1.0,1.0));
-      visAttributes->SetVisibility(true);
-      pmtLogical->SetVisAttributes(visAttributes);
-      fVisAttributes.push_back(visAttributes);
-      
-      visAttributes = new G4VisAttributes(G4Colour(0.5,1.0,0.0));
-      visAttributes->SetVisibility(true);
-      windowLogical->SetVisAttributes(visAttributes);
-      fVisAttributes.push_back(visAttributes);
-      
-      //visAttributes = new G4VisAttributes(G4Colour(0.0,0.5,0.0));
-      //visAttributes->SetVisibility(true);
-      //photocathodeLogical->SetVisAttributes(visAttributes);
-      //fVisAttributes.push_back(visAttributes);
-      
-      
-      
-      
-      
-      // return the world physical volume ----------------------------------------
-      
-      return worldPhysical;
+      worldLogical->->SetVisAttributes(G4VisAttributes::Invisible);
+      collimatorLogical->SetVisAttributes(red);
+      collimatorLogical2->SetVisAttributes(green);
+      logicGasBox->SetVisAttributes(blue);
+      pmtLogical->SetVisAttributes(yellow);
+      windowLogical->SetVisAttributes(purple);
   }
 
 
   //Construct a G4Region, connected to the logical volume in which you want to use the G4FastSimulationModel
   G4Region* regionGas = new G4Region("GasRegion");
   regionGas->AddRootLogicalVolume(logicGasBox);
-
-  logicGasBox->SetVisAttributes(green);
-  logicWall1->SetVisAttributes(red);
-  logicWall2->SetVisAttributes(blue);
-  logicCalo->SetVisAttributes(yellow);
     
   return physiWorld;
 

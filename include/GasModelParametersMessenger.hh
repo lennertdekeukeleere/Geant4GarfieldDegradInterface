@@ -27,7 +27,6 @@ class GasModelParametersMessenger : public G4UImessenger {
 
  private:
 
-  void AddParticleDegradCommand(G4String newValues);
   void AddParticleHeedInterfaceCommand(G4String newValues);
   void AddParticleHeedOnlyCommand(G4String newValues);
   void ConvertParameters(G4String newValues);
@@ -57,6 +56,7 @@ class GasModelParametersMessenger : public G4UImessenger {
   G4UIcmdWithADouble* voltageCathodeWiresCmd;
   G4UIcmdWithADouble* voltageGateCmd;
   G4UIcmdWithADouble* voltageDeltaGateCmd;
+  G4UIcmdWithADoubleAndUnit* thermalEnergyCmd;
 
   G4String fParticleName;
   G4double fEmin;

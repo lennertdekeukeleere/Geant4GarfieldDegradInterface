@@ -22,11 +22,14 @@ class GasModelParameters{
 	~GasModelParameters();
     
     
-    void AddParticleNameDegrad(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
+    
     void AddParticleNameHeedOnly(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
     void AddParticleNameHeedInterface(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
-    /*Getters and Setters*/
     
+    
+    /*Getters and Setters*/
+    inline void SetThermalEnergy(G4double d){thermalE=d;}
+    inline G4double GetThermalEnergy(){return thermalE;};
     //Name of the Magboltz file to be used (if needed)
     inline void SetGasFile(G4String s) { gasFile = s;};
     //Name of the Ion mobility file (if needed)
@@ -61,15 +64,13 @@ class GasModelParameters{
     G4bool NoParticlesForModel();
     G4bool FindParticleName(G4String);
     
-    inline MapParticlesEnergy GetParticleNamesDegrad(){return fMapParticlesEnergyDegrad;};
     inline MapParticlesEnergy GetParticleNamesHeedOnly(){return fMapParticlesEnergyHeedOnly;};
     inline MapParticlesEnergy GetParticleNamesHeedInterface(){return fMapParticlesEnergyHeedInterface;};
 
 	
 	private:
 	GasModelParametersMessenger* fMessenger;
-    
-    MapParticlesEnergy fMapParticlesEnergyDegrad;
+
     MapParticlesEnergy fMapParticlesEnergyHeedOnly;
     MapParticlesEnergy fMapParticlesEnergyHeedInterface;
     
@@ -90,6 +91,8 @@ class GasModelParameters{
     double vCathodeWires;
     double vGate;
     double vDeltaGate;
+
+    G4double thermalE;
 	
     
     

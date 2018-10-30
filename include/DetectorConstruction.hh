@@ -70,8 +70,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   inline G4double GetTemperature(){return temperature;};
   inline G4String GetGasName(){return setup;};
   inline void SetGasModelParameters(GasModelParameters * const & gm){fGasModelParameters=gm;}
-    inline G4double GetNeonPercentage(){return neonPercentage;};
-    inline G4double GetCO2Percentage(){return co2Percentage;};
+  inline G4double GetNeonPercentage(){return neonPercentage;};
+  inline G4double GetCO2Percentage(){return co2Percentage;};
     
   
  private:
@@ -90,6 +90,5 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
   G4double addmixturePercentage;
   G4double neonPercentage;
   G4double co2Percentage;
-  
 };
 #endif

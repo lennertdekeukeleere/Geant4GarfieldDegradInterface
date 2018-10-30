@@ -29,29 +29,13 @@ class DegradModel : public G4VFastSimulationModel {
   virtual G4bool ModelTrigger(const G4FastTrack&);
   virtual void DoIt(const G4FastTrack&, G4FastStep&);
   
-  
-  /*The following public methods are user-dependent*/
-
-  //This method is called after each event, to record the relevant data
-  void ProcessEvent();
-  //This method is called at the beginning of an event to reset some variables of the class
-  void Reset();
-  
-  /*Getters and Setters*/
-
-  
+  void GetElectronsFromDegrad(const G4FastTrack& fastTrack, G4FastStep& fastStep,G4ThreeVector degradPos,G4double degradTime);
+  G4ThreeVector degradPos;
+  G4double degradTime;
+ 
 
  private:
-  void InitialisePhysics();
-  void Run(G4String particleName, double ekin_keV, double t, double x_cm,
-           double y_cm, double z_cm, double dx, double dy, double dz){};
-  G4bool FindParticleName(G4String name);
-  G4bool FindParticleNameEnergy(G4String name,double ekin_keV);
-  DetectorConstruction* detCon;
-
-  MapParticlesEnergy* fMapParticlesEnergy;
-  
-  /*The following private methods and variables are user-dependent*/
+  G4double thermalE;
 
   
   

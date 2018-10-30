@@ -1,0 +1,218 @@
+#include "G4Electron.hh"
+#include "G4SystemOfUnits.hh"
+#include "garfieldModel.hh"
+#include "G4Region.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4UnitsTable.hh"
+#include "G4Track.hh"
+#include "Randomize.hh"
+#include "G4UIcommand.hh"
+#include <fstream>
+#include "G4TransportationManager.hh"
+#include "G4DynamicParticle.hh"
+#include "G4RandomDirection.hh"
+#include "globals.hh"
+#include "MediumMagboltz.hh"
+#include "GeometrySimple.hh"
+#include "ComponentConstant.hh"
+#include "Sensor.hh"
+#include "AvalancheMicroscopic.hh"
+#include "Medium.hh"
+#include "SolidTube.hh"
+#include "G4OpticalPhoton.hh"
+#include "garfExcHit.hh"
+#include "GasModelParameters.hh"
+#include "DetectorConstruction.hh"
+
+
+const static G4double torr = 1. / 760. * atmosphere;
+
+garfieldModel::garfieldModel(GasModelParameters* gmp, G4String modelName,G4Region* envelope,DetectorConstruction* dc) :
+		G4VFastSimulationModel(modelName, envelope),detCon(dc) {
+	thermalE=gmp->GetThermalEnergy();
+
+}
+
+G4bool garfieldModel::IsApplicable(const G4ParticleDefinition& particleType) {	
+	if (particleType.GetParticleName()=="e-")
+		return true;
+  	return false;
+		
+		
+}
+
+G4bool garfieldModel::ModelTrigger(const G4FastTrack& fastTrack){
+  G4double ekin = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+  if (ekin<thermalE)
+		return true;
+  return false;
+
+} 
+	
+void garfieldModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) 
+	{
+		
+		//G4cout<<"HELLO Garfield"<<G4endl;
+		////The details of the Garfield model are implemented here
+		 fastStep.KillPrimaryTrack();//KILL DEGRAD TRACKS
+		 garfPos =fastTrack.GetPrimaryTrack()->GetVertexPosition();
+		 garfTime = fastTrack.GetPrimaryTrack()->GetGlobalTime();
+		 //G4cout<<"GLOBAL TIME "<<G4BestUnit(garfTime,"Time")<<" POSITION "<<G4BestUnit(garfPos,"Length")<<G4endl;
+
+	
+	GenerateVUVPhotons(fastTrack,fastStep,garfPos,garfTime);
+		
+
+	}
+	
+//NOTA: DEFINIDA FORA DA CLASSE PARA SER "GLOBAL"
+garfExcHitsCollection *garfExcHitsCol;
+
+void garfieldModel::GenerateVUVPhotons(const G4FastTrack& fastTrack, G4FastStep& fastStep,G4ThreeVector garfPos,G4double garfTime)
+	{
+		G4cout<<"\nPLEASE CHECK IF GARFIELD WAS COMPILED WITH ROOT-6.08.06"<<G4endl;
+	system ("echo $ROOTSYS");
+	
+		//in order to clear the collection for each electron
+	garfExcHitsCol=new garfExcHitsCollection();
+	
+	G4double temp=293.15; //temperature [K];
+	G4double pressure=900; //pressurer [Torr];
+	//G4cout<<"HelloGarfield: "<<position<<G4endl;
+	// Make a gas medium
+	Garfield::MediumMagboltz* gas = new Garfield::MediumMagboltz();
+	// Set the temperature and pressure
+	gas->SetTemperature(temp);
+	gas->SetPressure(pressure);
+	gas->SetComposition("Xe", 100.);			
+	
+	Garfield::GeometrySimple* geo = new Garfield::GeometrySimple();
+  // Make a box
+  G4double detectorRadius=5.;//cm
+	G4double detectorHalfZ=0.1;//cm
+	
+  Garfield::SolidTube* tube = new Garfield::SolidTube(0.0, detectorHalfZ,0.,0.0, detectorRadius,detectorHalfZ,0.,1.,0.);//Tube oriented in Y'axis (0.,1.,0.,)
+  
+  // Add the solid to the geometry, together with the medium inside
+  geo->AddSolid(tube, gas);
+
+  // Make a component with analytic electric field
+  Garfield::ComponentConstant* componentConstant = new Garfield::ComponentConstant();
+  componentConstant->SetGeometry(geo);
+  //SetElectricField(const double ex, const double ey, const double ez);
+	componentConstant->SetElectricField(0.,-3000.0,0.);
+    
+  
+  // Make a sensor
+  Garfield::Sensor* sensor = new Garfield::Sensor();
+  sensor->AddComponent(componentConstant);
+
+	Garfield::AvalancheMicroscopic * aval = new Garfield::AvalancheMicroscopic();
+
+
+	aval->SetUserHandleInelastic(userHandle);
+			
+	aval->SetSensor(sensor);
+	
+	G4double x0=garfPos.getX()*0.1;//Garfield length units are in cm
+	G4double y0=garfPos.getY()*0.1;
+	G4double z0=garfPos.getZ()*0.1;
+	G4double t0=garfTime;
+	G4double e0=7.;// starting energy [eV]->I have chose 7 eV because is the energy cut in Degrad
+	
+
+	
+	aval->AvalancheElectron(x0,y0,z0,t0, e0, 0., 0., 0.);
+
+	G4int nElastic, nIonising, nAttachment, nInelastic, nExcitation, nSuperelastic;
+	gas->GetNumberOfElectronCollisions(nElastic, nIonising, nAttachment, nInelastic, nExcitation, nSuperelastic);
+	
+	G4cout<<"NExcitation "<<nExcitation<<G4endl;	
+
+	G4int colHitsEntries=garfExcHitsCol->entries();
+		for (G4int i=0;i<colHitsEntries;i++){
+			myPoint = (*garfExcHitsCol)[i]->GetPos();
+			time = (*garfExcHitsCol)[i]->GetTime();
+			//G4cout<<"TIME "<<G4BestUnit(time,"Time")<<" POSITION "<<G4BestUnit(myPoint,"Length")<<G4endl;
+
+			fastStep.SetNumberOfSecondaryTracks(1);	//1 photon per excitation
+//AROUCA: ACERTAR A ENERGIA DOS FOTOES - Meter espectro
+
+			G4DynamicParticle VUVphoton(G4OpticalPhoton::OpticalPhotonDefinition(),G4RandomDirection(), 7.2*eV);
+			
+			
+			// Create photons track
+			G4Track *newTrack=fastStep.CreateSecondaryTrack(VUVphoton, myPoint, time,false);
+			
+								
+		}
+	////tenho de apagar os pointers senao da barraca
+	delete aval;
+	delete sensor;
+	delete componentConstant;
+	delete geo;
+	delete tube;
+	delete gas;
+	delete garfExcHitsCol;
+		
+		}	  	
+// Selection of Xenon exitations and ionizations
+void userHandle(double x, double y, double z, double t, int type, int level,Garfield::Medium * m)
+{
+	G4ThreeVector Pos;
+
+	if (level > 2 && level < 53){//XENON LEVELS
+	
+	garfExcHit* newExcHit=new garfExcHit();
+	Pos.setX(x*10);//back to cm to GEANT4
+	Pos.setY(y*10);//back to cm to GEANT4
+	Pos.setZ(z*10);//back to cm to GEANT4
+	newExcHit->SetPos (Pos);
+	newExcHit->SetTime(t);
+	garfExcHitsCol->insert( newExcHit );
+	//If choose to draw change the visualizer from OGL to HepRep in vis.mac file
+	//newExcHit->Draw();	
+	}// if level
+	
+	
+}// end userhandle	
+
+void HeedModel::InitialisePhysics(){
+	fMediumMagboltz = new Garfield::MediumMagboltz();
+	double pressure = detCon->GetGasPressure()/torr;
+	double temperature = detCon->GetTemperature()/kelvin;
+
+	fMediumMagboltz->SetTemperature(temperature);
+	fMediumMagboltz->SetPressure(pressure);
+	fMediumMagboltz->SetComposition("Xe", 100.);
+
+	Garfield::GeometrySimple* geo = new Garfield::GeometrySimple();
+	// Make a box
+	G4double detectorRadius=5.;//cm
+	G4double detectorHalfZ=0.1;//cm
+
+	Garfield::SolidTube* tube = new Garfield::SolidTube(0.0, detectorHalfZ,0.,0.0, detectorRadius,detectorHalfZ,0.,1.,0.);//Tube oriented in Y'axis (0.,1.,0.,)
+
+	// Add the solid to the geometry, together with the medium inside
+	geo->AddSolid(tube, fMediumMagboltz);
+
+	// Make a component with analytic electric field
+	Garfield::ComponentConstant* componentConstant = new Garfield::ComponentConstant();
+	componentConstant->SetGeometry(geo);
+	//SetElectricField(const double ex, const double ey, const double ez);
+	componentConstant->SetElectricField(0.,-3000.0,0.);
+
+
+	// Make a sensor
+	Garfield::Sensor* sensor = new Garfield::Sensor();
+	sensor->AddComponent(componentConstant);
+
+	Garfield::AvalancheMicroscopic * aval = new Garfield::AvalancheMicroscopic();
+
+
+	aval->SetUserHandleInelastic(userHandle);
+		
+	aval->SetSensor(sensor);			
+  
+}
+
