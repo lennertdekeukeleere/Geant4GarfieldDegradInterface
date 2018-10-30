@@ -137,7 +137,7 @@ void HeedModel::makeGas(){
 void HeedModel::buildBox(){
   geo = new Garfield::GeometrySimple();
 
-  box = new Garfield::SolidBox(0., 0., 0.,(detCon->GetGasBoxR())/CLHEP::cm,(detCon->GetGasBoxH()*0.5)/CLHEP::cm,(detCon->GetGasBoxR())/CLHEP::cm);
+  box = new Garfield::SolidTube(0., 0., 0.,0.,(detCon->GetGasBoxR())/CLHEP::cm,(detCon->GetGasBoxH()*0.5)/CLHEP::cm,0.,1.,0.);
   geo->AddSolid(box, fMediumMagboltz);
   
 }
@@ -168,6 +168,7 @@ void HeedModel::BuildCompField(){
     
     comp = new Garfield::ComponentAnalyticField();
     comp->SetGeometry(geo);
+    
     
     
   
@@ -239,4 +240,8 @@ void HeedModel::CreateFieldView(){
   viewField->PlotContourWeightingField("20","e");
   fField->Update();
   fField->Print("WeightingField_zoom_01mm.pdf");
+}
+
+void HeedModel::Drift(double x, double y, double z, double t){
+    
 }

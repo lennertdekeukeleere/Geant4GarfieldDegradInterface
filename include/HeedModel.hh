@@ -8,7 +8,7 @@
 #ifndef HEEDMODEL_H_
 #define HEEDMODEL_H_
 
-#include "SolidBox.hh"      //Geometry
+#include "SolidTube.hh"      //Geometry
 #include "ComponentAnalyticField.hh"  //Garfield field
 #include "G4ThreeVector.hh"
 #include "ComponentVoxel.hh"
@@ -55,7 +55,7 @@ class HeedModel : public G4VFastSimulationModel {
   void InitialisePhysics();
   virtual void Run(G4String particleName, double ekin_keV, double t, double x_cm,
             double y_cm, double z_cm, double dx, double dy, double dz) = 0;
-  void Drift();
+  void Drift(double,double, double, double);
   G4bool FindParticleName(G4String name);
   G4bool FindParticleNameEnergy(G4String name,double ekin_keV);
   DetectorConstruction* detCon;
@@ -99,7 +99,7 @@ class HeedModel : public G4VFastSimulationModel {
   Garfield::Sensor* fSensor;
 //  Garfield::TrackHeed* fTrackHeed;
   Garfield::GeometrySimple* geo;
-  Garfield::SolidBox* box; 
+  Garfield::SolidTube* box;
   Garfield::ComponentVoxel* voxfield;
   Garfield::ComponentAnalyticField* comp;
   Garfield::AvalancheMC* fDrift;
