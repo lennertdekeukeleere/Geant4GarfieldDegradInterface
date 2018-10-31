@@ -25,7 +25,7 @@ class GasModelParameters{
     
     void AddParticleNameHeedOnly(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
     void AddParticleNameHeedInterface(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
-    
+    void AddParticleNameDegrad(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
     
     /*Getters and Setters*/
     inline void SetThermalEnergy(G4double d){thermalE=d;}
@@ -70,7 +70,7 @@ class GasModelParameters{
 	
 	private:
 	GasModelParametersMessenger* fMessenger;
-
+    MapParticlesEnergy fMapParticlesEnergyDegrad;
     MapParticlesEnergy fMapParticlesEnergyHeedOnly;
     MapParticlesEnergy fMapParticlesEnergyHeedInterface;
     

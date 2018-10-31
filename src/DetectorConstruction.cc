@@ -28,7 +28,7 @@ DetectorConstruction::DetectorConstruction()
     caloThickness(1.*mm), // thickness of the silicon detectors
     gasPressure(1.*bar),
     temperature(273.15*kelvin),
-    setup("TPC"),
+    setup("TPC")
 {
   detectorMessenger = new DetectorMessenger(this);
 
@@ -77,7 +77,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       G4Element* elO = man->FindOrBuildElement("O");
       G4Element* elN = man->FindOrBuildElement("N");
       
-      G4double molarMass = 20,17 * g / mole;  // pure neon
+      G4double molarMass = 20.17 * g / mole;  // pure neon
       
       G4double gasDensityNe = nMoles * molarMass;
       G4cout << "gasPressure: " << G4BestUnit(gasPressure, "Pressure")
@@ -346,7 +346,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       
       //    // visualization attributes ------------------------------------------------
       
-      worldLogical->->SetVisAttributes(G4VisAttributes::Invisible);
+      worldLogical->SetVisAttributes(G4VisAttributes::Invisible);
       collimatorLogical->SetVisAttributes(red);
       collimatorLogical2->SetVisAttributes(green);
       logicGasBox->SetVisAttributes(blue);

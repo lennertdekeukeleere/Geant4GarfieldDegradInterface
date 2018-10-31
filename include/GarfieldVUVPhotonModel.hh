@@ -28,8 +28,8 @@
 /// \file GarfieldFastSimulationModel.hh
 /// \brief Definition of the GarfieldFastSimulationModel class
 
-#ifndef garfieldModel_h
-#define garfieldModel_h 1
+#ifndef GarfieldVUVPhotonModel_h
+#define GarfieldVUVPhotonModel_h 1
 
 #include "G4VFastSimulationModel.hh"
 #include "Medium.hh"
@@ -38,14 +38,14 @@
 class GasModelParameters;
 class DetectorConstruction;
 
-class garfieldModel : public G4VFastSimulationModel
+class GarfieldVUVPhotonModel : public G4VFastSimulationModel
 {
 public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-	garfieldModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*);
-  ~garfieldModel (){};
+	GarfieldVUVPhotonModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*);
+  ~GarfieldVUVPhotonModel (){};
 
   //void SetPhysics(degradPhysics* fdegradPhysics);
   //void WriteGeometryToGDML(G4VPhysicalVolume* physicalVolume);
@@ -73,4 +73,4 @@ private:
 };
 
 void userHandle(double x, double y, double z, double t, int type, int level,Garfield::Medium * m);
-#endif /* GARFIELDMODEL_H_ */
+#endif /* GarfieldVUVPhotonModel_H_ */

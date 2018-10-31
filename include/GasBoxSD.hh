@@ -6,7 +6,7 @@
 #include "G4Region.hh"
 #include "GasBoxHit.hh"
 
-class GarfieldModel;
+class GarfieldVUVPhotonModel;
 class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
@@ -25,7 +25,7 @@ class GasBoxSD : public G4VSensitiveDetector{
 	
 	private:
 	
-    GarfieldModel* garfieldModel;
+    GarfieldVUVPhotonModel* GarfieldVUVPhotonModel;
     GasBoxHitsCollection* fGasBoxHitsCollection;
     G4int HCID;
 	G4double edep, ef;

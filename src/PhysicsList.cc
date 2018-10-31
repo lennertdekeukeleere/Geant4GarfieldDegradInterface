@@ -64,7 +64,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 PhysicsList::PhysicsList(GasModelParameters* gmp)
-    : G4VModularPhysicsList(), lowE(10.* eV), fGasModelParameters(gmp) {
+    : G4VModularPhysicsList(), lowE(-1), fGasModelParameters(gmp) {
   G4LossTableManager::Instance();
   defaultCutValue = 10. * um;
   cutForGamma = defaultCutValue;
@@ -144,7 +144,7 @@ void PhysicsList::SetCuts() {
   SetCutValue(cutForGamma, "gamma");
   SetCutValue(cutForElectron, "e-");
   SetCutValue(cutForPositron, "e+");
-  if(!(fGasModelParameters->NoParticlesForModel()))
+  if(lowE>0)
       G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(lowE, 100. * MeV);
   
   G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");

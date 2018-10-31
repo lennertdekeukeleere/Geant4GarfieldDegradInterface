@@ -1,6 +1,6 @@
 #include "G4Electron.hh"
 #include "G4SystemOfUnits.hh"
-#include "garfieldModel.hh"
+#include "GarfieldVUVPhotonModel.hh"
 #include "G4Region.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4UnitsTable.hh"
@@ -27,13 +27,13 @@
 
 const static G4double torr = 1. / 760. * atmosphere;
 
-garfieldModel::garfieldModel(GasModelParameters* gmp, G4String modelName,G4Region* envelope,DetectorConstruction* dc) :
+GarfieldVUVPhotonModel::GarfieldVUVPhotonModel(GasModelParameters* gmp, G4String modelName,G4Region* envelope,DetectorConstruction* dc) :
 		G4VFastSimulationModel(modelName, envelope),detCon(dc) {
 	thermalE=gmp->GetThermalEnergy();
 
 }
 
-G4bool garfieldModel::IsApplicable(const G4ParticleDefinition& particleType) {	
+G4bool GarfieldVUVPhotonModel::IsApplicable(const G4ParticleDefinition& particleType) {	
 	if (particleType.GetParticleName()=="e-")
 		return true;
   	return false;
@@ -41,7 +41,7 @@ G4bool garfieldModel::IsApplicable(const G4ParticleDefinition& particleType) {
 		
 }
 
-G4bool garfieldModel::ModelTrigger(const G4FastTrack& fastTrack){
+G4bool GarfieldVUVPhotonModel::ModelTrigger(const G4FastTrack& fastTrack){
   G4double ekin = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
   if (ekin<thermalE)
 		return true;
@@ -49,26 +49,26 @@ G4bool garfieldModel::ModelTrigger(const G4FastTrack& fastTrack){
 
 } 
 	
-void garfieldModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) 
-	{
-		
-		//G4cout<<"HELLO Garfield"<<G4endl;
-		////The details of the Garfield model are implemented here
-		 fastStep.KillPrimaryTrack();//KILL DEGRAD TRACKS
-		 garfPos =fastTrack.GetPrimaryTrack()->GetVertexPosition();
-		 garfTime = fastTrack.GetPrimaryTrack()->GetGlobalTime();
-		 //G4cout<<"GLOBAL TIME "<<G4BestUnit(garfTime,"Time")<<" POSITION "<<G4BestUnit(garfPos,"Length")<<G4endl;
+void GarfieldVUVPhotonModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) 
+{
+    
+    //G4cout<<"HELLO Garfield"<<G4endl;
+    ////The details of the Garfield model are implemented here
+     fastStep.KillPrimaryTrack();//KILL DEGRAD TRACKS
+     garfPos =fastTrack.GetPrimaryTrack()->GetVertexPosition();
+     garfTime = fastTrack.GetPrimaryTrack()->GetGlobalTime();
+     //G4cout<<"GLOBAL TIME "<<G4BestUnit(garfTime,"Time")<<" POSITION "<<G4BestUnit(garfPos,"Length")<<G4endl;
 
-	
-	GenerateVUVPhotons(fastTrack,fastStep,garfPos,garfTime);
-		
 
-	}
+    GenerateVUVPhotons(fastTrack,fastStep,garfPos,garfTime);
+    
+
+}
 	
 //NOTA: DEFINIDA FORA DA CLASSE PARA SER "GLOBAL"
 garfExcHitsCollection *garfExcHitsCol;
 
-void garfieldModel::GenerateVUVPhotons(const G4FastTrack& fastTrack, G4FastStep& fastStep,G4ThreeVector garfPos,G4double garfTime)
+void GarfieldVUVPhotonModel::GenerateVUVPhotons(const G4FastTrack& fastTrack, G4FastStep& fastStep,G4ThreeVector garfPos,G4double garfTime)
 	{
 		G4cout<<"\nPLEASE CHECK IF GARFIELD WAS COMPILED WITH ROOT-6.08.06"<<G4endl;
 	system ("echo $ROOTSYS");
@@ -88,7 +88,7 @@ void garfieldModel::GenerateVUVPhotons(const G4FastTrack& fastTrack, G4FastStep&
 	
 	Garfield::GeometrySimple* geo = new Garfield::GeometrySimple();
   // Make a box
-  G4double detectorRadius=5.;//cm
+    G4double detectorRadius = detCon->GetGasBoxR(); //cm
 	G4double detectorHalfZ=0.1;//cm
 	
   Garfield::SolidTube* tube = new Garfield::SolidTube(0.0, detectorHalfZ,0.,0.0, detectorRadius,detectorHalfZ,0.,1.,0.);//Tube oriented in Y'axis (0.,1.,0.,)

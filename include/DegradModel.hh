@@ -29,13 +29,12 @@ class DegradModel : public G4VFastSimulationModel {
   virtual G4bool ModelTrigger(const G4FastTrack&);
   virtual void DoIt(const G4FastTrack&, G4FastStep&);
   
-  void GetElectronsFromDegrad(const G4FastTrack& fastTrack, G4FastStep& fastStep,G4ThreeVector degradPos,G4double degradTime);
-  G4ThreeVector degradPos;
-  G4double degradTime;
+  void GetElectronsFromDegrad(G4FastStep& fastStep,G4ThreeVector degradPos,G4double degradTime);
  
 
  private:
   G4double thermalE;
+  DetectorConstruction* detCon;
 
   
   
