@@ -17,7 +17,22 @@ namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 
 HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc)
     : HeedModel(modelName, envelope,dc)	{
-        fMapParticlesEnergy = new MapParticlesEnergy();
+        fMapParticlesEnergy = &(gmp->GetParticleNamesHeedOnly());
+        gasFile = gmp->GetGasFile();
+        ionMobFile = gmp->GetIonMobilityFile();
+        driftElectrons = gmp->GetDriftElectrons();
+        trackMicro = gmp->GetTrackMicroscopic();
+        createAval = gmp->GetCreateAvalancheMC();
+        fVisualizeChamber = gmp->GetVisualizeChamber();
+        fVisualizeSignal = gmp->GetVisualizeSignals();
+        fVisualizeField = gmp->GetVisualizeField();
+        driftRKF = gmp->GetDriftRKF();
+        vPlaneHV = gmp->GetVoltagePlaneHV();
+        vPlaneLow = gmp->GetVoltagePlaneLow();
+        vAnodeWires = gmp->GetVoltageAnodeWires();
+        vCathodeWires = gmp->GetVoltageCathodeWires();
+        vGate = gmp->GetVoltageGate();
+        vDeltaGate = gmp->GetVoltageDeltaGate();
     }
 
 HeedOnlyModel::~HeedOnlyModel() {}

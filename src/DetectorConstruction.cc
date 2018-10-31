@@ -15,6 +15,7 @@
 #include "G4Trd.hh"
 #include "DetectorMessenger.hh"
 #include "GasBoxSD.hh"
+#include "XenonSD.hh"
 #include "HeedInterfaceModel.hh"
 #include "HeedOnlyModel.hh"
 #include "DegradModel.hh"
@@ -177,7 +178,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       
       
   }
-  else if(setup == "photo"){
+  else if(setup == "xenon"){
       G4Material* air = man->FindOrBuildMaterial("G4_AIR");
       G4Material* lead = man->FindOrBuildMaterial("G4_Pb");
       G4Material* Xenon = man->FindOrBuildMaterial("Xenon900Torr");
@@ -364,17 +365,29 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 }
 
 void DetectorConstruction::ConstructSDandField(){
-  G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");
-  HeedOnlyModel* HOM = new HeedOnlyModel(fGasModelParameters,"HeedOnlyModel",region,this);
-  HeedInterfaceModel* HIM = new HeedInterfaceModel(fGasModelParameters,"HeedInterfaceModel",region,this);
-  DegradModel* DM = new DegradModel(fGasModelParameters,"DegradModel",region,this);
-
   G4SDManager* SDManager = G4SDManager::GetSDMpointer();
-  G4String GasBoxSDname = "gasbox/myGasBoxSD";
-  GasBoxSD* myGasBoxSD = new GasBoxSD(GasBoxSDname);
-  SDManager->SetVerboseLevel(1);
-  SDManager->AddNewDetector(myGasBoxSD);
-  SetSensitiveDetector(logicGasBox,myGasBoxSD);
+  GasBoxSD* myGasBoxSD = NULL;
+  XenonSD* myXenonSD = NULL;
+  if(setup=="TPC"){
+    G4String GasBoxSDname = "interface/GasBoxSD";
+    myGasBoxSD = new GasBoxSD(GasBoxSDname);
+    SDManager->SetVerboseLevel(1);
+    SDManager->AddNewDetector(myGasBoxSD);
+    SetSensitiveDetector(logicGasBox,myGasBoxSD);
+   }
+   else if(setup=='xenon'){
+    G4String XenonSDname = "interface/XenonSD";
+    myXenonSD = new GasBoxSD(XenonSDname);
+    SDManager->SetVerboseLevel(1);
+    SDManager->AddNewDetector(myXenonSD);
+    SetSensitiveDetector(logicGasBox,myXenonSD);
+  }
+
+  G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");
+  HeedOnlyModel* HOM = new HeedOnlyModel(fGasModelParameters,"HeedOnlyModel",region,this,myGasBoxSD);
+  HeedInterfaceModel* HIM = new HeedInterfaceModel(fGasModelParameters,"HeedInterfaceModel",region,this,myGasBoxSD);
+  DegradModel* DM = new DegradModel(fGasModelParameters,"DegradModel",region,this,myXenonSD);
+  GarfieldVUVPhotonModel* GVUVPM = new GarfieldVUVPhotonModel(fGasModelParameters,"GarfieldVUVPhotonModel",region,this,myXenonSD);
 
 }
 

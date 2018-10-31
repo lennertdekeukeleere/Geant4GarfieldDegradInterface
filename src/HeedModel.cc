@@ -19,8 +19,7 @@ const static G4double torr = 1. / 760. * atmosphere;
 
 
 HeedModel::HeedModel(G4String modelName, G4Region* envelope,DetectorConstruction* dc)
-: G4VFastSimulationModel(modelName, envelope), detCon(dc)	{
-    }
+: G4VFastSimulationModel(modelName, envelope), detCon(dc)	{}
 
 HeedModel::~HeedModel() {}
 
@@ -137,7 +136,7 @@ void HeedModel::makeGas(){
 void HeedModel::buildBox(){
   geo = new Garfield::GeometrySimple();
 
-  box = new Garfield::SolidTube(0., 0., 0.,0.,(detCon->GetGasBoxR())/CLHEP::cm,(detCon->GetGasBoxH()*0.5)/CLHEP::cm,0.,1.,0.);
+  box = new Garfield::SolidTube(0.,0., 0.,0.,(detCon->GetGasBoxR())/CLHEP::cm,(detCon->GetGasBoxH()*0.5)/CLHEP::cm,0.,1.,0.);
   geo->AddSolid(box, fMediumMagboltz);
   
 }

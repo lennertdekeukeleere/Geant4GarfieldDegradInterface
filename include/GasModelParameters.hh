@@ -25,15 +25,16 @@ class GasModelParameters{
     
     void AddParticleNameHeedOnly(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
     void AddParticleNameHeedInterface(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
-    void AddParticleNameDegrad(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
     
     /*Getters and Setters*/
     inline void SetThermalEnergy(G4double d){thermalE=d;}
     inline G4double GetThermalEnergy(){return thermalE;};
     //Name of the Magboltz file to be used (if needed)
     inline void SetGasFile(G4String s) { gasFile = s;};
+    inline G4String GetGasFile() {return gasFile;};
     //Name of the Ion mobility file (if needed)
     inline void SetIonMobilityFile(G4String s) { ionMobFile = s; };
+    inline G4String GetIonMobilityFile() {return  ionMobFile; };
     //Determines if the electrons are drifted, or only primary ionization is simulated
     inline void SetDriftElectrons(G4bool b) { driftElectrons = b; };
     inline bool GetDriftElectrons(){return driftElectrons;};
@@ -61,8 +62,6 @@ class GasModelParameters{
     inline bool GetVisualizeField(){return fVisualizeField;};
     inline void SetDriftRKF(bool b){driftRKF=b;};
     inline bool GetDriftRKF(){return driftRKF;};
-    G4bool NoParticlesForModel();
-    G4bool FindParticleName(G4String);
     
     inline MapParticlesEnergy GetParticleNamesHeedOnly(){return fMapParticlesEnergyHeedOnly;};
     inline MapParticlesEnergy GetParticleNamesHeedInterface(){return fMapParticlesEnergyHeedInterface;};
@@ -70,7 +69,6 @@ class GasModelParameters{
 	
 	private:
 	GasModelParametersMessenger* fMessenger;
-    MapParticlesEnergy fMapParticlesEnergyDegrad;
     MapParticlesEnergy fMapParticlesEnergyHeedOnly;
     MapParticlesEnergy fMapParticlesEnergyHeedInterface;
     
@@ -93,10 +91,7 @@ class GasModelParameters{
     double vDeltaGate;
 
     G4double thermalE;
-	
-    
-    
-	
+
 };
 
 #endif

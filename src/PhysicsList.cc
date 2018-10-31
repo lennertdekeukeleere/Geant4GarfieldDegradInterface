@@ -55,7 +55,8 @@
 #include "G4MesonConstructor.hh"
 #include "G4BosonConstructor.hh"
 
-#include "GasModelParameters.hh"
+#include "G4FastSimulationPhysics.hh"
+#include "G4GlobalFastSimulationManager.hh"
 
 #ifdef theParticleIterator
 #undef theParticleIterator
@@ -63,8 +64,8 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PhysicsList::PhysicsList(GasModelParameters* gmp)
-    : G4VModularPhysicsList(), lowE(-1), fGasModelParameters(gmp) {
+PhysicsList::PhysicsList()
+    : G4VModularPhysicsList(), lowE(-1){
   G4LossTableManager::Instance();
   defaultCutValue = 10. * um;
   cutForGamma = defaultCutValue;
@@ -88,6 +89,9 @@ PhysicsList::PhysicsList(GasModelParameters* gmp)
 
   RegisterPhysics(new G4StepLimiterPhysics());
 
+  fastSimulationPhysics = new G4FastSimulationPhysics("fastSimPhys");
+  RegisterPhysics(fastSimulationPhysics);
+
   
 }
 
@@ -102,13 +106,13 @@ PhysicsList::~PhysicsList() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PhysicsList::ReplacePhysicsList(const G4String& name) {
+void PhysicsList::InitializePhysicsList(const G4String& name) {
   if (verboseLevel > 1) {
     G4cout << "PhysicsList::AddPhysicsList: <" << name << ">" << G4endl;
   }
 
   if (name == "local") {
-        ReplacePhysics(new PhysListEmStandard(name));
+    ReplacePhysics(new PhysListEmStandard(name));
   } else if (name == "emstandard_opt0") {
     ReplacePhysics(new G4EmStandardPhysics(1));
   } else if (name == "emstandard_opt1") {
@@ -124,10 +128,6 @@ void PhysicsList::ReplacePhysicsList(const G4String& name) {
   } else if (name == "ionGasModels") {
     ReplacePhysics(new G4EmStandardPhysics(1));
     AddIonGasModels();
-  } else {
-    G4cout << "PhysicsList::AddPhysicsList: <" << name << ">"
-           << " is not defined" << G4endl;
-    ReplacePhysics(new G4EmStandardPhysics(1));
   }
   AddParametrisation();
 }
@@ -205,16 +205,19 @@ void PhysicsList::AddIonGasModels() {
 }
 
 void PhysicsList::AddParametrisation() {
-    G4FastSimulationManagerProcess* fastSimProcess_garfield =
-    new G4FastSimulationManagerProcess("G4FSMP_gasmodel");
+
+    G4GlobalFastSimulationManager* globalMan = G4GlobalFastSimulationManager::GetInstance();
+    HeedOnlyModel* hom = (HeedOnlyModel*)(globalMan->GetFastSimulationModel("HeedOnlyModel"));
+    HeedInterfaceModel* him = (HeedInterfaceModel*)(globalMan->GetFastSimulationModel("HeedInterfaceModel"));
+    DegradModel* dm = (DegradModel*)(globalMan->GetFastSimulationModel("DegradModel"));
+    GarfieldVUVPhotonModel* gvuvpm = (GarfieldVUVPhotonModel*)(globalMan->GetFastSimulationModel("GarfieldVUVPhotonModel"));
     
     theParticleTable->GetIterator()->reset();
     while ((*theParticleTable->GetIterator())()) {
-        G4ParticleDefinition* particle = theParticleTable->GetIterator()->value();
-        G4ProcessManager* pmanager = particle->GetProcessManager();
-        if (fGasModelParameters->FindParticleName(particle->GetParticleName())) {
-            pmanager->AddDiscreteProcess(fastSimProcess_garfield);
-        }
+        G4String* particleName = theParticleTable->GetIterator()->value()->GetParticleName();
+        if(hom && hom->FindParticleName(particleName) && him && him->FindParticleName(particleName)
+              dm && dm->FindParticleName(particleName))
+            fastSimulationPhysics->ActivateFastSimulation(particleName);
     }
 }
 

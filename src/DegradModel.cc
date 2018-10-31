@@ -12,10 +12,12 @@
 #include "G4DynamicParticle.hh"
 #include "G4RandomDirection.hh"
 #include "GasModelParameters.hh"
+#include "XenonSD.hh"
 
-DegradModel::DegradModel(GasModelParameters* gmp, G4String modelName, G4Region* envelope,DetectorConstruction* dc)
+DegradModel::DegradModel(GasModelParameters* gmp, G4String modelName, G4Region* envelope,DetectorConstruction* dc, XenonSD* sd)
     : G4VFastSimulationModel(modelName, envelope),detCon(dc)	{
       thermalE=gmp->GetThermalEnergy();
+      fXenonHitsCollection = sd->GetXenonHitsCollection();
     }
 
 DegradModel::~DegradModel() {}

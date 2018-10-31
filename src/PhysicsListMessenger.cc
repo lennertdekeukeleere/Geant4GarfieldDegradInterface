@@ -91,7 +91,7 @@ void PhysicsListMessenger::SetNewValue(G4UIcommand* command,
   }
 
   else if (command == pListCmd) {
-    pPhysicsList->ReplacePhysicsList(newValue);
+    pPhysicsList->InitializePhysicsList(newValue);
   } 
   else if(command == lowLimitECmd){
 	  pPhysicsList->SetLowerProductionLimit(

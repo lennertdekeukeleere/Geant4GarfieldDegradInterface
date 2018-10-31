@@ -11,6 +11,8 @@
 #include "G4ThreeVector.hh"
 #include "G4VFastSimulationModel.hh"
 #include "GasModelParameters.hh"
+#include "XenonHit.hh"
+#include "GarfieldExcitationHit.hh"
 
 class G4VPhysicalVolume;
 class DetectorConstruction;
@@ -21,20 +23,23 @@ class DegradModel : public G4VFastSimulationModel {
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  DegradModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*);
+  DegradModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*,XenonSD*);
   ~DegradModel();
 
 
   virtual G4bool IsApplicable(const G4ParticleDefinition&);
   virtual G4bool ModelTrigger(const G4FastTrack&);
   virtual void DoIt(const G4FastTrack&, G4FastStep&);
-  
-  void GetElectronsFromDegrad(G4FastStep& fastStep,G4ThreeVector degradPos,G4double degradTime);
- 
+ inline G4bool FindParticleName(G4String s){if(s=='e-') return true; return false;};
 
  private:
+  void GetElectronsFromDegrad(G4FastStep& fastStep,G4ThreeVector degradPos,G4double degradTime);
+  
   G4double thermalE;
   DetectorConstruction* detCon;
+  XenonHitsCollection* fXenonHitsCollection;
+ 
+
 
   
   

@@ -23,57 +23,51 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: GarfieldFastSimulationModel.hh 9999994 2015-12-11 14:47:43Z dpfeiffe $
+// $Id: XenonSD.hh 69706 2013-05-13 09:12:40Z gcosmo $
 //
-/// \file GarfieldFastSimulationModel.hh
-/// \brief Definition of the GarfieldFastSimulationModel class
+/// \file XenonSD.hh
+/// \brief Definition of the XenonSD class
 
-#ifndef GarfieldVUVPhotonModel_h
-#define GarfieldVUVPhotonModel_h 1
+#ifndef XenonSD_h
+#define XenonSD_h 1
 
-#include "G4VFastSimulationModel.hh"
-#include "Medium.hh"
-#include "garfExcHit.hh"
+#include "G4VSensitiveDetector.hh"
 
-class GasModelParameters;
-class DetectorConstruction;
-class XenonSD;
+#include "XenonHit.hh"
+#include "GarfieldExcitationHit.hh"
 
-class GarfieldVUVPhotonModel : public G4VFastSimulationModel
+#include <vector>
+
+class G4Step;
+class G4HCofThisEvent;
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+/// B2Tracker sensitive detector class
+///
+/// The hits are accounted in hits in ProcessHits() function which is called
+/// by Geant4 kernel at each step. A hit is created with each step with non zero 
+/// energy deposit.
+
+class XenonSD : public G4VSensitiveDetector
 {
-public:
-  //-------------------------
-  // Constructor, destructor
-  //-------------------------
-	GarfieldVUVPhotonModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*,XenonSD*);
-  ~GarfieldVUVPhotonModel (){};
-
-  //void SetPhysics(degradPhysics* fdegradPhysics);
-  //void WriteGeometryToGDML(G4VPhysicalVolume* physicalVolume);
-
-	virtual G4bool IsApplicable(const G4ParticleDefinition&);
-	virtual G4bool ModelTrigger(const G4FastTrack &);
-	virtual void DoIt(const G4FastTrack&, G4FastStep&);
-	void GenerateVUVPhotons(const G4FastTrack& fastTrack, G4FastStep& fastStep,G4ThreeVector garfPos,G4double garfTime);
-	G4ThreeVector garfPos;
-	G4double garfTime;
-	
-	
-	
-private:
-	void InitialisePhysics();
-
-	DetectorConstruction* detCon;
-	G4ThreeVector myPoint;
-	G4double time;
-	G4double thermalE;
-   //degradPhysics* fdegradPhysics;
-
-	Garfield::MediumMagboltz* fMediumMagboltz;
-	Garfield::AvalancheMicroscopic* fAvalanche;
-
-	GarfieldExcitationHitsCollection* fGarfieldExcitationHitsCollection;
+  public:
+    XenonSD(const G4String& name, 
+   const G4String& hitsCollectionName);
+	virtual ~XenonSD();
+  
+    // methods from base class
+    virtual void   Initialize(G4HCofThisEvent* hitCollection);
+    virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+    virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
+    XenonHitsCollection* GetXenonHitsCollection(){return fXenonHitsCollection;};
+    GarfieldExcitationHitsCollection* GetGarfieldExcitationHitsCollection(){return fGarfieldExcitationHitsCollection;};
+	G4int n;
+  private:
+	XenonHitsCollection* fXenonHitsCollection;
+  GarfieldExcitationHitsCollection* fGarfieldExcitationHitsCollection;
 };
 
-void userHandle(double x, double y, double z, double t, int type, int level,Garfield::Medium * m);
-#endif /* GarfieldVUVPhotonModel_H_ */
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+#endif

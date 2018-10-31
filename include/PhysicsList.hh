@@ -9,13 +9,13 @@
 class G4VPhysicsConstructor;
 class PhysicsListMessenger;
 class DetectorConstruction;
-class GasModelParameters;
+class G4FastSimulationPhysics;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class PhysicsList : public G4VModularPhysicsList {
  public:
-  PhysicsList(GasModelParameters*);
+  PhysicsList();
   virtual ~PhysicsList();
 
   void SetCuts();
@@ -25,7 +25,7 @@ class PhysicsList : public G4VModularPhysicsList {
 
   void SetLowerProductionLimit(G4double e){lowE=e;};
 
-  void ReplacePhysicsList(const G4String& name);
+  void InitializePhysicsList(const G4String& name);
 
 
  private:
@@ -38,7 +38,7 @@ class PhysicsList : public G4VModularPhysicsList {
   G4double lowE;
 
   PhysicsListMessenger* pMessenger;
-  GasModelParameters* fGasModelParameters;
+  G4FastSimulationPhysics* fastSimulationPhysics;
 
 };
 
