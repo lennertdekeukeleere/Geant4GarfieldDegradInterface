@@ -25,6 +25,8 @@
 #include "TrackHeed.hh"
 #include "GeometrySimple.hh"
 #include "GasModelParameters.hh"
+#include "GasBoxHit.hh"
+#include "GarfieldExcitationHit.hh"
 
 
 class G4VPhysicalVolume;
@@ -50,14 +52,14 @@ class HeedModel : public G4VFastSimulationModel {
   virtual void ProcessEvent() = 0;
   //This method is called at the beginning of an event to reset some variables of the class
   virtual void Reset() = 0;
+  G4bool FindParticleName(G4String name);
+  G4bool FindParticleNameEnergy(G4String name,double ekin_keV);
 
  protected:
   void InitialisePhysics();
   virtual void Run(G4String particleName, double ekin_keV, double t, double x_cm,
             double y_cm, double z_cm, double dx, double dy, double dz) = 0;
   void Drift(double,double, double, double);
-  G4bool FindParticleName(G4String name);
-  G4bool FindParticleNameEnergy(G4String name,double ekin_keV);
   DetectorConstruction* detCon;
   HeedMessenger* fHeedMessenger;
 
@@ -82,6 +84,8 @@ class HeedModel : public G4VFastSimulationModel {
   double vDeltaGate;
 
   Garfield::TrackHeed* fTrackHeed;
+  GasBoxHitsCollection* fGasBoxHitsCollection;
+  GarfieldExcitationHit* fGarfieldExcitationHit;
   
   /*The following private methods and variables are user-dependent*/
  private:

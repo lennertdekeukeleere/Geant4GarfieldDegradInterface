@@ -23,13 +23,13 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: garfExcHit.hh 69706 2013-05-13 09:12:40Z gcosmo $
+// $Id: GarfieldExcitationHit.hh 69706 2013-05-13 09:12:40Z gcosmo $
 //
-/// \file garfExcHit.hh
-/// \brief Definition of the garfExcHit class
+/// \file GarfieldExcitationHit.hh
+/// \brief Definition of the GarfieldExcitationHit class
 
-#ifndef garfExcHit_h
-#define garfExcHit_h 1
+#ifndef GarfieldExcitationHit_h
+#define GarfieldExcitationHit_h 1
 
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"
@@ -39,16 +39,16 @@
 
 /// Tracker hit class
 
-class garfExcHit : public G4VHit
+class GarfieldExcitationHit : public G4VHit
 {
   public:
-    garfExcHit();
-    garfExcHit(const garfExcHit&);
-    virtual ~garfExcHit();
+    GarfieldExcitationHit();
+    GarfieldExcitationHit(const GarfieldExcitationHit&);
+    virtual ~GarfieldExcitationHit();
 
     // operators
-    const garfExcHit& operator=(const garfExcHit&);
-    G4int operator==(const garfExcHit&) const;
+    const GarfieldExcitationHit& operator=(const GarfieldExcitationHit&);
+    G4int operator==(const GarfieldExcitationHit&) const;
 
     inline void* operator new(size_t);
     inline void  operator delete(void*);
@@ -76,24 +76,24 @@ class garfExcHit : public G4VHit
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-typedef G4THitsCollection<garfExcHit> garfExcHitsCollection;
+using GarfieldExcitationHitsCollection=G4THitsCollection<GarfieldExcitationHit>;
 
-extern G4ThreadLocal G4Allocator<garfExcHit>* garfExcHitAllocator;
+extern G4ThreadLocal G4Allocator<GarfieldExcitationHit>* GarfieldExcitationHitAllocator;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-inline void* garfExcHit::operator new(size_t)
+inline void* GarfieldExcitationHit::operator new(size_t)
 {
-  if(!garfExcHitAllocator)
-      garfExcHitAllocator = new G4Allocator<garfExcHit>;
-  return (void *) garfExcHitAllocator->MallocSingle();
+  if(!GarfieldExcitationHitAllocator)
+      GarfieldExcitationHitAllocator = new G4Allocator<GarfieldExcitationHit>;
+  return (void *) GarfieldExcitationHitAllocator->MallocSingle();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-inline void garfExcHit::operator delete(void *hit)
+inline void GarfieldExcitationHit::operator delete(void *hit)
 {
-  garfExcHitAllocator->FreeSingle((garfExcHit*) hit);
+  GarfieldExcitationHitAllocator->FreeSingle((GarfieldExcitationHit*) hit);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

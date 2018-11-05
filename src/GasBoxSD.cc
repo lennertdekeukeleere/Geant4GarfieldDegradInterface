@@ -11,9 +11,17 @@
 #include "DetectorConstruction.hh"
 #include "G4VPhysicalVolume.hh"
 
-GasBoxSD::GasBoxSD(G4String name) : G4VSensitiveDetector(name), fGasBoxHitsCollection(NULL){
+GasBoxSD::GasBoxSD(G4String name) : G4VSensitiveDetector(name), fGasBoxHitsCollection(NULL),
+    fXenonHitsCollection(NULL), fGarfieldExcitationHitsCollection(NULL), fDriftLineHitsCollection(NULL){
     collectionName.insert("GBHC");
-    HCID=-1;
+    collectionName.insert("XHC");
+    collectionName.insert("GEHC");
+    collectionName.insert("DLHC");
+    
+    GBHCID=-1;
+    XHCID=-1;
+    GEHCID=-1;
+    DLHCID=-1;
 }
 
 GasBoxSD::~GasBoxSD(){}
@@ -21,39 +29,35 @@ GasBoxSD::~GasBoxSD(){}
 
 void GasBoxSD::Initialize(G4HCofThisEvent * HCE){
     fGasBoxHitsCollection = new GasBoxHitsCollection(SensitiveDetectorName, collectionName[0]);
-    if(HCID==-1)
-        HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
-    HCE->AddHitsCollection(HCID,fGasBoxHitsCollection);
-	ef=0;
-	edep=0;
-    secEnergiesFirstGen.resize(0);
-    secEnergiesSecGen.resize(0);
+    fXenonHitsCollection = new XenonHitsCollection(SensitiveDetectorName, collectionName[1]);
+    fGarfieldExcitationHitsCollection = new GarfieldExcitationHitsCollection(SensitiveDetectorName, collectionName[2]);
+    fDriftLineHitsCollection = new DriftLineHitsCollection(SensitiveDetectorName, collectionName[3]);
+    if(GBHCID==-1){
+        GBHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
+        XHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[1]);
+        GEHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[2]);
+        DLHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[3]);
+    }
+    HCE->AddHitsCollection(GBHCID,fGasBoxHitsCollection);
+    HCE->AddHitsCollection(XHCID,fXenonHitsCollection);
+    HCE->AddHitsCollection(GEHCID,fGarfieldExcitationHitsCollection);
+    HCE->AddHitsCollection(DLHCID,fDriftLineHitsCollection);
 }
 
 G4bool GasBoxSD::ProcessHits(G4Step* aStep, G4TouchableHistory* hist){
     G4Track* aTrack = aStep->GetTrack();
-    G4StepPoint* thePrePoint = aStep->GetPreStepPoint();
-	edep+=aStep->GetTotalEnergyDeposit();
+    G4StepPoint* thePostPoint = aStep->GetPostStepPoint();
 
     
 
-    if(aTrack->GetCurrentStepNumber() == 1 &&
-       aTrack->GetDefinition()->GetParticleName() == "e-" && aTrack->GetTrackID()>1){
+    if(aTrack->GetTrackStatus() == fStopAndKill &&
+       aTrack->GetDefinition()->GetParticleName() == "e-"){
         GasBoxHit* hit = new GasBoxHit();
-        G4ThreeVector pos = thePrePoint->GetPosition();
+        G4ThreeVector pos = thePostPoint->GetPosition();
         hit->SetX(pos.x());
         hit->SetY(pos.y());
         hit->SetZ(pos.z());
-        
-        hit->SetEkin(thePrePoint->GetKineticEnergy());
         hit->SetTime(aTrack->GetGlobalTime());
-        hit->SetID(aTrack->GetTrackID());
-        hit->SetParentID(aTrack->GetParentID());
-        if(aTrack->GetCreatorProcess()->GetProcessName() == "eIoni")
-            hit->SetProcess(1);
-        else
-            hit->SetProcess(0);
-        
         fGasBoxHitsCollection->insert(hit);
         return true;
     }
@@ -61,25 +65,4 @@ G4bool GasBoxSD::ProcessHits(G4Step* aStep, G4TouchableHistory* hist){
     return false;
     
     
-}
-
-G4bool GasBoxSD::AddSecondary(G4ThreeVector pos, G4double energy, G4double time, G4int id, G4int parentid, G4int process){
-
-    GasBoxHit* hit = new GasBoxHit();
-    hit->SetX(pos.x());
-    hit->SetY(pos.y());
-    hit->SetZ(pos.z());
-    
-//        G4ThreeVector mom = aTrack->GetMomentumDirection();
-//        hit->SetXmomentum(mom.x());
-//        hit->SetYmomentum(mom.y());
-//        hit->SetZmomentum(mom.z());
-    
-    hit->SetEkin(energy);
-    hit->SetTime(time);
-    hit->SetID(id);
-    hit->SetParentID(parentid);
-    hit->SetProcess(process);
-        
-    if(fGasBoxHitsCollection) fGasBoxHitsCollection->insert(hit);
 }

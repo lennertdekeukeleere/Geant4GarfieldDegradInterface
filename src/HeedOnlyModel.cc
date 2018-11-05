@@ -11,13 +11,14 @@
 #include "G4Gamma.hh"
 #include "G4SystemOfUnits.hh"
 #include "GasModelParameters.hh"
+#include "GasBoxSD.hh"
 
 #include "G4AutoLock.hh"
 namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 
-HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc)
+HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
     : HeedModel(modelName, envelope,dc)	{
-        fMapParticlesEnergy = &(gmp->GetParticleNamesHeedOnly());
+        *fMapParticlesEnergy = gmp->GetParticleNamesHeedOnly();
         gasFile = gmp->GetGasFile();
         ionMobFile = gmp->GetIonMobilityFile();
         driftElectrons = gmp->GetDriftElectrons();
@@ -33,6 +34,7 @@ HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Regio
         vCathodeWires = gmp->GetVoltageCathodeWires();
         vGate = gmp->GetVoltageGate();
         vDeltaGate = gmp->GetVoltageDeltaGate();
+        fGasBoxHitsCollection = sd->GetGasBoxHitsCollection();
     }
 
 HeedOnlyModel::~HeedOnlyModel() {}
@@ -55,13 +57,9 @@ void HeedOnlyModel::Run(G4String particleName, double ekin_keV, double t, double
         double xe, ye, ze, te;
         double ee, dxe, dye, dze;
         fTrackHeed->GetElectron(cl, xe, ye, ze, te, ee, dxe, dye, dze);
-        double newTime = te;
-        if (newTime < t) {
-            newTime += t;
-        }
-        AddSecondary(ee, newTime, xe, ye, ze, dxe, dye, dze,0,0);
         if(driftElectrons)
-            Drift(xe,ye,ze,newTime);
+            Drift(xe,ye,ze,te);
+    }
 }
 
 void HeedOnlyModel::ProcessEvent(){

@@ -1,0 +1,64 @@
+/InterfaceExample/phys/setLowLimitE 20. eV
+/process/em/AddPAIRegion all GasBox PAIPhoton
+
+
+/run/numberOfThreads 1
+/control/cout/ignoreThreadsExcept 0
+#/control/cout/setCoutFile output.dmp
+
+#/random/setSeeds 0 0 
+/run/initialize
+#/garfield/InitialisePhysics
+/analysis/setFileName test
+#/miniBETA/event/recordTrack 0
+
+#/miniBETA/step/recordScint2 0
+#/miniBETA/step/recordScint1 1
+
+#/miniBETA/geometry/update
+
+####################################
+########## Magnetic Field ##########
+####################################
+#Set strength of the field
+#/miniBETA/geometry/SetBField 0. tesla
+#/miniBETA/field/checkField	
+
+
+####################################
+############ Verbosities ###########
+####################################
+/tracking/verbose 0
+/run/verbose 1
+/event/verbose 0
+
+####################################
+########### Visualization ##########
+####################################
+
+#/vis/open VRML2FILE
+/vis/open OGL 600x600-0+0
+
+/run/verbose 2
+/event/verbose 0
+/tracking/verbose 0
+
+# Draw geometry:
+/vis/drawVolume
+
+# Draw smooth trajectories at end of event.
+# Gamma-rays represented in red.
+/vis/scene/add/trajectories smooth
+/vis/modeling/trajectories/create/drawByParticleID
+/vis/modeling/trajectories/drawByParticleID-0/set gamma red
+/vis/modeling/trajectories/drawByParticleID-0/set e- green
+/vis/modeling/trajectories/drawByParticleID-0/set opticalphoton blue
+#Set Visualization properties
+/vis/scene/add/axes
+
+/vis/scene/endOfEventAction accumulate 10
+/vis/scene/endOfRunAction accumulate
+/vis/geometry/set/forceSolid solidGasBox_log -1 1
+/tracking/storeTrajectory 0 
+/vis/scene/add/trajectories
+

@@ -1,6 +1,6 @@
 #include "G4Electron.hh"
 #include "G4SystemOfUnits.hh"
-#include "degradModel.hh"
+#include "DegradModel.hh"
 #include "G4Region.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4UnitsTable.hh"
@@ -12,9 +12,9 @@
 #include "G4DynamicParticle.hh"
 #include "G4RandomDirection.hh"
 #include "GasModelParameters.hh"
-#include "XenonSD.hh"
+#include "GasBoxSD.hh"
 
-DegradModel::DegradModel(GasModelParameters* gmp, G4String modelName, G4Region* envelope,DetectorConstruction* dc, XenonSD* sd)
+DegradModel::DegradModel(GasModelParameters* gmp, G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
     : G4VFastSimulationModel(modelName, envelope),detCon(dc)	{
       thermalE=gmp->GetThermalEnergy();
       fXenonHitsCollection = sd->GetXenonHitsCollection();
@@ -56,7 +56,11 @@ void DegradModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
     G4String degradString="printf \"1,1,3,-1,"+seed+",5900.0,7.0,0.0\n7,0,0,0,0,0\n100.0,0.0,0.0,0.0,0.0,0.0,20.0,900.0\n3000.0,0.0,0.0,1,0\n100.0,0.5,1,1,1,1,1,1,1\n0,0,0,0,0,0\" > conditions_Degrad.txt";
 
     stdout=system(degradString.data());
-    stdout=system("./a.out < conditions_Degrad.txt");
+    const std::string degradpath = std::getenv("DEGRAD_HOME");
+    std::string exec = "/degrad < conditions_Degrad.txt";
+    std::string full_path = degradpath + exec;
+    const char *mychar = full_path.c_str();
+    stdout=system(mychar);
     stdout=system("./convertDegradFile.py");
 
     GetElectronsFromDegrad(fastStep,degradPos,degradTime);

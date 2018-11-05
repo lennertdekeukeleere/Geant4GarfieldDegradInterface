@@ -23,10 +23,13 @@
 #include "G4VFastSimulationModel.hh"
 #include "HeedModel.hh"
 
+
 class G4VPhysicalVolume;
 class DetectorConstruction;
 class HeedOnlyMessenger;
 class GasModelParameters;
+class GasBoxSD;
+
 
 typedef std::pair<double, double> EnergyRange_keV;
 typedef std::multimap<const G4String, EnergyRange_keV> MapParticlesEnergy;
@@ -36,7 +39,7 @@ class HeedOnlyModel : public HeedModel {
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  HeedOnlyModel(GasModelParameters*,G4String, G4Region*,DetectorConstruction*);
+  HeedOnlyModel(GasModelParameters*,G4String, G4Region*,DetectorConstruction*, GasBoxSD*);
   ~HeedOnlyModel();
   
   /*The following public methods are user-dependent*/
@@ -51,7 +54,7 @@ class HeedOnlyModel : public HeedModel {
   
 
  private:
-  virtual void Run(G4String particleName, double ekin_keV, double t, double x_cm,
+    virtual void Run(G4String particleName, double ekin_keV, double t, double x_cm,
             double y_cm, double z_cm, double dx, double dy, double dz);
   
   

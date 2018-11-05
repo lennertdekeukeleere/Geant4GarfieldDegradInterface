@@ -5,8 +5,10 @@
 #include "G4String.hh"
 #include "G4Region.hh"
 #include "GasBoxHit.hh"
+#include "DriftLineHit.hh"
+#include "XenonHit.hh"
+#include "GarfieldExcitationHit.hh"
 
-class GarfieldVUVPhotonModel;
 class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
@@ -21,16 +23,21 @@ class GasBoxSD : public G4VSensitiveDetector{
 	virtual void 	Initialize (G4HCofThisEvent *);
 	virtual void 	EndOfEvent (G4HCofThisEvent *){};
 	virtual G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-	G4bool AddSecondary(G4ThreeVector, G4double, G4double, G4int, G4int, G4int);
+    XenonHitsCollection* GetXenonHitsCollection(){return fXenonHitsCollection;};
+    GarfieldExcitationHitsCollection* GetGarfieldExcitationHitsCollection(){return fGarfieldExcitationHitsCollection;};
+    GasBoxHitsCollection* GetGasBoxHitsCollection(){return fGasBoxHitsCollection;};
+    DriftLineHitsCollection* GetDriftLineHitsCollection(){return fDriftLineHitsCollection;};
 	
 	private:
 	
-    GarfieldVUVPhotonModel* GarfieldVUVPhotonModel;
     GasBoxHitsCollection* fGasBoxHitsCollection;
-    G4int HCID;
-	G4double edep, ef;
-	std::vector<G4double> secEnergiesFirstGen;
-	std::vector<G4double> secEnergiesSecGen;
+    XenonHitsCollection* fXenonHitsCollection;
+    GarfieldExcitationHitsCollection* fGarfieldExcitationHitsCollection;
+    DriftLineHitsCollection* fDriftLineHitsCollection;
+    G4int GBHCID;
+    G4int DLHCID;
+    G4int XHCID;
+    G4int GEHCID;
     
 	
 };

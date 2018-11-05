@@ -33,11 +33,13 @@
 
 #include "G4VFastSimulationModel.hh"
 #include "Medium.hh"
-#include "garfExcHit.hh"
+#include "GarfieldExcitationHit.hh"
+#include "MediumMagboltz.hh"
+#include "AvalancheMicroscopic.hh"
 
 class GasModelParameters;
 class DetectorConstruction;
-class XenonSD;
+class GasBoxSD;
 
 class GarfieldVUVPhotonModel : public G4VFastSimulationModel
 {
@@ -45,7 +47,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-	GarfieldVUVPhotonModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*,XenonSD*);
+	GarfieldVUVPhotonModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*,GasBoxSD*);
   ~GarfieldVUVPhotonModel (){};
 
   //void SetPhysics(degradPhysics* fdegradPhysics);

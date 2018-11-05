@@ -23,12 +23,12 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: garfExcHit.cc 69706 2013-05-13 09:12:40Z gcosmo $
+// $Id: GarfieldExcitationHit.cc 69706 2013-05-13 09:12:40Z gcosmo $
 //
-/// \file garfExcHit.cc
-/// \brief Implementation of the garfExcHit class
+/// \file GarfieldExcitationHit.cc
+/// \brief Implementation of the GarfieldExcitationHit class
 
-#include "garfExcHit.hh"
+#include "GarfieldExcitationHit.hh"
 #include "G4UnitsTable.hh"
 #include "G4VVisManager.hh"
 #include "G4Circle.hh"
@@ -37,11 +37,11 @@
 
 #include <iomanip>
 
-G4ThreadLocal G4Allocator<garfExcHit>* garfExcHitAllocator=0;
+G4ThreadLocal G4Allocator<GarfieldExcitationHit>* GarfieldExcitationHitAllocator;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-garfExcHit::garfExcHit()
+GarfieldExcitationHit::GarfieldExcitationHit()
  : G4VHit(),
    fTime(-1),
    fPos(G4ThreeVector())
@@ -49,11 +49,11 @@ garfExcHit::garfExcHit()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-garfExcHit::~garfExcHit() {}
+GarfieldExcitationHit::~GarfieldExcitationHit() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-garfExcHit::garfExcHit(const garfExcHit& right)
+GarfieldExcitationHit::GarfieldExcitationHit(const GarfieldExcitationHit& right)
   : G4VHit()
 {
   fPos       = right.fPos;
@@ -62,7 +62,7 @@ garfExcHit::garfExcHit(const garfExcHit& right)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-const garfExcHit& garfExcHit::operator=(const garfExcHit& right)
+const GarfieldExcitationHit& GarfieldExcitationHit::operator=(const GarfieldExcitationHit& right)
 {
   fPos       = right.fPos;
   fTime      =right.fTime;
@@ -72,14 +72,14 @@ const garfExcHit& garfExcHit::operator=(const garfExcHit& right)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4int garfExcHit::operator==(const garfExcHit& right) const
+G4int GarfieldExcitationHit::operator==(const GarfieldExcitationHit& right) const
 {
   return ( this == &right ) ? 1 : 0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void garfExcHit::Draw()
+void GarfieldExcitationHit::Draw()
 {
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if(pVVisManager)
@@ -98,18 +98,18 @@ void garfExcHit::Draw()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4ThreeVector garfExcHit::GetPos()
+G4ThreeVector GarfieldExcitationHit::GetPos()
 {
 return fPos;
 }
 
-G4double garfExcHit::GetTime()
+G4double GarfieldExcitationHit::GetTime()
 {
 return fTime;
 }
 
 
-void garfExcHit::Print()
+void GarfieldExcitationHit::Print()
 {
 	G4cout<<"Garf Exc HIT"<<G4endl;
   G4cout<<   " Time: "<< std::setw(7) << G4BestUnit(fTime,"Time")<< " Position: "<< fPos<< G4endl;

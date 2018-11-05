@@ -16,6 +16,7 @@
 
 class G4VPhysicalVolume;
 class DetectorConstruction;
+class GasBoxSD;
 
 
 class DegradModel : public G4VFastSimulationModel {
@@ -23,7 +24,7 @@ class DegradModel : public G4VFastSimulationModel {
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  DegradModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*,XenonSD*);
+  DegradModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*,GasBoxSD*);
   ~DegradModel();
 
 

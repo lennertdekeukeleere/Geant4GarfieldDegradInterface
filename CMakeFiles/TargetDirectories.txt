@@ -1,0 +1,4 @@
+/Users/lennertdekeukeleere/Documents/Work/Code/Geant4GarfieldDegradInterface/CMakeFiles/install.dir
+/Users/lennertdekeukeleere/Documents/Work/Code/Geant4GarfieldDegradInterface/CMakeFiles/InterfaceExample.dir
+/Users/lennertdekeukeleere/Documents/Work/Code/Geant4GarfieldDegradInterface/CMakeFiles/ALL_BUILD.dir
+/Users/lennertdekeukeleere/Documents/Work/Code/Geant4GarfieldDegradInterface/CMakeFiles/ZERO_CHECK.dir

@@ -1,9 +1,3 @@
-/*
- * HeedModel.cpp
- *
- *  Created on: Apr 9, 2014
- *      Author: dpfeiffe
- */
 #include <iostream>
 #include "HeedModel.hh"
 #include "G4VPhysicalVolume.hh"
@@ -98,36 +92,22 @@ void HeedModel::makeGas(){
   fMediumMagboltz = new Garfield::MediumMagboltz();
   double pressure = detCon->GetGasPressure()/torr;
   double temperature = detCon->GetTemperature()/kelvin;
-  double addmixtPerc = detCon->GetAddmixturePercentage();
+  double neonPerc = detCon->GetNeonPercentage();
+  double co2Perc = detCon->GetCO2Percentage();
+  double n2Perc = 1-neonPerc-co2Perc;
   G4String gasName = detCon->GetGasName();
-  const std::string path = getenv("GARFIELD_HOME");
-  if(gasName=="HeIso"){
-    fMediumMagboltz->SetComposition("isobutane",addmixtPerc,"helium",
-          100.-addmixtPerc);
-    const double rPenning = 1;
-    const double lambdaPenning = 0.;
-    fMediumMagboltz->EnablePenningTransfer(rPenning, lambdaPenning, "helium");
-  }
-  else if(gasName=="ArCO2"){
-    fMediumMagboltz->SetComposition("CO2",addmixtPerc,"Ar",
-          100.-addmixtPerc);
-    const double rPenning = 0.51;
-    const double lambdaPenning = 0.;
-    fMediumMagboltz->EnablePenningTransfer(rPenning, lambdaPenning, "ar");
-  }
+  fMediumMagboltz->SetComposition("ne", neonPerc, "co2", co2Perc, "n2", n2Perc);
   fMediumMagboltz->SetTemperature(temperature);
   fMediumMagboltz->SetPressure(pressure); 
-    fMediumMagboltz->EnableDebugging();
-    fMediumMagboltz->Initialise(true);
+  fMediumMagboltz->EnableDebugging();
+  fMediumMagboltz->Initialise(true);
   fMediumMagboltz->DisableDebugging();
 
   G4cout << gasFile << G4endl;
+  const std::string path = getenv("GARFIELD_HOME");
   G4AutoLock lock(&aMutex);
-  if(gasName=="HeIso")
-    fMediumMagboltz->LoadIonMobility(path + "/Data/IonMobility_He+_He.txt");
-  else if(gasName=="ArCO2")
-    fMediumMagboltz->LoadIonMobility(path + "/Data/IonMobility_Ar+_Ar.txt");
-  
+  if(ionMobFile!="")
+    fMediumMagboltz->LoadIonMobility(path + "/Data/" + ionMobFile);
   if(gasFile!="")
       fMediumMagboltz->LoadGasFile(gasFile.c_str());
 }
@@ -168,7 +148,34 @@ void HeedModel::BuildCompField(){
     comp = new Garfield::ComponentAnalyticField();
     comp->SetGeometry(geo);
     
+    comp->SetPeriodicityX(nRep * period);
+    for (int i = 0; i < nRep; ++i) {
+        comp->AddWire((i - 2.) * period, (detCon->GetGasBoxH()*0.5)/CLHEP::cm + ys, dSens, vAnodeWires, "s");
+    }
+    for (int i = 0; i < nRep+5; ++i) {
+        comp->AddWire(dc * (i + 0.5),(detCon->GetGasBoxH()*0.5)/CLHEP::cm + yc, dCath, vCathodeWires, "c");
+    }
+    if (gating) {
+        for (int i = 0; i < nRep * 2; i += 2) {
+            const double xg = dg * (i + 0.5);
+            comp->AddWire(xg,(detCon->GetGasBoxH()*0.5)/CLHEP::cm + yg, dGate, vGate+vDeltaGate, "g+");
+        }
+        for (int i = 1; i < nRep * 2; i += 2) {
+            const double xg = dg * (i + 0.5);
+            comp->AddWire(xg,(detCon->GetGasBoxH()*0.5)/CLHEP::cm + yg, dGate, vGate-vDeltaGate, "g-");
+        }
+    } else {
+        for (int i = 0; i < nRep * 7; ++i) {
+            const double xg = dg * (i + 0.5);
+            comp->AddWire(xg,(detCon->GetGasBoxH()*0.5)/CLHEP::cm + yg, dGate, vGate, "g", 100., 50., 19.3, 1);
+        }
+    }
+    // Add the planes.
+    comp->AddPlaneY((detCon->GetGasBoxH()*0.5)/CLHEP::cm, vPlaneLow, "pad_plane");
+    comp->AddPlaneY(-(detCon->GetGasBoxH()*0.5)/CLHEP::cm, vPlaneHV, "HV");
     
+    // Set the magnetic field [T].
+    comp->SetMagneticField(0, 0.5, 0);
     
   
 }
@@ -216,6 +223,8 @@ void HeedModel::CreateChamberView(){
   viewDrift = new Garfield::ViewDrift();
   viewDrift->SetCanvas(fChamber);
   fDrift->EnablePlotting(viewDrift);
+  fDriftRKF->EnablePlotting(viewDrift);
+  fAvalanche->EnablePlotting(viewDrift);
   fTrackHeed->EnablePlotting(viewDrift);
 
 }
@@ -233,10 +242,8 @@ void HeedModel::CreateFieldView(){
   viewField = new Garfield::ViewField();
   viewField->SetCanvas(fField);
   viewField->SetComponent(comp);
-  viewField->SetArea(0.412,7.14,0.432,7.16);
-  viewField->SetWeightingFieldRange(0.,500);
   viewField->SetNumberOfContours(40);
-  viewField->PlotContourWeightingField("20","e");
+  viewField->PlotContour();
   fField->Update();
   fField->Print("WeightingField_zoom_01mm.pdf");
 }

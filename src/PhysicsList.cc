@@ -58,6 +58,11 @@
 #include "G4FastSimulationPhysics.hh"
 #include "G4GlobalFastSimulationManager.hh"
 
+#include "HeedOnlyModel.hh"
+#include "HeedInterfaceModel.hh"
+#include "DegradModel.hh"
+#include "GarfieldVUVPhotonModel.hh"
+
 #ifdef theParticleIterator
 #undef theParticleIterator
 #endif
@@ -214,9 +219,9 @@ void PhysicsList::AddParametrisation() {
     
     theParticleTable->GetIterator()->reset();
     while ((*theParticleTable->GetIterator())()) {
-        G4String* particleName = theParticleTable->GetIterator()->value()->GetParticleName();
+        G4String particleName = theParticleTable->GetIterator()->value()->GetParticleName();
         if(hom && hom->FindParticleName(particleName) && him && him->FindParticleName(particleName)
-              dm && dm->FindParticleName(particleName))
+              && dm && dm->FindParticleName(particleName))
             fastSimulationPhysics->ActivateFastSimulation(particleName);
     }
 }
