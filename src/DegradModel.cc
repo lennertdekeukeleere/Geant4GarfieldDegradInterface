@@ -15,9 +15,8 @@
 #include "GasBoxSD.hh"
 
 DegradModel::DegradModel(GasModelParameters* gmp, G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
-    : G4VFastSimulationModel(modelName, envelope),detCon(dc)	{
+    : G4VFastSimulationModel(modelName, envelope),detCon(dc), fGasBoxSD(sd){
       thermalE=gmp->GetThermalEnergy();
-      fXenonHitsCollection = sd->GetXenonHitsCollection();
     }
 
 DegradModel::~DegradModel() {}

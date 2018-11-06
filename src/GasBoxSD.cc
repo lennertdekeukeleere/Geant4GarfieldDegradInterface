@@ -42,21 +42,22 @@ void GasBoxSD::Initialize(G4HCofThisEvent * HCE){
     HCE->AddHitsCollection(XHCID,fXenonHitsCollection);
     HCE->AddHitsCollection(GEHCID,fGarfieldExcitationHitsCollection);
     HCE->AddHitsCollection(DLHCID,fDriftLineHitsCollection);
+
+    G4cout << "GasBoxSD Intialized!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << G4endl;
 }
 
 G4bool GasBoxSD::ProcessHits(G4Step* aStep, G4TouchableHistory* hist){
     G4Track* aTrack = aStep->GetTrack();
     G4StepPoint* thePostPoint = aStep->GetPostStepPoint();
 
-    
+    G4cout << "Hit!!" << G4endl;
 
-    if(aTrack->GetTrackStatus() == fStopAndKill &&
-       aTrack->GetDefinition()->GetParticleName() == "e-"){
+    if(/*aTrack->GetTrackStatus() == fStopAndKill &&*/
+       aTrack->GetDefinition()->GetParticleName() == "pi+"){
+        G4cout << "Hit!!" << G4endl;
         GasBoxHit* hit = new GasBoxHit();
         G4ThreeVector pos = thePostPoint->GetPosition();
-        hit->SetX(pos.x());
-        hit->SetY(pos.y());
-        hit->SetZ(pos.z());
+        hit->SetPos(pos);
         hit->SetTime(aTrack->GetGlobalTime());
         fGasBoxHitsCollection->insert(hit);
         return true;

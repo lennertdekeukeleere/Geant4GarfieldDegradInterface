@@ -12,13 +12,18 @@
 #include "G4SystemOfUnits.hh"
 #include "GasModelParameters.hh"
 #include "GasBoxSD.hh"
+#include "GasBoxHit.hh"
+#include "G4SDManager.hh"
 
 #include "G4AutoLock.hh"
 namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 
 HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
-    : HeedModel(modelName, envelope,dc)	{
-        *fMapParticlesEnergy = gmp->GetParticleNamesHeedOnly();
+    : HeedModel(modelName, envelope,dc,sd)	{
+        G4cout << "Copying the particle map" << G4endl;
+        G4cout << gmp->GetParticleNamesHeedOnly().size() << G4endl;
+        fMapParticlesEnergy = gmp->GetParticleNamesHeedOnly();
+        G4cout << "set the gas file" << G4endl;
         gasFile = gmp->GetGasFile();
         ionMobFile = gmp->GetIonMobilityFile();
         driftElectrons = gmp->GetDriftElectrons();
@@ -34,7 +39,8 @@ HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Regio
         vCathodeWires = gmp->GetVoltageCathodeWires();
         vGate = gmp->GetVoltageGate();
         vDeltaGate = gmp->GetVoltageDeltaGate();
-        fGasBoxHitsCollection = sd->GetGasBoxHitsCollection();
+        G4cout << "Get the gasboxhitscollection" << G4endl;
+        InitialisePhysics();
     }
 
 HeedOnlyModel::~HeedOnlyModel() {}
@@ -43,22 +49,22 @@ void HeedOnlyModel::Run(G4String particleName, double ekin_keV, double t, double
             double y_cm, double z_cm, double dx, double dy, double dz){
     double eKin_eV = ekin_keV * 1000;
     int nc = 0, ni=0;
-    if(particleName == "e-"){
-        G4AutoLock lock(&aMutex);
-        fTrackHeed->TransportDeltaElectron(x_cm, y_cm, z_cm, t, eKin_eV, dx, dy,
-                                           dz, nc, ni);
-    }
-    else{
-        G4AutoLock lock(&aMutex);
-        fTrackHeed->TransportPhoton(x_cm, y_cm, z_cm, t, eKin_eV, dx, dy,
-                                           dz, nc, ni);
-    }
-    for (int cl = 0; cl < nc; cl++) {
-        double xe, ye, ze, te;
-        double ee, dxe, dye, dze;
-        fTrackHeed->GetElectron(cl, xe, ye, ze, te, ee, dxe, dye, dze);
-        if(driftElectrons)
-            Drift(xe,ye,ze,te);
+    fTrackHeed->SetParticle("pi");
+    fTrackHeed->SetEnergy(eKin_eV);
+    fTrackHeed->NewTrack(x_cm, y_cm, z_cm, t, dx, dy, dz);
+    double xcl, ycl, zcl, tcl, ecl, extra;
+    int ncl = 0;
+    while (fTrackHeed->GetCluster(xcl, ycl, zcl, tcl, ncl, ecl, extra)) {
+    // Retrieve the electrons of the cluster.
+        for (int i = 0; i < ncl; ++i) {
+            double x, y, z, t, e, dx, dy, dz;
+            fTrackHeed->GetElectron(i, x, y, z, t, e, dx, dy, dz);
+            GasBoxHit* gbh = new GasBoxHit();
+            gbh->SetPos(G4ThreeVector(x,y,z));
+            gbh->SetTime(t);
+            fGasBoxSD->InsertGasBoxHit(gbh);
+            Drift(x,y,z,t);
+        }
     }
 }
 

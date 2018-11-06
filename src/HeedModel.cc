@@ -12,8 +12,8 @@ namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 const static G4double torr = 1. / 760. * atmosphere;
 
 
-HeedModel::HeedModel(G4String modelName, G4Region* envelope,DetectorConstruction* dc)
-: G4VFastSimulationModel(modelName, envelope), detCon(dc)	{}
+HeedModel::HeedModel(G4String modelName, G4Region* envelope,DetectorConstruction* dc,GasBoxSD* sd)
+: G4VFastSimulationModel(modelName, envelope), detCon(dc), fGasBoxSD(sd)	{}
 
 HeedModel::~HeedModel() {}
 
@@ -50,8 +50,8 @@ void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 
 G4bool HeedModel::FindParticleName(G4String name) {
   MapParticlesEnergy::iterator it;
-  it = fMapParticlesEnergy->find(name);
-  if (it != fMapParticlesEnergy->end()) {
+  it = fMapParticlesEnergy.find(name);
+  if (it != fMapParticlesEnergy.end()) {
     return true;
   }
   return false;
@@ -61,7 +61,7 @@ G4bool HeedModel::FindParticleNameEnergy(G4String name,
                                              double ekin_keV) {
   MapParticlesEnergy::iterator it;
 //  it = fMapParticlesEnergy->find(name);
-  for (it=fMapParticlesEnergy->begin(); it!=fMapParticlesEnergy->end();++it) {
+  for (it=fMapParticlesEnergy.begin(); it!=fMapParticlesEnergy.end();++it) {
     if(it->first == name){
       EnergyRange_keV range = it->second;
       if (range.first <= ekin_keV && range.second >= ekin_keV) {
@@ -135,7 +135,7 @@ void HeedModel::BuildCompField(){
     const double yg = 2. * gap + 0.3; // gate
     // Periodicity (wire spacing)
     const double period = 0.25;
-    const int nRep = 10;
+    const int nRep = 2;
     
     const double dc = period;
     const double dg = period / 2;
@@ -150,25 +150,14 @@ void HeedModel::BuildCompField(){
     
     comp->SetPeriodicityX(nRep * period);
     for (int i = 0; i < nRep; ++i) {
-        comp->AddWire((i - 2.) * period, (detCon->GetGasBoxH()*0.5)/CLHEP::cm + ys, dSens, vAnodeWires, "s");
+        comp->AddWire((i - 1) * period, (detCon->GetGasBoxH()*0.5)/CLHEP::cm - ys, dSens, vAnodeWires, "s");
     }
-    for (int i = 0; i < nRep+5; ++i) {
-        comp->AddWire(dc * (i + 0.5),(detCon->GetGasBoxH()*0.5)/CLHEP::cm + yc, dCath, vCathodeWires, "c");
+    for (int i = 0; i < nRep; ++i) {
+        comp->AddWire(dc * (i - 0.5),(detCon->GetGasBoxH()*0.5)/CLHEP::cm - yc, dCath, vCathodeWires, "c");
     }
-    if (gating) {
-        for (int i = 0; i < nRep * 2; i += 2) {
-            const double xg = dg * (i + 0.5);
-            comp->AddWire(xg,(detCon->GetGasBoxH()*0.5)/CLHEP::cm + yg, dGate, vGate+vDeltaGate, "g+");
-        }
-        for (int i = 1; i < nRep * 2; i += 2) {
-            const double xg = dg * (i + 0.5);
-            comp->AddWire(xg,(detCon->GetGasBoxH()*0.5)/CLHEP::cm + yg, dGate, vGate-vDeltaGate, "g-");
-        }
-    } else {
-        for (int i = 0; i < nRep * 7; ++i) {
-            const double xg = dg * (i + 0.5);
-            comp->AddWire(xg,(detCon->GetGasBoxH()*0.5)/CLHEP::cm + yg, dGate, vGate, "g", 100., 50., 19.3, 1);
-        }
+    for (int i = 0; i < nRep * 2; ++i) {
+        const double xg = dg * (i - 1.5);
+        comp->AddWire(xg,(detCon->GetGasBoxH()*0.5)/CLHEP::cm - yg, dGate, vGate, "g", 100., 50., 19.3, 1);
     }
     // Add the planes.
     comp->AddPlaneY((detCon->GetGasBoxH()*0.5)/CLHEP::cm, vPlaneLow, "pad_plane");
@@ -182,6 +171,7 @@ void HeedModel::BuildCompField(){
 
 void HeedModel::BuildSensor(){
   fSensor = new Garfield::Sensor();
+  fSensor->AddComponent(comp);
   //fSensor->SetTimeWindow(0.,fBinWidth,fNbins); //Lowest time [ns], time bins [ns], number of bins
 }
 
@@ -191,10 +181,12 @@ void HeedModel::SetTracking(){
     fDriftRKF->SetSensor(fSensor);
     fDriftRKF->EnableDebugging();
   }
-  else{
+  else if(trackMicro){
     fAvalanche = new Garfield::AvalancheMicroscopic();
     fAvalanche->SetSensor(fSensor);
-    fAvalanche->EnableSignalCalculation();  
+    fAvalanche->EnableSignalCalculation();
+  }
+  else{  
     fDrift = new Garfield::AvalancheMC();
     fDrift->SetSensor(fSensor);
     fDrift->EnableSignalCalculation();
@@ -222,9 +214,9 @@ void HeedModel::CreateChamberView(){
   
   viewDrift = new Garfield::ViewDrift();
   viewDrift->SetCanvas(fChamber);
-  fDrift->EnablePlotting(viewDrift);
-  fDriftRKF->EnablePlotting(viewDrift);
-  fAvalanche->EnablePlotting(viewDrift);
+  if(driftRKF) fDriftRKF->EnablePlotting(viewDrift);
+  else if(trackMicro) fAvalanche->EnablePlotting(viewDrift);
+  else fDrift->EnablePlotting(viewDrift);
   fTrackHeed->EnablePlotting(viewDrift);
 
 }
@@ -238,16 +230,55 @@ void HeedModel::CreateSignalView(){
 }
 
 void HeedModel::CreateFieldView(){
-  fField = new TCanvas("c3", "Weightingfield", 700, 700);
+  fField = new TCanvas("c3", "Electric field", 700, 700);
   viewField = new Garfield::ViewField();
   viewField->SetCanvas(fField);
   viewField->SetComponent(comp);
   viewField->SetNumberOfContours(40);
   viewField->PlotContour();
   fField->Update();
-  fField->Print("WeightingField_zoom_01mm.pdf");
+  fField->Print("Efield.pdf");
 }
 
 void HeedModel::Drift(double x, double y, double z, double t){
-    
+    if(driftRKF){
+        fDriftRKF->DriftElectron(x,y,z,t);
+        unsigned int n = fDriftRKF->GetNumberOfDriftLinePoints();
+        double xi,yi,zi,ti;
+        for(int i=0;i<n;i++){
+            fDriftRKF->GetDriftLinePoint(i,xi,yi,zi,ti);
+            DriftLineHit* dlh = new DriftLineHit();
+            dlh->SetPos(G4ThreeVector(xi,yi,zi));
+            dlh->SetTime(ti);
+            fGasBoxSD->InsertDriftLineHit(dlh);
+        }
+    }
+    else if(trackMicro){
+        fAvalanche->AvalancheElectron(x,y,z,t,0,0,0,0);
+        unsigned int nLines = fAvalanche->GetNumberOfElectronEndpoints();
+        for(int i=0;i<nLines;i++){
+            unsigned int n = fAvalanche->GetNumberOfElectronDriftLinePoints(i);
+            double xi,yi,zi,ti;
+            for(int j=0;j<n;j++){
+                fAvalanche->GetElectronDriftLinePoint(xi,yi,zi,ti,j,i);
+                DriftLineHit* dlh = new DriftLineHit();
+                dlh->SetPos(G4ThreeVector(xi,yi,zi));
+                dlh->SetTime(ti);
+                fGasBoxSD->InsertDriftLineHit(dlh);
+            }
+        }
+    }
+    else{
+        fDrift->DriftElectron(x,y,z,t);
+        unsigned int n = fDrift->GetNumberOfDriftLinePoints();
+        double xi,yi,zi,ti;
+        for(int i=0;i<n;i++){
+            fDrift->GetDriftLinePoint(i,xi,yi,zi,ti);
+            DriftLineHit* dlh = new DriftLineHit();
+            dlh->SetPos(G4ThreeVector(xi,yi,zi));
+            dlh->SetTime(ti);
+            fGasBoxSD->InsertDriftLineHit(dlh);
+        }
+    }
+
 }

@@ -23,10 +23,10 @@ class GasBoxSD : public G4VSensitiveDetector{
 	virtual void 	Initialize (G4HCofThisEvent *);
 	virtual void 	EndOfEvent (G4HCofThisEvent *){};
 	virtual G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-    XenonHitsCollection* GetXenonHitsCollection(){return fXenonHitsCollection;};
-    GarfieldExcitationHitsCollection* GetGarfieldExcitationHitsCollection(){return fGarfieldExcitationHitsCollection;};
-    GasBoxHitsCollection* GetGasBoxHitsCollection(){return fGasBoxHitsCollection;};
-    DriftLineHitsCollection* GetDriftLineHitsCollection(){return fDriftLineHitsCollection;};
+    void InsertXenonHit(XenonHit* xh){fXenonHitsCollection->insert(xh);};
+    void InsertGarfieldExcitationHit(GarfieldExcitationHit* geh){fGarfieldExcitationHitsCollection->insert(geh);};
+    void InsertGasBoxHit(GasBoxHit* gbh){fGasBoxHitsCollection->insert(gbh);};
+    void InsertDriftLineHit(DriftLineHit* dlh){fDriftLineHitsCollection->insert(dlh);};
 	
 	private:
 	

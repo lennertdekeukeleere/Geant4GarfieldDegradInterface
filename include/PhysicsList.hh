@@ -26,11 +26,11 @@ class PhysicsList : public G4VModularPhysicsList {
   void SetLowerProductionLimit(G4double e){lowE=e;};
 
   void InitializePhysicsList(const G4String& name);
-
+  void AddParametrisation();
 
  private:
   void AddIonGasModels();
-  void AddParametrisation();
+ 
 
   G4double cutForGamma;
   G4double cutForElectron;

@@ -25,8 +25,7 @@
 #include "TrackHeed.hh"
 #include "GeometrySimple.hh"
 #include "GasModelParameters.hh"
-#include "GasBoxHit.hh"
-#include "GarfieldExcitationHit.hh"
+#include "GasBoxSD.hh"
 
 
 class G4VPhysicalVolume;
@@ -38,7 +37,7 @@ class HeedModel : public G4VFastSimulationModel {
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  HeedModel(G4String, G4Region*,DetectorConstruction*);
+  HeedModel(G4String, G4Region*,DetectorConstruction*,GasBoxSD*);
   ~HeedModel();
 
 
@@ -63,7 +62,7 @@ class HeedModel : public G4VFastSimulationModel {
   DetectorConstruction* detCon;
   HeedMessenger* fHeedMessenger;
 
-  MapParticlesEnergy* fMapParticlesEnergy;
+  MapParticlesEnergy fMapParticlesEnergy;
 
   G4String gasFile;
   G4String ionMobFile;
@@ -84,8 +83,7 @@ class HeedModel : public G4VFastSimulationModel {
   double vDeltaGate;
 
   Garfield::TrackHeed* fTrackHeed;
-  GasBoxHitsCollection* fGasBoxHitsCollection;
-  GarfieldExcitationHit* fGarfieldExcitationHit;
+  GasBoxSD* fGasBoxSD;
   
   /*The following private methods and variables are user-dependent*/
  private:

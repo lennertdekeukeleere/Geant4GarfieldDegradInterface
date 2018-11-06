@@ -134,7 +134,6 @@ void PhysicsList::InitializePhysicsList(const G4String& name) {
     ReplacePhysics(new G4EmStandardPhysics(1));
     AddIonGasModels();
   }
-  AddParametrisation();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -209,20 +208,11 @@ void PhysicsList::AddIonGasModels() {
   }
 }
 
-void PhysicsList::AddParametrisation() {
-
-    G4GlobalFastSimulationManager* globalMan = G4GlobalFastSimulationManager::GetInstance();
-    HeedOnlyModel* hom = (HeedOnlyModel*)(globalMan->GetFastSimulationModel("HeedOnlyModel"));
-    HeedInterfaceModel* him = (HeedInterfaceModel*)(globalMan->GetFastSimulationModel("HeedInterfaceModel"));
-    DegradModel* dm = (DegradModel*)(globalMan->GetFastSimulationModel("DegradModel"));
-    GarfieldVUVPhotonModel* gvuvpm = (GarfieldVUVPhotonModel*)(globalMan->GetFastSimulationModel("GarfieldVUVPhotonModel"));
-    
+void PhysicsList::AddParametrisation() {   
     theParticleTable->GetIterator()->reset();
     while ((*theParticleTable->GetIterator())()) {
         G4String particleName = theParticleTable->GetIterator()->value()->GetParticleName();
-        if(hom && hom->FindParticleName(particleName) && him && him->FindParticleName(particleName)
-              && dm && dm->FindParticleName(particleName))
-            fastSimulationPhysics->ActivateFastSimulation(particleName);
+        fastSimulationPhysics->ActivateFastSimulation(particleName);
     }
 }
 

@@ -29,9 +29,8 @@
 const static G4double torr = 1. / 760. * atmosphere;
 
 GarfieldVUVPhotonModel::GarfieldVUVPhotonModel(GasModelParameters* gmp, G4String modelName,G4Region* envelope,DetectorConstruction* dc,GasBoxSD* sd) :
-		G4VFastSimulationModel(modelName, envelope),detCon(dc) {
+		G4VFastSimulationModel(modelName, envelope),detCon(dc),fGasBoxSD(sd) {
 	thermalE=gmp->GetThermalEnergy();
-	fGarfieldExcitationHitsCollection=sd->GetGarfieldExcitationHitsCollection();
 }
 
 G4bool GarfieldVUVPhotonModel::IsApplicable(const G4ParticleDefinition& particleType) {	
@@ -90,7 +89,7 @@ void GarfieldVUVPhotonModel::GenerateVUVPhotons(const G4FastTrack& fastTrack, G4
         GarfieldExcitationHit* newExcHit=new GarfieldExcitationHit();
 		newExcHit->SetPos((*garfExcHitsCol)[i]->GetPos());
 		newExcHit->SetTime((*garfExcHitsCol)[i]->GetTime());
-        fGarfieldExcitationHitsCollection->insert(newExcHit);
+        fGasBoxSD->InsertGarfieldExcitationHit(newExcHit);
 		fastStep.SetNumberOfSecondaryTracks(1);	//1 photon per excitation
 		G4DynamicParticle VUVphoton(G4OpticalPhoton::OpticalPhotonDefinition(),G4RandomDirection(), 7.2*eV);
 		// Create photons track

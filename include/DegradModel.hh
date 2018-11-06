@@ -11,8 +11,7 @@
 #include "G4ThreeVector.hh"
 #include "G4VFastSimulationModel.hh"
 #include "GasModelParameters.hh"
-#include "XenonHit.hh"
-#include "GarfieldExcitationHit.hh"
+#include "GasBoxSD.hh"
 
 class G4VPhysicalVolume;
 class DetectorConstruction;
@@ -38,7 +37,7 @@ class DegradModel : public G4VFastSimulationModel {
   
   G4double thermalE;
   DetectorConstruction* detCon;
-  XenonHitsCollection* fXenonHitsCollection;
+  GasBoxSD* fGasBoxSD;
  
 
 

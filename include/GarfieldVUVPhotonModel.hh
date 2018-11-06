@@ -33,7 +33,7 @@
 
 #include "G4VFastSimulationModel.hh"
 #include "Medium.hh"
-#include "GarfieldExcitationHit.hh"
+#include "GasBoxSD.hh"
 #include "MediumMagboltz.hh"
 #include "AvalancheMicroscopic.hh"
 
@@ -74,7 +74,7 @@ private:
 	Garfield::MediumMagboltz* fMediumMagboltz;
 	Garfield::AvalancheMicroscopic* fAvalanche;
 
-	GarfieldExcitationHitsCollection* fGarfieldExcitationHitsCollection;
+	GasBoxSD* fGasBoxSD;
 };
 
 void userHandle(double x, double y, double z, double t, int type, int level,Garfield::Medium * m);

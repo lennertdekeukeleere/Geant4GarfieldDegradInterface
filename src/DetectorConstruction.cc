@@ -72,7 +72,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
     
   if(setup == "TPC"){
       gasboxR = 0.25*m;
-      gasboxH = 2.5*m;
+      gasboxH = 1.25*m;
 
       G4Element* elC = man->FindOrBuildElement("C");
       G4Element* elO = man->FindOrBuildElement("O");
@@ -86,7 +86,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       G4cout << "gasDensityNe: " << G4BestUnit(gasDensityNe, "Volumic Mass")
          << G4endl;
 
-      G4Material* neon = new G4Material("neon", 2, molarMass, gasDensityNe,
+      G4Material* neon = new G4Material("neon", 10, molarMass, gasDensityNe,
                                           kStateGas, temperature, gasPressure);
       G4double molfracNe = (neonPercentage/100.) * molarMass;
 
@@ -96,7 +96,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       G4double gasDensityCO2 = nMoles * molarMass;
       G4cout << "gasDensityCO2: " << G4BestUnit(gasDensityCO2, "Volumic Mass")
              << G4endl;
-      G4Material* CO2 = new G4Material("co2", 2, molarMass, gasDensityCO2,
+      G4Material* CO2 = new G4Material("co2", gasDensityCO2, 2,
                                         kStateGas, temperature, gasPressure);
       CO2->AddElement(elC, 1);
       CO2->AddElement(elO, 2);
@@ -107,9 +107,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       G4double gasDensityN2 = nMoles * molarMass;
       G4cout << "gasDensityCO2: " << G4BestUnit(gasDensityN2, "Volumic Mass")
       << G4endl;
-      G4Material* N2 = new G4Material("n2", 2, molarMass, gasDensityN2,
+      G4Material* N2 = new G4Material("n2",gasDensityN2,1,
                                        kStateGas, temperature, gasPressure);
-      N2->AddElement(elN, 2);
+      N2->AddElement(elN,1);
       G4double molfracN2 = ((1-co2Percentage-neonPercentage)/100.)*molarMass;
 
       molfracNe = molfracNe/(molfracNe+molfracCO2+molfracN2);
@@ -366,9 +366,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
 void DetectorConstruction::ConstructSDandField(){
   G4SDManager* SDManager = G4SDManager::GetSDMpointer();
-  GasBoxSD* myGasBoxSD = NULL;
   G4String GasBoxSDname = "interface/GasBoxSD";
-  myGasBoxSD = new GasBoxSD(GasBoxSDname);
+  GasBoxSD* myGasBoxSD = new GasBoxSD(GasBoxSDname);
   SDManager->SetVerboseLevel(1);
   SDManager->AddNewDetector(myGasBoxSD);
   SetSensitiveDetector(logicGasBox,myGasBoxSD);

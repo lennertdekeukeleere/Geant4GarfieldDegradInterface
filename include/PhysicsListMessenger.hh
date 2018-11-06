@@ -47,6 +47,7 @@
 
 class G4UIcommand;
 class PhysicsList;
+class G4UIcmdWithoutParameter;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -67,6 +68,7 @@ class PhysicsListMessenger : public G4UImessenger {
   G4UIcmdWithADoubleAndUnit *allCutCmd;
   G4UIcmdWithAString *pListCmd;
   G4UIcmdWithADoubleAndUnit *lowLimitECmd;
+  G4UIcmdWithoutParameter* addParamCmd;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

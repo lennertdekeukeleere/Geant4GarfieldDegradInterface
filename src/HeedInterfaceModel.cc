@@ -18,8 +18,8 @@ namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 
 
 HeedInterfaceModel::HeedInterfaceModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
-    : HeedModel(modelName, envelope,dc) {
-        *fMapParticlesEnergy = gmp->GetParticleNamesHeedInterface();
+    : HeedModel(modelName, envelope,dc,sd) {
+        fMapParticlesEnergy = gmp->GetParticleNamesHeedInterface();
         gasFile = gmp->GetGasFile();
         ionMobFile = gmp->GetIonMobilityFile();
         driftElectrons = gmp->GetDriftElectrons();
@@ -35,7 +35,7 @@ HeedInterfaceModel::HeedInterfaceModel(GasModelParameters* gmp,G4String modelNam
         vCathodeWires = gmp->GetVoltageCathodeWires();
         vGate = gmp->GetVoltageGate();
         vDeltaGate = gmp->GetVoltageDeltaGate();
-        fGasBoxHitsCollection = sd->GetGasBoxHitsCollection();
+        InitialisePhysics();
     }
 
 HeedInterfaceModel::~HeedInterfaceModel() {}
@@ -53,7 +53,18 @@ void HeedInterfaceModel::Run(G4String particleName, double ekin_keV, double t, d
         G4AutoLock lock(&aMutex);
         fTrackHeed->TransportPhoton(x_cm, y_cm, z_cm, t, eKin_eV, dx, dy,
                                     dz, nc);
-    }                        
+    }
+    for (int cl = 0; cl < nc; cl++) {
+        double xe, ye, ze, te;
+        double ee, dxe, dye, dze;
+        fTrackHeed->GetElectron(cl, xe, ye, ze, te, ee, dxe, dye, dze);
+        GasBoxHit* gbh = new GasBoxHit();
+        gbh->SetPos(G4ThreeVector(xe,ye,ze));
+        gbh->SetTime(te);
+        fGasBoxSD->InsertGasBoxHit(gbh);
+        Drift(xe,ye,ze,te);
+    }
+
 }
 
 void HeedInterfaceModel::ProcessEvent(){

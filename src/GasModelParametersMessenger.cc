@@ -79,10 +79,10 @@ GasModelParametersMessenger::GasModelParametersMessenger(GasModelParameters* gm)
   driftElectronsCmd = new G4UIcmdWithABool("/gasModelParameters/heed/drift",this);
   driftElectronsCmd->SetGuidance("true if ions and electrons are to be drifted in the electric field");
 
-  driftRKFCmd = new G4UIcmdWithABool("gasModelParameters/heed/drift",this);
+  driftRKFCmd = new G4UIcmdWithABool("/gasModelParameters/heed/driftRKF",this);
   driftRKFCmd->SetGuidance("true if runge kutta is used for the drift");
 
-  createAvalCmd = new G4UIcmdWithABool("/gasModelParameters/heed/trackmicroscopic",this);
+  createAvalCmd = new G4UIcmdWithABool("/gasModelParameters/heed/createAval",this);
   createAvalCmd->SetGuidance("true if monte carlo simulation of an avalanches is to be used");
 
   trackMicroCmd = new G4UIcmdWithABool("/gasModelParameters/heed/trackmicroscopic",this);

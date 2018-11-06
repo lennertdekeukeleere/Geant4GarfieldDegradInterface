@@ -8,7 +8,6 @@
 
 class DriftLineHit : public G4VHit {
     
-    
 public:
     DriftLineHit();
     virtual ~DriftLineHit();
@@ -20,25 +19,19 @@ public:
     inline void* operator new(size_t);
     inline void  operator delete(void*);
 	
-	void Draw() const{};
-    void Print() const{};
+	virtual void Draw();
+    virtual void Print(){};
     
-    void SetTime(G4double time){fTime=time;};
-    void SetX(G4double x){fx_mm=x;};
-    void SetY(G4double y){fy_mm=y;};
-    void SetZ(G4double z){fz_mm=z;};
+    G4ThreeVector GetPos();
+    G4double GetTime();
     
-    G4double GetTime(){return fTime;};
-    G4double GetX(){return fx_mm;};
-    G4double GetY(){return fy_mm;};
-    G4double GetZ(){return fz_mm;};
+    void SetPos(G4ThreeVector xyz){ fPos = xyz; };
+    void SetTime(G4double t){ fTime = t; };
     
     
 private:
     G4double fTime;
-    G4double fx_mm;
-    G4double fy_mm;
-    G4double fz_mm;
+    G4ThreeVector fPos;
 };
 
 using DriftLineHitsCollection=G4THitsCollection<DriftLineHit>;
