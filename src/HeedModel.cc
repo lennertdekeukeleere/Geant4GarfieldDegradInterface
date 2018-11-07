@@ -5,6 +5,8 @@
 #include "G4Gamma.hh"
 #include "G4SystemOfUnits.hh"
 #include "DetectorConstruction.hh"
+#include "G4RunManager.hh"
+#include <stdio.h>
 
 #include "G4AutoLock.hh"
 namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
@@ -73,19 +75,21 @@ G4bool HeedModel::FindParticleNameEnergy(G4String name,
 }
 
 void HeedModel::InitialisePhysics(){
-  makeGas();
+  if(G4RunManager::GetRunManager()->GetRunManagerType() == G4RunManager::workerRM){
+    makeGas();
+      
+    buildBox();
     
-  buildBox();
-  
-  BuildCompField();
-  
-  BuildSensor();
-  
-  SetTracking();
-  
-  if(fVisualizeChamber) CreateChamberView();
-  if(fVisualizeSignal) CreateSignalView();
-  if(fVisualizeField) CreateFieldView();
+    BuildCompField();
+    
+    BuildSensor();
+    
+    SetTracking();
+    
+    if(fVisualizeChamber) CreateChamberView();
+    if(fVisualizeSignal) CreateSignalView();
+    if(fVisualizeField) CreateFieldView();
+  }
 }
 
 void HeedModel::makeGas(){
@@ -190,7 +194,7 @@ void HeedModel::SetTracking(){
     fDrift = new Garfield::AvalancheMC();
     fDrift->SetSensor(fSensor);
     fDrift->EnableSignalCalculation();
-    fDrift->SetDistanceSteps(2.e-4);
+    fDrift->SetDistanceSteps(2.e-3);
     if(createAval) fDrift->EnableAttachment();
     else fDrift->DisableAttachment();
   }
@@ -202,13 +206,19 @@ void HeedModel::SetTracking(){
 }
   
 void HeedModel::CreateChamberView(){
-  fChamber = new TCanvas("c", "Chamber View", 700, 700);
+  char str[30];
+  strcpy(str,name);
+  strcat(str,"_chamber");
+  fChamber = new TCanvas(str, "Chamber View", 700, 700);
   cellView = new Garfield::ViewCell();
   cellView->SetComponent(comp);
   cellView->SetCanvas(fChamber);
   cellView->Plot2d();
   fChamber->Update();
-  fChamber->Print("chamber_configuration.pdf");
+  char str2[30];
+  strcpy(str2,name);
+  strcat(str2,"_chamber.pdf");
+  fChamber->Print(str2);
 //  gSystem->ProcessEvents();
   cout << "CreateCellView()" << endl;
   
@@ -222,7 +232,10 @@ void HeedModel::CreateChamberView(){
 }
 
 void HeedModel::CreateSignalView(){
-  fSignal = new TCanvas("c2", "Signal on the wire", 700, 700);
+  char str[30];
+  strcpy(str,name);
+  strcat(str,"_signal");
+  fSignal = new TCanvas(str, "Signal on the wire", 700, 700);
   viewSignal = new Garfield::ViewSignal();
   viewSignal->SetSensor(fSensor);
   viewSignal->SetCanvas(fSignal);
@@ -230,37 +243,57 @@ void HeedModel::CreateSignalView(){
 }
 
 void HeedModel::CreateFieldView(){
-  fField = new TCanvas("c3", "Electric field", 700, 700);
+  char str[30];
+  strcpy(str,name);
+  strcat(str,"_efield");
+  fField = new TCanvas(name, "Electric field", 700, 700);
   viewField = new Garfield::ViewField();
   viewField->SetCanvas(fField);
   viewField->SetComponent(comp);
   viewField->SetNumberOfContours(40);
   viewField->PlotContour();
   fField->Update();
-  fField->Print("Efield.pdf");
+  char str2[30];
+  strcpy(str2,name);
+  strcat(str2,"_efield.pdf");
+  fField->Print(str2);
 }
 
 void HeedModel::Drift(double x, double y, double z, double t){
-    if(driftRKF){
-        fDriftRKF->DriftElectron(x,y,z,t);
-        unsigned int n = fDriftRKF->GetNumberOfDriftLinePoints();
-        double xi,yi,zi,ti;
-        for(int i=0;i<n;i++){
-            fDriftRKF->GetDriftLinePoint(i,xi,yi,zi,ti);
-            DriftLineHit* dlh = new DriftLineHit();
-            dlh->SetPos(G4ThreeVector(xi,yi,zi));
-            dlh->SetTime(ti);
-            fGasBoxSD->InsertDriftLineHit(dlh);
-        }
-    }
-    else if(trackMicro){
-        fAvalanche->AvalancheElectron(x,y,z,t,0,0,0,0);
-        unsigned int nLines = fAvalanche->GetNumberOfElectronEndpoints();
-        for(int i=0;i<nLines;i++){
-            unsigned int n = fAvalanche->GetNumberOfElectronDriftLinePoints(i);
+    if(driftElectrons){
+        if(driftRKF){
+            fDriftRKF->DriftElectron(x,y,z,t);
+            unsigned int n = fDriftRKF->GetNumberOfDriftLinePoints();
             double xi,yi,zi,ti;
-            for(int j=0;j<n;j++){
-                fAvalanche->GetElectronDriftLinePoint(xi,yi,zi,ti,j,i);
+            for(int i=0;i<n;i++){
+                fDriftRKF->GetDriftLinePoint(i,xi,yi,zi,ti);
+                DriftLineHit* dlh = new DriftLineHit();
+                dlh->SetPos(G4ThreeVector(xi,yi,zi));
+                dlh->SetTime(ti);
+                fGasBoxSD->InsertDriftLineHit(dlh);
+            }
+        }
+        else if(trackMicro){
+            fAvalanche->AvalancheElectron(x,y,z,t,0,0,0,0);
+            unsigned int nLines = fAvalanche->GetNumberOfElectronEndpoints();
+            for(int i=0;i<nLines;i++){
+                unsigned int n = fAvalanche->GetNumberOfElectronDriftLinePoints(i);
+                double xi,yi,zi,ti;
+                for(int j=0;j<n;j++){
+                    fAvalanche->GetElectronDriftLinePoint(xi,yi,zi,ti,j,i);
+                    DriftLineHit* dlh = new DriftLineHit();
+                    dlh->SetPos(G4ThreeVector(xi,yi,zi));
+                    dlh->SetTime(ti);
+                    fGasBoxSD->InsertDriftLineHit(dlh);
+                }
+            }
+        }
+        else{
+            fDrift->DriftElectron(x,y,z,t);
+            unsigned int n = fDrift->GetNumberOfDriftLinePoints();
+            double xi,yi,zi,ti;
+            for(int i=0;i<n;i++){
+                fDrift->GetDriftLinePoint(i,xi,yi,zi,ti);
                 DriftLineHit* dlh = new DriftLineHit();
                 dlh->SetPos(G4ThreeVector(xi,yi,zi));
                 dlh->SetTime(ti);
@@ -268,17 +301,13 @@ void HeedModel::Drift(double x, double y, double z, double t){
             }
         }
     }
-    else{
-        fDrift->DriftElectron(x,y,z,t);
-        unsigned int n = fDrift->GetNumberOfDriftLinePoints();
-        double xi,yi,zi,ti;
-        for(int i=0;i<n;i++){
-            fDrift->GetDriftLinePoint(i,xi,yi,zi,ti);
-            DriftLineHit* dlh = new DriftLineHit();
-            dlh->SetPos(G4ThreeVector(xi,yi,zi));
-            dlh->SetTime(ti);
-            fGasBoxSD->InsertDriftLineHit(dlh);
-        }
-    }
+}
 
+void HeedModel::PlotTrack(){
+    if(fVisualizeChamber){
+      G4cout << "PlotTrack" << G4endl;
+      viewDrift->Plot(true,false);
+      fChamber->Update();
+      fChamber->Print("PrimaryTrack.pdf");
+    }
 }

@@ -1,19 +1,19 @@
 /InterfaceExample/geometry/SetGasPressure 0.6 bar
 /InterfaceExample/geometry/setup TPC
 
-/gasModelParameters/heed/heedinterface/addparticle e- 0. 0.001
-/gasModelParameters/heed/heedinterface/addparticle gamma 0. 10000000
-/gasModelParameters/heed/heedonly/addparticle e- 1000. 100000.
+#/gasModelParameters/heed/heedinterface/addparticle e- 0. 0.001
+#/gasModelParameters/heed/heedinterface/addparticle gamma 0. 10000000
+/gasModelParameters/heed/heedonly/addparticle e- 0.1 100000.
 /gasModelParameters/heed/heedonly/addparticle e+ 1000. 100000.
 /gasModelParameters/heed/heedonly/addparticle p 1000. 1000000.
 /gasModelParameters/heed/heedonly/addparticle mu+ 1000. 1000000.
 /gasModelParameters/heed/heedonly/addparticle mu- 1000. 1000000.
 /gasModelParameters/heed/heedonly/addparticle mu 1000. 1000000.
-/gasModelParameters/heed/heedonly/addparticle pi+ 100. 1000000.
+#/gasModelParameters/heed/heedonly/addparticle pi+ 100. 1000000.
 
 /gasModelParameters/heed/gasfile /mnt/ksf9/H2/user/u0111340/linux/AliceTPC/AliceTPC/Ne_90_CO2_10_N2_5_with_mg.gas
 /gasModelParameters/heed/ionmobilityfile IonMobility_Ne+_Ne.txt
-/gasModelParameters/heed/drift 1
+/gasModelParameters/heed/drift 0
 /gasModelParameters/heed/driftRKF 1
 /gasModelParameters/heed/trackmicroscopic 0
 /gasModelParameters/heed/createAval 0
@@ -31,12 +31,12 @@
 /run/numberOfThreads 1
 /control/cout/ignoreThreadsExcept 0
 #/control/cout/setCoutFile output.dmp
+/InterfaceExample/phys/setLowLimitE 20. eV
 /InterfaceExample/phys/InitializePhysics emlivermore
 /InterfaceExample/phys/AddParametrisation
 /process/em/AddPAIRegion all RegionGasBox PAIPhoton
 
-/InterfaceExample/phys/setLowLimitE 20. eV
-#/random/setSeeds 0 0 
+#/random/setSeeds 0 0
 /run/initialize
 
 /param/InActivateModel DegradModel
@@ -54,9 +54,9 @@
 ####################################
 ########### Visualization ##########
 ####################################
-/gps/particle pi+
+/gps/particle e-
 /gps/ene/type Mono
-/gps/ene/mono 1 GeV
+/gps/ene/mono 1 MeV
 # Positioning and Angles
 #/gps/source/intensity 49000
 /gps/ang/type iso

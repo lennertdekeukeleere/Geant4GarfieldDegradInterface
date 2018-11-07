@@ -35,6 +35,7 @@ HeedInterfaceModel::HeedInterfaceModel(GasModelParameters* gmp,G4String modelNam
         vCathodeWires = gmp->GetVoltageCathodeWires();
         vGate = gmp->GetVoltageGate();
         vDeltaGate = gmp->GetVoltageDeltaGate();
+        name="HeedInterfaceModel";
         InitialisePhysics();
     }
 
@@ -44,6 +45,8 @@ void HeedInterfaceModel::Run(G4String particleName, double ekin_keV, double t, d
             double y_cm, double z_cm, double dx, double dy, double dz){
     double eKin_eV = ekin_keV * 1000;
     int nc = 0, ni=0;
+    G4cout << "Run Interface" << G4endl;
+    G4cout << "Electron energy(in eV): " << eKin_eV << G4endl;
     if(particleName == "e-"){
         G4AutoLock lock(&aMutex);
         fTrackHeed->TransportDeltaElectron(x_cm, y_cm, z_cm, t, eKin_eV, dx, dy,
@@ -59,11 +62,12 @@ void HeedInterfaceModel::Run(G4String particleName, double ekin_keV, double t, d
         double ee, dxe, dye, dze;
         fTrackHeed->GetElectron(cl, xe, ye, ze, te, ee, dxe, dye, dze);
         GasBoxHit* gbh = new GasBoxHit();
-        gbh->SetPos(G4ThreeVector(xe,ye,ze));
+        gbh->SetPos(G4ThreeVector(xe*CLHEP::cm,ye*CLHEP::cm,ze*CLHEP::cm));
         gbh->SetTime(te);
         fGasBoxSD->InsertGasBoxHit(gbh);
         Drift(xe,ye,ze,te);
     }
+    PlotTrack();
 
 }
 

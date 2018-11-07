@@ -15,6 +15,7 @@
 #include "G4Trd.hh"
 #include "DetectorMessenger.hh"
 #include "GasBoxSD.hh"
+#include "SiliconSD.hh"
 #include "HeedInterfaceModel.hh"
 #include "HeedOnlyModel.hh"
 #include "DegradModel.hh"
@@ -29,7 +30,9 @@ DetectorConstruction::DetectorConstruction()
     caloThickness(1.*mm), // thickness of the silicon detectors
     gasPressure(1.*bar),
     temperature(273.15*kelvin),
-    setup("TPC")
+    setup("TPC"),
+    neonPercentage(85.72),
+    co2Percentage(9.52)
 {
   detectorMessenger = new DetectorMessenger(this);
 
@@ -78,7 +81,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       G4Element* elO = man->FindOrBuildElement("O");
       G4Element* elN = man->FindOrBuildElement("N");
       
-      G4double molarMass = 20.17 * g / mole;  // pure neon
+      G4double molarMass = 20.17*g/mole;  // pure neon
       
       G4double gasDensityNe = nMoles * molarMass;
       G4cout << "gasPressure: " << G4BestUnit(gasPressure, "Pressure")
@@ -92,7 +95,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
       // C4H10 Density 2.51 mg/mL (at 15 °C, 100 kPa=0.1 bar =100mBar)
       // GasDensity = 2.51*mg/cm3 ;
-      molarMass = 44.01  * g / mole;  // source wikipedia
+      molarMass = 44.01*g/mole;  // source wikipedia
       G4double gasDensityCO2 = nMoles * molarMass;
       G4cout << "gasDensityCO2: " << G4BestUnit(gasDensityCO2, "Volumic Mass")
              << G4endl;
@@ -103,28 +106,32 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       
       G4double molfracCO2 = (co2Percentage/100.)*molarMass;
       
-      molarMass = 28.0134  * g / mole;  // source wikipedia
+      molarMass = 28.0134*g/mole;  // source wikipedia
       G4double gasDensityN2 = nMoles * molarMass;
-      G4cout << "gasDensityCO2: " << G4BestUnit(gasDensityN2, "Volumic Mass")
+      G4cout << "gasDensityN2: " << G4BestUnit(gasDensityN2, "Volumic Mass")
       << G4endl;
       G4Material* N2 = new G4Material("n2",gasDensityN2,1,
                                        kStateGas, temperature, gasPressure);
       N2->AddElement(elN,1);
-      G4double molfracN2 = ((1-co2Percentage-neonPercentage)/100.)*molarMass;
+      G4double molfracN2 = (1-(neonPercentage+co2Percentage)/100.)*molarMass;
 
-      molfracNe = molfracNe/(molfracNe+molfracCO2+molfracN2);
-      molfracCO2 = molfracCO2/(molfracNe+molfracCO2+molfracN2);
-      molfracN2 = 1-molfracNe-molfracCO2;
+      G4double molfracNe_norm = molfracNe/(molfracNe+molfracCO2+molfracN2);
+      G4double molfracCO2_norm = molfracCO2/(molfracNe+molfracCO2+molfracN2);
+      G4double molfracN2_norm = 1-molfracNe_norm-molfracCO2_norm;
+
+      G4cout << "Molar fraction Neon: " << molfracNe_norm << G4endl;
+      G4cout << "Molar fraction CO2: " << molfracCO2_norm << G4endl;
+      G4cout << "Molar fraction N2: " << molfracN2_norm << G4endl;
 
       G4double gasDensityMixture = (neonPercentage/100.) * gasDensityNe +
-                                   co2Percentage/100. * gasDensityCO2 + ((1-neonPercentage-co2Percentage)/100.)*gasDensityN2;
+                                   co2Percentage/100. * gasDensityCO2 + (1-(neonPercentage+co2Percentage)/100.)*gasDensityN2;
       
       mixture = new G4Material("mixture", gasDensityMixture, 3);
       
       
-      mixture->AddMaterial(neon, molfracNe);
-      mixture->AddMaterial(CO2, molfracCO2);
-      mixture->AddMaterial(N2, molfracN2);
+      mixture->AddMaterial(neon, molfracNe_norm);
+      mixture->AddMaterial(CO2, molfracCO2_norm);
+      mixture->AddMaterial(N2, molfracN2_norm);
       G4cout << "gasDensityC4H10He: " << G4BestUnit(gasDensityMixture,
                                                     "Volumic Mass") << G4endl;
       
@@ -156,7 +163,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       
       //Silicon calorimeters
       G4Tubs* solidCalo = new G4Tubs("solid_tube_Calo",gasboxR,gasboxR+caloThickness,gasboxH*0.5, 0., twopi);
-      G4LogicalVolume* logicCalo =
+      logicCalo =
       new G4LogicalVolume(solidCalo, siliconMaterial, "solidCalo_log");
       new G4PVPlacement(myRotation,G4ThreeVector(), logicCalo,"solidCalo_phys",logicWorld,false,0,checkOverlaps);
       
@@ -371,6 +378,12 @@ void DetectorConstruction::ConstructSDandField(){
   SDManager->SetVerboseLevel(1);
   SDManager->AddNewDetector(myGasBoxSD);
   SetSensitiveDetector(logicGasBox,myGasBoxSD);
+
+  G4String SiliconSDname = "interface/SiliconSD";
+  SiliconSD* mySiliconSD = new SiliconSD(SiliconSDname);
+  SDManager->SetVerboseLevel(1);
+  SDManager->AddNewDetector(mySiliconSD);
+  SetSensitiveDetector(logicCalo,mySiliconSD);
 
   G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");
   HeedOnlyModel* HOM = new HeedOnlyModel(fGasModelParameters,"HeedOnlyModel",region,this,myGasBoxSD);

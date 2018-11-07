@@ -39,7 +39,7 @@ HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Regio
         vCathodeWires = gmp->GetVoltageCathodeWires();
         vGate = gmp->GetVoltageGate();
         vDeltaGate = gmp->GetVoltageDeltaGate();
-        G4cout << "Get the gasboxhitscollection" << G4endl;
+        name="HeedOnlyModel";
         InitialisePhysics();
     }
 
@@ -49,7 +49,7 @@ void HeedOnlyModel::Run(G4String particleName, double ekin_keV, double t, double
             double y_cm, double z_cm, double dx, double dy, double dz){
     double eKin_eV = ekin_keV * 1000;
     int nc = 0, ni=0;
-    fTrackHeed->SetParticle("pi");
+    fTrackHeed->SetParticle(particleName);
     fTrackHeed->SetEnergy(eKin_eV);
     fTrackHeed->NewTrack(x_cm, y_cm, z_cm, t, dx, dy, dz);
     double xcl, ycl, zcl, tcl, ecl, extra;
@@ -60,13 +60,16 @@ void HeedOnlyModel::Run(G4String particleName, double ekin_keV, double t, double
             double x, y, z, t, e, dx, dy, dz;
             fTrackHeed->GetElectron(i, x, y, z, t, e, dx, dy, dz);
             GasBoxHit* gbh = new GasBoxHit();
-            gbh->SetPos(G4ThreeVector(x,y,z));
+            gbh->SetPos(G4ThreeVector(x*CLHEP::cm,y*CLHEP::cm,z*CLHEP::cm));
             gbh->SetTime(t);
             fGasBoxSD->InsertGasBoxHit(gbh);
             Drift(x,y,z,t);
         }
     }
+    PlotTrack();
 }
+
+
 
 void HeedOnlyModel::ProcessEvent(){
 

@@ -9,15 +9,15 @@
 /gasModelParameters/heed/heedonly/addparticle mu+ 1000. 1000000.
 /gasModelParameters/heed/heedonly/addparticle mu- 1000. 1000000.
 /gasModelParameters/heed/heedonly/addparticle mu 1000. 1000000.
-/gasModelParameters/heed/heedonly/addparticle pi 1000. 1000000.
+#/gasModelParameters/heed/heedonly/addparticle pi+ 100. 1000000.
 
 /gasModelParameters/heed/gasfile /mnt/ksf9/H2/user/u0111340/linux/AliceTPC/AliceTPC/Ne_90_CO2_10_N2_5_with_mg.gas
 /gasModelParameters/heed/ionmobilityfile IonMobility_Ne+_Ne.txt
 /gasModelParameters/heed/drift 1
-/gasModelParameters/heed/driftRKF 1
+/gasModelParameters/heed/driftRKF 0
 /gasModelParameters/heed/trackmicroscopic 0
 /gasModelParameters/heed/createAval 0
-/gasModelParameters/heed/visualizechamber 1
+/gasModelParameters/heed/visualizechamber 0
 /gasModelParameters/heed/visualizesignals 0
 /gasModelParameters/heed/visualizefield 1
 /gasModelParameters/heed/voltageplanehv -100000
@@ -31,11 +31,11 @@
 /run/numberOfThreads 1
 /control/cout/ignoreThreadsExcept 0
 #/control/cout/setCoutFile output.dmp
+/InterfaceExample/phys/setLowLimitE 20. eV
 /InterfaceExample/phys/InitializePhysics emlivermore
 /InterfaceExample/phys/AddParametrisation
 /process/em/AddPAIRegion all RegionGasBox PAIPhoton
 
-/InterfaceExample/phys/setLowLimitE 20. eV
 #/random/setSeeds 0 0
 /run/initialize
 
@@ -55,8 +55,8 @@
 ########### Visualization ##########
 ####################################
 
-/vis/open VRML2FILE
-#/vis/open OGL 600x600-0+0
+#/vis/open VRML2FILE
+/vis/open OGL 600x600-0+0
 
 /run/verbose 2
 /event/verbose 0
@@ -68,28 +68,29 @@
 # Draw smooth trajectories at end of event.
 # Gamma-rays represented in red.
 /vis/scene/add/trajectories smooth
-/vis/modeling/trajectories/create/drawByParticleID
-/vis/modeling/trajectories/drawByParticleID-0/set gamma red
-/vis/modeling/trajectories/drawByParticleID-0/set e- green
-/vis/modeling/trajectories/drawByParticleID-0/set opticalphoton blue
+/vis/modeling/trajectories/create/drawByCharge
+/vis/modeling/trajectories/drawByCharge-0/set 0 green
+/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 1
+
+/vis/scene/add/hits
 #Set Visualization properties
 /vis/scene/add/axes
 
-/vis/scene/endOfEventAction accumulate 10
+/vis/scene/endOfEventAction accumulate 1
 /vis/scene/endOfRunAction accumulate
-/vis/geometry/set/forceSolid GasBox -1 1
-/vis/geometry/set/forceSolid FieldWire -1 1
-/vis/geometry/set/forceSolid SignalWire -1 1
-/vis/geometry/set/forceSolid cell_logical -1 1
+/vis/geometry/set/forceSolid solidGasBox_log -1 1
+/vis/geometry/set/forceSolid solidCalo_log -1 1
+/vis/geometry/set/forceSolid solidWall1_log -1 1
+/vis/geometry/set/forceSolid solidWall2_log -1 1
 /tracking/storeTrajectory 0 
 /vis/scene/add/trajectories
 
-/gps/particle pi+
+/gps/particle e- 
 /gps/ene/type Mono
-/gps/ene/mono 1 GeV
+/gps/ene/mono 1 MeV
 # Positioning and Angles
 #/gps/source/intensity 49000
-/gps/pos/confine Carrier
 /gps/ang/type iso
 #/gps/ang/minphi 240 deg
 #/gps/ang/maxphi 300 deg

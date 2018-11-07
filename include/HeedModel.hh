@@ -58,6 +58,7 @@ class HeedModel : public G4VFastSimulationModel {
   void InitialisePhysics();
   virtual void Run(G4String particleName, double ekin_keV, double t, double x_cm,
             double y_cm, double z_cm, double dx, double dy, double dz) = 0;
+  void PlotTrack();
   void Drift(double,double, double, double);
   DetectorConstruction* detCon;
   HeedMessenger* fHeedMessenger;
@@ -84,6 +85,8 @@ class HeedModel : public G4VFastSimulationModel {
 
   Garfield::TrackHeed* fTrackHeed;
   GasBoxSD* fGasBoxSD;
+
+  const char* name;
   
   /*The following private methods and variables are user-dependent*/
  private:

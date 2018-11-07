@@ -19,11 +19,11 @@ public:
     inline void* operator new(size_t);
     inline void  operator delete(void*);
 	
-	virtual void Draw();
+	  virtual void Draw(){};
     virtual void Print(){};
     
-    G4ThreeVector GetPos();
-    G4double GetTime();
+    G4ThreeVector GetPos(){return fPos;};
+    G4double GetTime(){return fTime;};
     
     void SetPos(G4ThreeVector xyz){ fPos = xyz; };
     void SetTime(G4double t){ fTime = t; };

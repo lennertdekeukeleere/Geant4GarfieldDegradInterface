@@ -43,3 +43,7 @@ void GasBoxHit::Draw()
     //G4cout<<"DRAWING "<<fPos.getY()<<G4endl;
   }
 }
+
+void GasBoxHit::Print(){
+    G4cout << "Printing hits" << G4endl;
+}

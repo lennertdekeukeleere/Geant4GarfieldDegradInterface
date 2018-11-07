@@ -3,6 +3,7 @@
 #include "G4String.hh"
 #include "G4Track.hh"
 #include "GasBoxHit.hh"
+#include "DriftLineHit.hh"
 #include "G4Step.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4TouchableHistory.hh"
@@ -10,6 +11,10 @@
 #include "G4VProcess.hh"
 #include "DetectorConstruction.hh"
 #include "G4VPhysicalVolume.hh"
+#include "G4VVisManager.hh"
+#include "G4Polyline.hh"
+#include "G4Colour.hh"
+#include "G4VisAttributes.hh"
 
 GasBoxSD::GasBoxSD(G4String name) : G4VSensitiveDetector(name), fGasBoxHitsCollection(NULL),
     fXenonHitsCollection(NULL), fGarfieldExcitationHitsCollection(NULL), fDriftLineHitsCollection(NULL){
@@ -50,20 +55,50 @@ G4bool GasBoxSD::ProcessHits(G4Step* aStep, G4TouchableHistory* hist){
     G4Track* aTrack = aStep->GetTrack();
     G4StepPoint* thePostPoint = aStep->GetPostStepPoint();
 
-    G4cout << "Hit!!" << G4endl;
-
-    if(/*aTrack->GetTrackStatus() == fStopAndKill &&*/
-       aTrack->GetDefinition()->GetParticleName() == "pi+"){
-        G4cout << "Hit!!" << G4endl;
-        GasBoxHit* hit = new GasBoxHit();
+    if(aTrack->GetDefinition()->GetParticleName() == "e-"){
+        G4cout << "GasBox Hit!!" << G4endl;
+        G4cout << "Particle ID: " << aTrack->GetTrackID() << G4endl;
+        G4cout << "Energy electron: " << aTrack->GetKineticEnergy() << G4endl;
+    /*    GasBoxHit* hit = new GasBoxHit();
         G4ThreeVector pos = thePostPoint->GetPosition();
         hit->SetPos(pos);
         hit->SetTime(aTrack->GetGlobalTime());
         fGasBoxHitsCollection->insert(hit);
-        return true;
+    */    return true;
     }
 
     return false;
     
     
+}
+
+void GasBoxSD::EndOfEvent (G4HCofThisEvent * hce){
+    auto HC = static_cast<GasBoxHitsCollection*>(hce->GetHC(GBHCID));
+    int entries = HC->entries();
+    G4cout << "Number of Electrons: " << entries << G4endl;
+    for(int i=0;i<entries;i++){
+        auto hit = (*HC)[i];
+        G4cout << hit->GetPos() << " " << hit->GetTime() << G4endl;
+    }
+    DrawAll();
+}
+
+void GasBoxSD::DrawAll(){
+    G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
+    if(pVVisManager)
+    {
+        G4Polyline trajectoryLine;;
+        G4Colour colour(0.,1.,0.);
+        G4VisAttributes attribs(colour);
+        attribs.SetVisibility(true);
+        trajectoryLine.SetVisAttributes(attribs);
+        int entries = fDriftLineHitsCollection->entries();
+        G4cout << entries << G4endl;
+        for(int i=0;i<entries;i++){
+            auto hit = (*fDriftLineHitsCollection)[i];
+ //           G4cout << hit->GetPos() << G4endl;
+            trajectoryLine.push_back(hit->GetPos());
+        }
+        pVVisManager->Draw(trajectoryLine);
+    }
 }
