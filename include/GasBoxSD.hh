@@ -5,7 +5,6 @@
 #include "G4String.hh"
 #include "G4Region.hh"
 #include "GasBoxHit.hh"
-#include "DriftLineHit.hh"
 #include "XenonHit.hh"
 #include "GarfieldExcitationHit.hh"
 
@@ -27,16 +26,13 @@ class GasBoxSD : public G4VSensitiveDetector{
     void InsertXenonHit(XenonHit* xh){fXenonHitsCollection->insert(xh);};
     void InsertGarfieldExcitationHit(GarfieldExcitationHit* geh){fGarfieldExcitationHitsCollection->insert(geh);};
     void InsertGasBoxHit(GasBoxHit* gbh){fGasBoxHitsCollection->insert(gbh);};
-    void InsertDriftLineHit(DriftLineHit* dlh){fDriftLineHitsCollection->insert(dlh);};
 	
 	private:
 	
     GasBoxHitsCollection* fGasBoxHitsCollection;
     XenonHitsCollection* fXenonHitsCollection;
     GarfieldExcitationHitsCollection* fGarfieldExcitationHitsCollection;
-    DriftLineHitsCollection* fDriftLineHitsCollection;
     G4int GBHCID;
-    G4int DLHCID;
     G4int XHCID;
     G4int GEHCID;
     

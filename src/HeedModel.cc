@@ -7,6 +7,10 @@
 #include "DetectorConstruction.hh"
 #include "G4RunManager.hh"
 #include <stdio.h>
+#include "DriftLineTrajectory.hh"
+#include "G4TrackingManager.hh"
+#include "G4EventManager.hh"
+#include "G4VVisManager.hh"
 
 #include "G4AutoLock.hh"
 namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
@@ -261,16 +265,17 @@ void HeedModel::CreateFieldView(){
 
 void HeedModel::Drift(double x, double y, double z, double t){
     if(driftElectrons){
+        DriftLineTrajectory* dlt = new DriftLineTrajectory();
+        G4TrackingManager* fpTrackingManager = G4EventManager::GetEventManager()->GetTrackingManager();
+        fpTrackingManager->SetTrajectory(dlt);
         if(driftRKF){
             fDriftRKF->DriftElectron(x,y,z,t);
             unsigned int n = fDriftRKF->GetNumberOfDriftLinePoints();
             double xi,yi,zi,ti;
             for(int i=0;i<n;i++){
                 fDriftRKF->GetDriftLinePoint(i,xi,yi,zi,ti);
-                DriftLineHit* dlh = new DriftLineHit();
-                dlh->SetPos(G4ThreeVector(xi,yi,zi));
-                dlh->SetTime(ti);
-                fGasBoxSD->InsertDriftLineHit(dlh);
+                if(G4VVisManager::GetConcreteInstance() && i % 1000 == 0)
+                  dlt->AppendStep(G4ThreeVector(xi*CLHEP::cm,yi*CLHEP::cm,zi*CLHEP::cm),ti);
             }
         }
         else if(trackMicro){
@@ -281,10 +286,8 @@ void HeedModel::Drift(double x, double y, double z, double t){
                 double xi,yi,zi,ti;
                 for(int j=0;j<n;j++){
                     fAvalanche->GetElectronDriftLinePoint(xi,yi,zi,ti,j,i);
-                    DriftLineHit* dlh = new DriftLineHit();
-                    dlh->SetPos(G4ThreeVector(xi,yi,zi));
-                    dlh->SetTime(ti);
-                    fGasBoxSD->InsertDriftLineHit(dlh);
+                    if(G4VVisManager::GetConcreteInstance() && i % 1000 == 0)
+                      dlt->AppendStep(G4ThreeVector(xi*CLHEP::cm,yi*CLHEP::cm,zi*CLHEP::cm),ti);
                 }
             }
         }
@@ -294,10 +297,8 @@ void HeedModel::Drift(double x, double y, double z, double t){
             double xi,yi,zi,ti;
             for(int i=0;i<n;i++){
                 fDrift->GetDriftLinePoint(i,xi,yi,zi,ti);
-                DriftLineHit* dlh = new DriftLineHit();
-                dlh->SetPos(G4ThreeVector(xi,yi,zi));
-                dlh->SetTime(ti);
-                fGasBoxSD->InsertDriftLineHit(dlh);
+                if(G4VVisManager::GetConcreteInstance() && i % 1000 == 0)
+                  dlt->AppendStep(G4ThreeVector(xi*CLHEP::cm,yi*CLHEP::cm,zi*CLHEP::cm),ti);
             }
         }
     }

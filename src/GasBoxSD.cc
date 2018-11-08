@@ -3,7 +3,6 @@
 #include "G4String.hh"
 #include "G4Track.hh"
 #include "GasBoxHit.hh"
-#include "DriftLineHit.hh"
 #include "G4Step.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4TouchableHistory.hh"
@@ -17,16 +16,14 @@
 #include "G4VisAttributes.hh"
 
 GasBoxSD::GasBoxSD(G4String name) : G4VSensitiveDetector(name), fGasBoxHitsCollection(NULL),
-    fXenonHitsCollection(NULL), fGarfieldExcitationHitsCollection(NULL), fDriftLineHitsCollection(NULL){
+    fXenonHitsCollection(NULL), fGarfieldExcitationHitsCollection(NULL){
     collectionName.insert("GBHC");
     collectionName.insert("XHC");
     collectionName.insert("GEHC");
-    collectionName.insert("DLHC");
     
     GBHCID=-1;
     XHCID=-1;
     GEHCID=-1;
-    DLHCID=-1;
 }
 
 GasBoxSD::~GasBoxSD(){}
@@ -36,17 +33,14 @@ void GasBoxSD::Initialize(G4HCofThisEvent * HCE){
     fGasBoxHitsCollection = new GasBoxHitsCollection(SensitiveDetectorName, collectionName[0]);
     fXenonHitsCollection = new XenonHitsCollection(SensitiveDetectorName, collectionName[1]);
     fGarfieldExcitationHitsCollection = new GarfieldExcitationHitsCollection(SensitiveDetectorName, collectionName[2]);
-    fDriftLineHitsCollection = new DriftLineHitsCollection(SensitiveDetectorName, collectionName[3]);
     if(GBHCID==-1){
         GBHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
         XHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[1]);
         GEHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[2]);
-        DLHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[3]);
     }
     HCE->AddHitsCollection(GBHCID,fGasBoxHitsCollection);
     HCE->AddHitsCollection(XHCID,fXenonHitsCollection);
     HCE->AddHitsCollection(GEHCID,fGarfieldExcitationHitsCollection);
-    HCE->AddHitsCollection(DLHCID,fDriftLineHitsCollection);
 
     G4cout << "GasBoxSD Intialized!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << G4endl;
 }
@@ -83,22 +77,4 @@ void GasBoxSD::EndOfEvent (G4HCofThisEvent * hce){
     DrawAll();
 }
 
-void GasBoxSD::DrawAll(){
-    G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
-    if(pVVisManager)
-    {
-        G4Polyline trajectoryLine;;
-        G4Colour colour(0.,1.,0.);
-        G4VisAttributes attribs(colour);
-        attribs.SetVisibility(true);
-        trajectoryLine.SetVisAttributes(attribs);
-        int entries = fDriftLineHitsCollection->entries();
-        G4cout << entries << G4endl;
-        for(int i=0;i<entries;i++){
-            auto hit = (*fDriftLineHitsCollection)[i];
- //           G4cout << hit->GetPos() << G4endl;
-            trajectoryLine.push_back(hit->GetPos());
-        }
-        pVVisManager->Draw(trajectoryLine);
-    }
-}
+void GasBoxSD::DrawAll(){}

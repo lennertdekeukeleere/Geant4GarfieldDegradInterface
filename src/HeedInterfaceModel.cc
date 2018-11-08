@@ -12,6 +12,7 @@
 #include "G4SystemOfUnits.hh"
 #include "GasModelParameters.hh"
 #include "GasBoxSD.hh"
+#include "G4VVisManager.hh"
 
 #include "G4AutoLock.hh"
 namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
@@ -65,7 +66,8 @@ void HeedInterfaceModel::Run(G4String particleName, double ekin_keV, double t, d
         gbh->SetPos(G4ThreeVector(xe*CLHEP::cm,ye*CLHEP::cm,ze*CLHEP::cm));
         gbh->SetTime(te);
         fGasBoxSD->InsertGasBoxHit(gbh);
-        Drift(xe,ye,ze,te);
+        if(G4VVisManager::GetConcreteInstance() && cl % 100 == 0)
+            Drift(xe,ye,ze,te);
     }
     PlotTrack();
 
