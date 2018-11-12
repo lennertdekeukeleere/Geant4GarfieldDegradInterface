@@ -1,5 +1,5 @@
-/InterfaceExample/geometry/SetGasPressure 0.6 bar
-/InterfaceExample/geometry/setup TPC
+/InterfaceExample/geometry/SetGasPressure 1. bar
+/InterfaceExample/geometry/setup xenon
 
 /gasModelParameters/heed/heedinterface/addparticle e- 0. 0.001
 /gasModelParameters/heed/heedinterface/addparticle gamma 0. 10000000
@@ -11,7 +11,7 @@
 /gasModelParameters/heed/heedonly/addparticle mu 1000. 1000000.
 #/gasModelParameters/heed/heedonly/addparticle pi+ 100. 1000000.
 
-/gasModelParameters/heed/gasfile /mnt/ksf9/H2/user/u0111340/linux/AliceTPC/AliceTPC/Ne_90_CO2_10_N2_5_with_mg.gas
+/gasModelParameters/heed/gasfile Ne_90_CO2_10_N2_5_with_mg.gas
 /gasModelParameters/heed/ionmobilityfile IonMobility_Ne+_Ne.txt
 /gasModelParameters/heed/drift 1
 /gasModelParameters/heed/driftRKF 0
@@ -49,46 +49,45 @@
 ####################################
 /tracking/verbose 0
 /run/verbose 1
-/event/verbose 0
-
+/event/verbose 1
+/vis/verbose 6
 ####################################
 ########### Visualization ##########
 ####################################
-
 #/vis/open VRML2FILE
 /vis/open OGL 600x600-0+0
-
-/run/verbose 2
-/event/verbose 0
-/tracking/verbose 0
-
+#/vis/open OGLSX
 # Draw geometry:
 /vis/drawVolume
-
+/vis/scene/add/trajectories smooth
+/vis/scene/add/hits
+/vis/viewer/set/lightsThetaPhi 90. 0.
+/vis/viewer/set/viewpointThetaPhi 150. 90.
+/vis/viewer/set/style surface
+/vis/viewer/set/hiddenEdge true
 # Draw smooth trajectories at end of event.
 # Gamma-rays represented in red.
-/vis/scene/add/trajectories smooth
+#/vis/modeling/trajectories/create/drawByParticleID
+#/vis/modeling/trajectories/drawByParticleID-0/set e- green
+#/vis/modeling/trajectories/drawByParticleID-0/verbose 1
 /vis/modeling/trajectories/create/drawByCharge
 /vis/modeling/trajectories/drawByCharge-0/set 0 green
-/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
-/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 1
+/vis/modeling/trajectories/drawByCharge-0/verbose 1
+#/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+#/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 6
 
-/vis/scene/add/hits
-#Set Visualization properties
-/vis/scene/add/axes
-
-/vis/scene/endOfEventAction accumulate 1
-/vis/scene/endOfRunAction accumulate
+/vis/scene/endOfEventAction accumulate
+#/vis/scene/endOfRunAction accumulate
 /vis/geometry/set/forceSolid solidGasBox_log -1 1
 /vis/geometry/set/forceSolid solidCalo_log -1 1
 /vis/geometry/set/forceSolid solidWall1_log -1 1
 /vis/geometry/set/forceSolid solidWall2_log -1 1
-/tracking/storeTrajectory 0 
-/vis/scene/add/trajectories
+/tracking/storeTrajectory 1
 
-/gps/particle e- 
+
+/gps/particle gamma
 /gps/ene/type Mono
-/gps/ene/mono 1 MeV
+/gps/ene/mono 6.9 keV
 # Positioning and Angles
 #/gps/source/intensity 49000
 /gps/ang/type iso
@@ -101,4 +100,5 @@
 /gps/pos/rot2 0 0 1
 
 
-/run/beamOn 1
+/run/beamOn 0
+

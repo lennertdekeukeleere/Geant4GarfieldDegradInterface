@@ -191,9 +191,71 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       G4Material* Xenon = man->FindOrBuildMaterial("Xenon900Torr");
       G4Material* glass= man->FindOrBuildMaterial("G4_MAGNESIUM_FLUORIDE");
       G4Material* kapton=man->FindOrBuildMaterial("G4_KAPTON");
+      G4Material* fSteel = new G4Material("StainlessSteel", 7.80 * g/cm3, 3 /* components */);
+      G4Element* elFe = man->FindOrBuildElement("Fe");
+      G4Element* elNi = man->FindOrBuildElement("Ni");
+      G4Element* elCr = man->FindOrBuildElement("Cr");
+      fSteel->AddElement(elFe, 70 * perCent);
+      fSteel->AddElement(elCr, 18 * perCent);
+      fSteel->AddElement(elNi, 12 * perCent);
+      G4Element* elAl = man->FindOrBuildElement("Al");
+      G4Element* elO = man->FindOrBuildElement("O");
+      G4Material* fMacor=new G4Material("ceramic", 2.52 * g/cm3, 2 /* components */);
+      fMacor->AddElement(elAl,2);
+      fMacor->AddElement(elO,3);
+      
       G4Material* steel304=man->FindOrBuildMaterial("StainlessSteel");
       G4Material* ceramic=man->FindOrBuildMaterial("ceramic");  //MACOR
-      G4Material* CsIPhotocathode= man->FindOrBuildMaterial("G4_CESIUM_IODIDE");
+
+      const G4int nEntriesXenonIndex = 11;
+      G4double photonEnergyXenonIndex[nEntriesXenonIndex]={6.25*eV,6.41*eV,6.58*eV,6.75*eV,6.93*eV,7.12*eV,7.32*eV,7.54*eV,7.77*eV,8.01*eV,8.27*eV};
+      
+      G4double XenonRindex[nEntriesXenonIndex]={1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00};
+      
+      G4MaterialPropertiesTable* mptXenon= new G4MaterialPropertiesTable();
+      mptXenon->AddProperty("RINDEX",photonEnergyXenonIndex,XenonRindex,nEntriesXenonIndex);
+      Xenon->SetMaterialPropertiesTable(mptXenon);
+      
+      //PMT GLASS Refractive index
+      const G4int nEntriesMgF2Index = 9;
+      G4double photonEnergyMgF2[nEntriesMgF2Index]={6.19*eV,6.44*eV,6.70*eV,6.97*eV,7.26*eV,7.55*eV,7.86*eV,8.18*eV,8.51*eV};
+      
+
+      G4double MgF2Rindex[nEntriesMgF2Index]={1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
+      
+      G4double MgF2Reflectivity[nEntriesMgF2Index]={0.,0.,0.,0.,0.,0.,0.,0.,0.};
+      
+      
+      G4MaterialPropertiesTable* mptGlass= new G4MaterialPropertiesTable();
+      mptGlass->AddProperty("RINDEX",photonEnergyMgF2,MgF2Rindex,nEntriesMgF2Index);
+      mptGlass-> AddProperty("REFLECTIVITY",photonEnergyMgF2,MgF2Reflectivity,nEntriesMgF2Index);
+      glass->SetMaterialPropertiesTable(mptGlass);
+      
+      
+      
+      //--------------------------------------------------
+      // PMT PHOTOCATHODE
+      //--------------------------------------------------
+      
+      
+      G4double photonEnergyPMT[]={6.26*eV,6.31*eV,6.38*eV,6.42*eV,6.45*eV,6.49*eV,6.52*eV,6.55*eV,6.59*eV,6.61*eV,6.66*eV,6.70*eV,6.75*eV,6.81*eV,6.85*eV,6.89*eV,6.95*eV,6.98*eV,7.02*eV,7.08*eV,7.15*eV,7.21*eV,7.30*eV,7.37*eV,7.43*eV,7.50*eV,7.56*eV,7.60*eV,7.68*eV,7.73*eV,7.77*eV,7.86*eV,7.95*eV,8.04*eV,8.10*eV,8.14*eV};
+      
+      
+      const G4int nEntriesPMT = sizeof(photonEnergyPMT)/sizeof(G4double);
+      
+      
+      
+      G4double photocath_EFF[]=
+      {3.96,5.20,6.63,7.96,8.99,9.85,10.46,11.46,12.18,12.94,14.17,14.61,16.00,17.01,18.07,18.63,19.79,20.40,21.68,21.68,23.04,23.04,23.75,25.24,26.01,26.01,27.64,28.49,29.37,29.37,30.28,32.17,33.17,35.24,36.33,37.45}; //Enables 'detection' of photons
+      
+      assert(sizeof(photocath_EFF) == sizeof(photonEnergyPMT));
+      
+      
+      G4double reflectivityPhotocathode[] =
+      { 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+      
+      assert(sizeof(reflectivityPhotocathode) == sizeof(photonEnergyPMT));
+      
       
 
       gasboxR = 3.5*cm;
@@ -379,11 +441,13 @@ void DetectorConstruction::ConstructSDandField(){
   SDManager->AddNewDetector(myGasBoxSD);
   SetSensitiveDetector(logicGasBox,myGasBoxSD);
 
-  G4String SiliconSDname = "interface/SiliconSD";
-  SiliconSD* mySiliconSD = new SiliconSD(SiliconSDname);
-  SDManager->SetVerboseLevel(1);
-  SDManager->AddNewDetector(mySiliconSD);
-  SetSensitiveDetector(logicCalo,mySiliconSD);
+    if(setup=="TPC"){
+      G4String SiliconSDname = "interface/SiliconSD";
+      SiliconSD* mySiliconSD = new SiliconSD(SiliconSDname);
+      SDManager->SetVerboseLevel(1);
+      SDManager->AddNewDetector(mySiliconSD);
+      SetSensitiveDetector(logicCalo,mySiliconSD);
+    }
 
   G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");
   HeedOnlyModel* HOM = new HeedOnlyModel(fGasModelParameters,"HeedOnlyModel",region,this,myGasBoxSD);

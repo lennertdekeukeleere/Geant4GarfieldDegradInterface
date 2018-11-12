@@ -61,7 +61,7 @@ class DriftLineTrajectory : public G4Trajectory
     virtual G4VTrajectoryPoint* GetPoint(G4int i) const
      { return (*fpPointsContainer)[i]; };
     inline G4double GetCharge() const
-   { return -1.*eplus; }
+   { return +2.*eplus; }
   private:
     DriftLineTrajectoryPointContainer* fpPointsContainer;
 };

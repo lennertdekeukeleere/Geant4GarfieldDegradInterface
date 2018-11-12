@@ -274,7 +274,7 @@ void HeedModel::Drift(double x, double y, double z, double t){
             double xi,yi,zi,ti;
             for(int i=0;i<n;i++){
                 fDriftRKF->GetDriftLinePoint(i,xi,yi,zi,ti);
-                if(G4VVisManager::GetConcreteInstance() && i % 1000 == 0)
+                if(G4VVisManager::GetConcreteInstance() && i % 10 == 0)
                   dlt->AppendStep(G4ThreeVector(xi*CLHEP::cm,yi*CLHEP::cm,zi*CLHEP::cm),ti);
             }
         }
@@ -286,7 +286,7 @@ void HeedModel::Drift(double x, double y, double z, double t){
                 double xi,yi,zi,ti;
                 for(int j=0;j<n;j++){
                     fAvalanche->GetElectronDriftLinePoint(xi,yi,zi,ti,j,i);
-                    if(G4VVisManager::GetConcreteInstance() && i % 1000 == 0)
+                    if(G4VVisManager::GetConcreteInstance() && i % 10 == 0)
                       dlt->AppendStep(G4ThreeVector(xi*CLHEP::cm,yi*CLHEP::cm,zi*CLHEP::cm),ti);
                 }
             }
@@ -297,7 +297,7 @@ void HeedModel::Drift(double x, double y, double z, double t){
             double xi,yi,zi,ti;
             for(int i=0;i<n;i++){
                 fDrift->GetDriftLinePoint(i,xi,yi,zi,ti);
-                if(G4VVisManager::GetConcreteInstance() && i % 1000 == 0)
+                if(G4VVisManager::GetConcreteInstance() && i % 10 == 0)
                   dlt->AppendStep(G4ThreeVector(xi*CLHEP::cm,yi*CLHEP::cm,zi*CLHEP::cm),ti);
             }
         }
