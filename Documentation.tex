@@ -1,0 +1,571 @@
+%% 
+%% Copyright 2007, 2008, 2009 Elsevier Ltd
+%% 
+%% This file is part of the 'Elsarticle Bundle'.
+%% ---------------------------------------------
+%% 
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.2 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%% 
+%% The list of all files belonging to the 'Elsarticle Bundle' is
+%% given in the file `manifest.txt'.
+%% 
+
+%% Template article for Elsevier's document class `elsarticle'
+%% with numbered style bibliographic references
+%% SP 2008/03/01
+
+%\documentclass[preprint,12pt,sort&compress]{elsarticle}
+\documentclass[preprint,12pt,sort&compress]{elsarticle}
+%% Use the option review to obtain double line spacing
+%\documentclass[authoryear,preprint,review,12pt]{elsarticle}
+
+
+\usepackage{lineno}
+%\linenumbers 
+
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+
+%% For including figures, graphicx.sty has been loaded in
+%% elsarticle.cls. If you prefer to use the old commands
+%% please give \usepackage{epsfig}
+\usepackage{hyperref}
+%% The amssymb package provides various useful mathematical symbols
+\usepackage{amssymb}
+%% The amsthm package provides extended theorem environments
+%% \usepackage{amsthm}
+
+\usepackage{listings}
+\usepackage[caption=false]{subfig}
+\usepackage{multirow}
+\usepackage[]{threeparttable}
+\usepackage{graphicx,tabularx,multirow,appendix}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[normalem]{ulem}
+\usepackage[usenames, dvipsnames]{color}
+\usepackage{doi}
+\usepackage{url}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{lmodern}
+
+
+%\usepackage[rgb]{xcolor}
+%\usepackage[citestyle=apa,maxcitenames=2,bibstyle=authoryear,doi=true,url=true]{biblatex}
+
+
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\lstset{language=C++,
+	backgroundcolor=\color{backcolour},   
+	basicstyle=\ttfamily,
+	keywordstyle=\color{blue}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{codegreen},
+	morecomment=[l][\color{magenta}]{\#}
+	basicstyle=\scriptsize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers.
+%% \usepackage{lineno}
+
+\def\rot{\rotatebox[origin=c]}
+
+\journal{NUCL INSTRUM METH A}
+
+\begin{document}
+
+\begin{frontmatter}
+
+%% Title, authors and addresses
+
+%% use the tnoteref command within \title for footnotes;
+%% use the tnotetext command for theassociated footnote;
+%% use the fnref command within \author or \address for footnotes;
+%% use the fntext command for theassociated footnote;
+%% use the corref command within \author for corresponding author footnotes;
+%% use the cortext command for theassociated footnote;
+%% use the ead command for the email address,
+%% and the form \ead[url] for the home page:
+%% \title{Title\tnoteref{label1}}
+%% \tnotetext[label1]{}
+%% \author{Name\corref{cor1}\fnref{label2}}
+%% \ead{email address}
+%% \ead[url]{home page}
+%% \fntext[label2]{}
+%% \cortext[cor1]{}
+%% \address{Address\fnref{label3}}
+%% \fntext[label3]{}
+
+\title{Documentation: Interfacing Geant4, Garfield++ and Degrad}
+
+%% use optional labels to link authors explicitly to addresses:
+%% \author[label1,label2]{}
+%% \address[label1]{}
+%% \address[label2]{}
+
+\author[add1,add2]{Dorothea~Pfeiffer\corref{cor1}}
+\ead{dorothea.pfeiffer@cern.ch}
+\author[add3]{Lennert~De~Keukeleere}
+\author[add4]{Carlos~Azevedo}
+\author[add5]{Francesca~Belloni}
+\author[add6]{Stephen~Biagi}
+\author[add7]{Vladimir~Grichine}
+\author[add3]{Leendert~Hayen}
+\author[add8]{Andrei R. Hanu}
+\author[add9]{Ivana H\v{r}ivn\'{a}\v{c}ov\'{a}}
+\author[add2,add10]{Vladimir~Ivanchenko}
+\author[add11,add12]{Vladyslav~Krylov}
+\author[add2]{Heinrich~Schindler}
+\author[add2,add13]{Rob~Veenhof}
+
+
+\address[add1]{European Spallation Source (ESS AB),P.O. Box 176, SE-22100 Lund, Sweden}%
+\address[add2]{CERN, CH-1211 Geneva 23, Switzerland}%
+\address[add3]{Instituut voor Kern- en Stralingsfysica, KU Leuven, Belgium}%
+\address[add4]{I3N - Physics Department, University of Aveiro, 3810-193 Aveiro, Portugal}%
+\address[add5]{CEA Saclay, 91191 Gif-sur-Yvette, France}%
+\address[add6]{Department of Physics, University of Liverpool, UK}%
+\address[add7]{Lebedev Physical Institute of RAS, Moscow, Russia}%
+\address[add8]{NASA Goddard Space Flight Center, Greenbelt, Maryland 20771, USA}%
+\address[add9]{Institut de Physique Nucl\'{e}aire, Universit\'{e} Paris-Sud, CNRS-IN2P3, Orsay, France}%
+\address[add10]{Tomsk State University, Tomsk, Russia}%
+\address[add11]{Laboratoire de l'Acc\'{e}l\'{e}rateur Lin\'{e}aire (LAL), Universit\'{e} Paris-Sud XI, CNRS/IN2P3, 91898 Orsay, France}%
+\address[add12]{Taras Shevchenko National University of Kyiv (TSNUK), Kyiv, Ukraine}%
+\address[add13]{Uludag University, 16059 N{\"u}lufer-Bursa, Turkey}%
+
+
+\cortext[cor1]{Corresponding author}
+
+\begin{abstract}
+This document describes the necessary software steps to interface Geant4, Garfield++ (including its interfaces to Heed and SRIM) and Degrad. 
+\end{abstract}
+
+\end{frontmatter}
+
+\section{Software implementation}
+
+To interface Geant4 with an external software package, the physics para\-metrization feature in Geant4 can be used. The general proposed idea is to create a region, in which the user provides an implementation of the physics and the detector response, instead of the default Geant4 code in this region. This region, defined by the G4Region class, is created during the detector construction, and consists of one or more G4LogicalVolumes, often corresponding to sub detector volumes. The complete syntax is shown in listing \ref{code_G4Region} of \ref{app:codelistings}. To implement the parametrized physics model, the user has to create a new UserG4Fast\-Simulation\-Model derived from G4VFast\-Simulation\-Model, and attach it to the region. It is possible to attach more than one UserG4Fast\-Simulation\-Model to the same region. The user physics code is now used instead of Geant4 in this region, whereas for the remainder of the geometry, the Geant4 physics is still valid.
+
+In the physics list of the program, a G4Fast\-Simulation\-Manager\-Process has to be created. The G4Fast\-Simulation\-Manager\-Process is the physics process of the parametrization, and it serves as interface between the Geant4 tracking and the user parametrization. At tracking time, the G4Fast\-Simulation\-Manager\-Process allows the user model to be triggered. In the AddParameterisation() method of the user physics list, the G4Fast\-Simulation\-Manager\-Process must be added as a discrete process to the process list of the particles for which the model shall apply\footnote{As of geant4.10.4 it is also possible to implement this via a macro command}. Listing~\ref{code_AddParameterisation} of \ref{app:codelistings} contains the template for the user physics list class.
+
+The core part of the interface is the User\-G4Fast\-Simulation\-Model derived from G4VFast\-Simulation\-Model. The name G4VFast\-Simulation\-Model implies normally that the parametrized model is simpler and thus faster than the full Geant4 tracking. In the case of Garfield++ or Degrad, however, the parametrised model is more detailed. The G4VFast\-Simulation\-Model has three pure virtual methods, which must be overridden in the User\-G4Fast\-Simulation\-Model. The template of this class is shown in listing \ref{code_G4FastSimulationModel_class} of \ref{app:codelistings}. The first method, IsApplicable(), must return true when the parametrization model should be applied to the particle under consideration. If this is not the case, the default Geant4 physics will be applied. The second method, ModelTrigger(), is called in every step along the track and should return true if the user-defined conditions of the track are fulfilled. Finally, the implementation of the parametrised model occurs in the DoIt()-method, depending on the use case.  More on the implementation of the G4Fast\-Simulation\-Model can be found in the Geant4 User guide for application developers\cite{Geant4UserGuide}.
+
+The subsequent implementation steps are quite different for Garfield++ and Degrad, and depending on whether the Geant4 parametrization feature is used. Therefore the implementations are described separately in the following sections \ref{Geant4 and Garfield++ without Geant4 parametrization}, \ref{Implementation Garfield++} and \ref{Implementation Degrad}, respectively.
+
+\subsection{Geant4 and Garfield++ without Geant4 parametrization}\label{Geant4 and Garfield++ without Geant4 parametrization}
+If just the Geant4 PAI model is used, Garfield++ has to be directly interfaced to Geant4 in the methods UserSteppingAction or SensitiveDetector. In Geant4 the PAI model can either produce all electron-ion pairs directly, or the number and positions can be sampled from the energy deposition in each step.
+The positions of the electron-ion pairs are subsequently sent to Garfield++, where the detector simulation is continued. If the electrons are to be produced and not just sampled, the lower production cut of the Geant4 PAI model and the lowest electron energy have to be set to the correct values to produce the correct number of electrons. Listing~\ref{code_StoreBeforeKill} of \ref{app:codelistings} illustrates how to store the last position of the electron track before its tracking is stopped. The sampling of electron-ion pairs from the energy deposition is shown in listing~\ref{code_SampleIonsAlongStep} of \ref{app:codelistings}. The mean number of electron-ion pairs can be determined by the MeanNumberOfIonsAlongStep() method of the G4ElectronIonPair class for each step of the primary and secondary particles. Using the mean number of electron-ion pairs together with the user specified Fano factor, a random gamma function calculates the exact number of electron-ion pairs to be produced per step. The positions of these electron-ion pairs are sampled between the pre- and post-step point of the step with the help of the G4UniformRand() distribution. It should be noted that this method is rather crude, especially for low energies.
+
+
+\subsection{Geant4 and Garfield++}\label{Implementation Garfield++}
+In case of the Geant4/Garfield++ interface, the user implementation of the detector response is based on Garfield++. The G4Region or envelope corresponds here to a gas-filled detector volume. For the use cases Geant4 PAI model and Geant4/Heed PAI model interface, the PAI model has to be added as extra EM model to the user physics list (listing ~\ref{code_AddParameterisation} of \ref{app:codelistings}) and the lower production cut has to be set to the correct value (roughly between the minimum ionization potential and the W value of the gas mixture.) Further, the lowest electron energy has to be set to an appropriate value. 
+
+Depending on the use case, the two virtual methods IsApplicable() and ModelTrigger() of the G4FastSimulationModel should be adapted according to listing \ref{code_G4FastSimulationModel} of \ref{app:codelistings}. In case the Geant4/Heed PAI model interface is used, the Garfield++ model is valid for ionization electrons produced by the Geant4 PAI model. The model is triggered when the kinetic energy drops below a user-defined threshold value. If Heed alone is responsible for the creation of all the electron-ion pairs, the Garfield++ model is triggered as soon as the particle enters the gas volume regardless of its energy. The DoIt()-method displayed in listing~\ref{code_DoIt_Garfield} of \ref{app:codelistings} contains the actual Garfield++ model. The tracking of the relevant particle is first stopped in Geant4 (the particle is \textit{killed}), and subsequently the particle is recreated  and propagated in Garfield++. Here, Heed is used to generate the electron-ion pairs: The methods TransportDeltaElectron(), NewTrack() and TransportPhoton() are called, respectively. Since the NewTrack() method produces electrons in ionization clusters, these clusters need to be retrieved first, before extracting the individual electrons. In the other two cases the electrons can be retrieved directly. Subsequently, the electron drift and amplification can be simulated using the classes AvalancheMC and AvalancheMicroscopic in Garfield++ according to the simulation needs. Details concerning these algorithms can be found in the Garfield++ user documentation~\cite{Garfieldpp} . If a Garfield++ model is used, the user-defined G4VFast\-Simulation\-Model should contain a fourth public method where related objects are initialized before the run is started. Features such as the detector geometry, the electromagnetic fields and preferred model for tracking have to be defined here, as demonstrated in listing~\ref{code_garfield} of \ref{app:codelistings}. The geometry is added to the field component, and subsequently a sensor is created using the field component. The sensor class links the detector geometry with its properties (material, geometry, fields) to the transport classes such as, TrackHeed. Since the shape and size of the gas volume and the gas composition is available in the Geant4 DetectorConstruction class, the information from there can be used to create the detector geometry in the Garfield++ Model.
+
+A paradigmatic application for the Geant4/Garfield++ interface is the simulation of secondary scintillation (also referred as electroluminescence) in gaseous detectors as shown in the bottom part of listing~\ref{code_DoIt_Garfield} of \ref{app:codelistings}. The AvalancheMicroscopic class in Garfield++ is used to \textit{microscopically} track the electron-ion pairs released after the primary particle interaction, storing a list of the Xe excited states. The SetUserHandleInelastic() method accepts a user written callback function that has access to the time, position and excitation levels in each simulation step. This information is stored in a data structure. In the case of pure noble gases, if one assumes that each excitation will produce a secondary scintillation photon, the production of light can be computed in a straightforward way. For each element of the data structure filled in the callback function, a secondary optical photon is produced in Geant4 as shown in listing~\ref{code_secondaries} of \ref{app:codelistings}. The optical photon tracking will then be carried out by Geant4. For gas mixtures, a more detailed model should be adopted in Garfield++ in order to include the quenching of possible excimers by the admixture. 
+
+Listing~\ref{code_cmake} of \ref{app:codelistings} shows how to compile and link the Geant4/Garfield++ program. A CMakeLists.txt has to be created, in which the Garfield++ include and library directories are defined. The library flags -lGarfield -lgfortran have to be placed behind the library flags for the Geant4 libraries.
+
+
+
+
+\subsection{Geant4 and Degrad}\label{Implementation Degrad}
+The implementation of the Geant4/Degrad interface is based on a user-defined G4VFast\-Simulation\-Model, analogous to the Geant4/Garfield++ interface. During detector construction, a G4Region is created (listing~\ref{code_G4Region} of \ref{app:codelistings}). In the user physics list the AddParameterisation() function should be modified to include only the particles for which the model shall apply (listing~\ref{code_AddParameterisation} of \ref{app:codelistings}). For the Degrad model, it corresponds to X-rays producing electrons via the photo-electric effect or Compton scattering in Geant4. Directly after their production, the tracking of these electrons is stopped in Geant4. Degrad then re-simulates the X-ray interaction at the time and location of the stopped electrons. The parametrization in Geant4 is therefore not valid for X-rays, but for the electrons. In the IsApplicable() and ModelTrigger() methods of the G4VFast\-Simulation\-Model (listing ~\ref{code_degrad} of \ref{app:codelistings}), the model is enabled for electrons that have an energy higher than the thermalization energy. The thermalization energy can be set in Degrad, and should be slightly lower than the minimum ionization potential of the gas mixture. Finally, the DoIt() method contains the actual Degrad model and interfacing details. All parameters needed to run the simulation (gas composition, electric and magnetic fields, particle type and kinetic energy) are stored in a parameter text file, which is read in by the Degrad binary. Prior to its call, the Degrad binary executable has to be compiled from the source code with the command "f95 degrad2.14.f -o degrad". 
+
+In the example under listing ~\ref{code_degrad} of \ref{app:codelistings}, a $5.9$~keV Fe X-ray is simulated in pure Xenon. As Degrad is a Fortran software and writes its output to a result file, the simplest way to transfer information back to Geant4 is based on a file I/O chain: Geant4 runs Degrad with a parameter file and Degrad writes the simulation results to a text file. From this result file, Geant4 reads back the positions and production times of the ionization electrons. Degrad always assumes $(x0,y0,z0)=(0,0,0)$ as the interaction position of the photon, and simulates an infinite volume. Therefore, the positions of the ionization electrons have to be corrected, using the stored interaction position of the X-ray from Geant4. If the corrected positions are within the gas volume of the detector, the CreateSecondaryTrack() method of the G4FastTrack class is called to create new $7$~eV (the thermalization energy set in Degrad) secondary electrons in Geant4. For a simulation of the light production, now the Garfield++ parametrization of the electroluminescence example could be used to produce optical photons.
+
+
+
+\newpage
+\appendix
+\section{Code listings}
+\label{app:codelistings}
+
+
+  
+\begin{lstlisting}[label=code_G4Region,caption=G4Region implementation in the G4VUserDetectorConstruction class in Geant4 sequential mode.,language=C++]
+G4VPhysicalVolume* UserDetectorConstruction::Construct() {
+  /* Geant4 in sequential mode*/
+  G4Region* region = new G4Region("gasRegion");
+	region->AddRootLogicalVolume(fLogicalVolumeGas);
+	
+	fModel = new GarfieldG4FastSimulationModel("UserModel", region);
+}
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[label=code_AddParameterisation,
+language=C++,directivestyle={\color{black}}
+emph={int,char,double,float,unsigned},
+emphstyle={\color{blue}},caption={Instantiation of the G4FastSimulationManagerProcess in a physics list in sequential Geant4. The code shows how to enable the PAI model and the Geant4/Garfield++ interface. From Geant4 10.2 on, the PAI model may be enabled via UI command instead, however this code will still work.}]
+void UserPhysicsList::AddParameterisation() {
+   /* Geant4 in sequential mode: 
+   Create G4FastSimulationManagerProcess*/
+	G4FastSimulationManagerProcess* process = 
+			new G4FastSimulationManagerProcess("G4FSMP");
+	auto it=GetParticleIterator();
+	it->reset();
+	while ((*it)()) {
+		G4ParticleDefinition* p = it->value();
+		G4ProcessManager* manager = p->GetProcessManager();
+		G4EmConfigurator* config = G4LossTableManager::Instance()->	EmConfigurator();
+		G4String name = "e-";
+		if (p->GetParticleName() == name) 	{
+			/*Add G4FastSimulationManagerProcess*/
+			manager->AddDiscreteProcess(fastSimProcess);
+			/*Add PAI or PAI photon model*/
+			G4PAIModel* pai = new G4PAIModel(p, "G4PAIModel");
+			config->SetExtraEmModel(name, 	"eIoni", pai, "gasRegion", 0.*eV, 1.*TeV, pai);
+		}
+	}
+}
+
+void UserPhysicsList::SetCuts() {
+  /* Geant4 in sequential mode*/
+	G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(cut*eV, 1.*TeV);
+	G4EmParameters* emParams = G4EmParameters::Instance();
+	emParams->SetLowestElectronEnergy(energy*eV);
+}
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[label=code_G4FastSimulationModel_class,language=C++,caption=Class definition of the user-defined class derived from the G4VFastSimulationModel. ]
+class UserFastSimulationModel : public G4VFastSimulationModel {
+
+	public:
+	    /*Constructor and Destructor*/
+	    UserFastSimulationModel();
+	    ~UserFastSimulationModel();
+	    
+	    /*virtual methods*/
+	    
+	    /*return true if the G4FastSimulationModel has to be applied for a particle type*/
+	    virtual G4bool IsApplicable(const G4ParticleDefinition&);
+	    
+	    /*return true if conditions like kinetic energy of G4FastTrack are fulfilled*/
+	    virtual G4bool ModelTrigger(const G4FastTrack&);
+	    
+	    /*The parametrization, i.e. Garfield or Degrad related code, should be implemented here*/
+	    virtual void DoIt(const G4FastTrack&, G4FastStep&);
+};
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[label=code_G4FastSimulationModel,caption=G4FastSimulationModel.,language=C++]
+#include "GarfieldG4FastSimulationModel.hh"
+
+G4bool GarfieldG4FastSimulationModel::IsApplicable(
+const G4ParticleDefinition& particleType) {
+	/*Geant4/Heed PAI model interface*/
+	return &def == G4Electron::ElectronDefinition();
+
+	/*Heed for relativistic charged particles*/
+	return &def == G4Proton::ProtonDefinition();
+	
+	/*Heed for photons*/
+	return &def == G4Gamma::GammaDefinition();
+	
+	/*Electroluminescence example*/
+	return &def == G4Electron::ElectronDefinition();
+}
+
+G4bool GarfieldG4FastSimulationModel::ModelTrigger(const G4FastTrack& fastTrack) {
+	double ekin = fastTrack.GetPrimaryTrack()->GetKineticEnergy() / keV;
+	
+	/*Geant4/Heed PAI model interface*/
+	if(ekin < 2. * keV) 	{return true;}
+	
+	/*Heed*/
+	return true;
+	
+	/*Electroluminescence example*/
+	if(ekin < 10. * eV) {return true;}
+	
+	return false;
+}
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[label=code_DoIt_Garfield, caption=G4FastSimulationModel DoIt() method for Garfield++., language=C++]
+void GarfieldG4FastSimulationModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
+	/*Get world and local position from fast track, get momentum vector from fast track, get global time in ns, and x,y,z position in cm, get kinetic energy of fast track in eV*/
+	double ekin_eV = fastTrack.GetPrimaryTrack()->GetKineticEnergy() / eV;
+	
+	/*Kill track in Geant4 - Garfield takes over*/
+	fastStep.KillPrimaryTrack();
+	
+	/*Number of electrons produced in a collision*/
+	int nc = 0;
+	
+	Garfield::TrackHeed* trackHeed = new Garfield::TrackHeed();
+	trackHeed->EnableDeltaElectronTransport();
+	
+	/*Geant4/Heed PAI model interface*/
+	trackHeed->TransportDeltaElectron(x_cm, y_cm, z_cm, globaltime, eKin_eV, dx, dy, dz, nc);	
+	for (int cl = 0; cl < nc; cl++) {
+		double xe, ye, ze, te;
+		double ee, dxe, dye, dze;
+		trackHeed->GetElectron(cl, xe, ye, ze, te, ee, dxe, dye, dze);	
+		/*Garfield++ simulation according to needs*/	
+	} 
+	
+	/*Heed for relativistic charged particles*/
+	trackHeed->SetParticle("proton");
+	trackHeed->SetKineticEnergy(ekin_eV);
+	trackHeed->NewTrack(x_cm, y_cm, z_cm, globaltime, dx, dy, dz);
+	double xcl, ycl, zcl, tcl, ecl, extra;
+	while (trackHeed->GetCluster(xcl, ycl, zcl, tcl, nc, ecl, extra)) {
+		for (int cl = 0; cl < nc; cl++) {
+			double xe, ye, ze, te;
+			double ee, dxe, dye, dze;
+			trackHeed->GetElectron(cl, xe, ye, ze, te, ee, dxe, dye, dze);	
+			/*Garfield++ simulation according to needs*/	
+		}
+	} 
+		
+	/*Heed for photons*/
+	trackHeed->TransportPhoton(x_cm, y_cm, z_cm, globaltime, eKin_eV, dx, dy, dz,	nc);	
+	for (int cl = 0; cl < nc; cl++) {
+		double xe, ye, ze, te;
+		double ee, dxe, dye, dze;
+		trackHeed->GetElectron(cl, xe, ye, ze, te, ee, dxe, dye, dze);	
+		/*Garfield++ simulation according to needs*/		
+	} 	
+	
+	/*Electroluminescence example: Create the microscopic avalanche class*/
+	Garfield::AvalancheMicroscopic * aval = new Garfield::AvalancheMicroscopic();
+	/*Connect avalanche microscopic to sensor*/ 	
+	aval->SetSensor(sensor);
+	/*Set the callback function*/
+	aval->SetUserHandleInelastic(accessExcitationLevels);
+	aval->AvalancheElectron(x0,y0,z0,t0,e0,0.,0.,0.);
+	/*Loop over data structure filled in callback function, produce optical photons in Geant4
+}
+
+/*Define a global callback function*/
+void accessExcitationLevels(double x, double y, double z, double t, int type, int level,Garfield::Medium * m) {
+	/*Access the excitation levels, fill data structure with time and position of excitations*/
+}
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[label=code_secondaries, caption=Production of secondary particles., language=C++]
+void GarfieldG4FastSimulationModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {	
+    /*Previously described steps*/
+
+    /*Position of the Garfield++ particle*/
+    G4ThreeVector position(x, y, z);
+
+    /*Create new electron or optical photon*/
+    G4DynamicParticle particle(G4Electron::ElectronDefinition(), G4RandomDirection(), eKin);
+    G4DynamicParticle particle(G4OpticalPhoton::OpticalPhotonDefinition(),G4RandomDirection(), eKin);
+
+    /*Set a number that is larger than the maximum number of expected secondaries*/
+    fastStep.SetNumberOfSecondaryTracks(1000000);
+
+    /*Create secondary electron*/
+    fastStep.CreateSecondaryTrack(particle, position, time, true);
+
+    /*Create secondary optical photon with random polarization*/
+    fastStep.CreateSecondaryTrack(particle, G4RandomDirection(), position, time, true);
+}
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[label=code_garfield, caption=Setup of Garfield++ simulation., language=C++]
+void GarfieldG4FastSimulationModel::Initialize() {
+	/*Define the gas*/
+	MediumMagboltz* gas = new MediumMagboltz();
+	gas->SetComposition("ar", percentageAr, "co2",
+	percentageCO2);
+	gas->SetTemperature(temperature);
+	gas->SetPressure(pressure);
+	gas->LoadGasFile("ar_70_co2_30_1000mbar.gas");
+	/*Set W value and Fano factor to literature or measured values*/
+	gas->SetW(27.3090);
+	gas->SetFanoFactor(0.1866);
+
+	/*Create the geometry*/
+	SolidBox* box = new SolidBox(0, 0., 0., dx, dy, dz);
+	GeometrySimple* geo = new GeometrySimple();
+	geo->AddSolid(box, gas);
+	
+	/*Make a component*/
+	ComponentConstant* comp = new ComponentConstant();
+	comp->SetGeometry(geo);
+	comp->SetElectricField(-1000., 0., 0.);
+	
+	/*Make a sensor*/
+	Sensor* sensor = new Sensor();
+	sensor->AddComponent(comp);
+	
+	/*Create the track class*/
+	TrackHeed* trackHeed = new TrackHeed();
+	trackHeed->SetSensor(sensor);
+	trackHeed->EnableDeltaElectronTransport();
+	
+	/*Create the drift algorithm*/
+	AvalancheMC * drift = new Garfield::AvalancheMC();
+	drift->EnableDiffusion();
+	drift->DisableMagneticField();
+	drift->SetSensor(sensor);
+	
+  /*Create the avalanche algorithm*/
+  AvalancheMicroscopic * avalanche = new AvalancheMicroscopic();
+	avalanche->SetSensor(sensor);
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[label=code_cmake, caption=CMakeList.txt., language=bash]
+include(${Geant4_USE_FILE})
+include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories($ENV{GARFIELD_HOME}/Include)
+
+link_directories($ENV{GARFIELD_HOME}/Library)
+target_link_libraries(IonisationChamber ${Geant4_LIBRARIES} -lGarfield -lgfortran )
+\end{lstlisting}
+
+
+\begin{lstlisting}[label=code_StoreBeforeKill,caption=Storing of last positions of electron tracks in  UserSteppingAction to generate electron-ion pairs for Garfield++.,language=C++]
+void GarfieldSeppingAction::UserSteppingAction(const G4Step* theStep) {
+  G4Track* track = theStep->GetTrack();
+  G4double time = track->GetGlobalTime();
+  G4ThreeVector wp = theStep->GetPostStepPoint()->GetPosition();
+  G4ThreeVector p = theTouchable->GetHistory()->GetTopTransform().TransformPoint(wp);
+	G4String name = track->GetDefinition()->GetParticleName();
+
+  if(name == "e-" && track->GetStatus() == fStopAndKill) {
+    /*Send position and time to Garfied++ to continue simulation*/
+    SendElectronsToGarfield(p.getX(), p.getY(), p.getZ(), time);
+  }
+}
+\end{lstlisting} 
+
+\newpage
+
+\begin{lstlisting}[label=code_SampleIonsAlongStep,caption=Use of MeanNumberOfIonsAlongStep() in UserSteppingAction to generate electron-ion pairs for Garfield++.,language=C++]
+void GarfieldSeppingAction::UserSteppingAction(const G4Step* theStep) {
+  double invFanoFactor = 1/0.19;
+  G4double meanIon = G4LossTableManager::Instance()->ElectronIonPair()->MeanNumberOfIonsAlongStep(theStep);
+  /*Determine number of electron-ion pairs with the help of W and Fano*/
+  G4int nIon =  G4lrint(G4RandGamma::shoot(meanion*invFanoFactor,invFanoFactor));
+ 
+  /*Sample ionisation along step*/
+  if(nIon > 0) {
+    G4Track* fTrack = theStep->GetTrack();
+    G4double t = fTrack->GetGlobalTime();  
+    G4ThreeVector p = theStep->GetPreStepPoint()->GetPosition();
+    G4ThreeVector dp = theStep->GetPostStepPoint()->GetPosition() - p;       
+    for(G4int i=0; i<nIon; ++i) {
+      G4ThreeVector nposw = p + dp*G4UniformRand();
+	    G4ThreeVector np = theTouchable->GetHistory()->GetTopTransform().TransformPoint(nposw);
+	        
+	    /*Send position and time to Garfied++ to continue simulation*/
+      SendElectronsToGarfield(np.getX(), np.getY(), np.getZ(), t);
+    }
+  }
+}
+\end{lstlisting} 
+
+\newpage
+
+\begin{lstlisting}[label=code_degrad, caption=DoIt() method for Degrad.,language=C++]
+void DegradG4FastSimulationModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
+  /*Start by killing the primary track*/
+  fastStep.KillPrimaryTrack();
+
+  /*Store the interaction position and time*/
+  G4ThreeVector p = fastTrack.GetPrimaryTrack()->GetVertexPosition();
+  G4double t = fastTrack.GetPrimaryTrack()->GetGlobalTime();
+
+  /*Generate a random seed to Degrad*/
+  G4int n = 54217137*G4UniformRand();
+  G4String seed = G4UIcommand::ConvertToString(n);
+
+  /* Write the Degrad input cards. Example for photon of 5.9 keV in pure Xenon (thermalization energy of 7.0 eV), in a 3000.0 V/cm electric field anti-parallel to the photon direction. The gas was considered to be at 20 degrees C and 760 Torr. For details see Degrad source file */
+  G4String degradCards="printf \"1,1,3,-1,"+seed+",
+    5900.0,7.0,0.0\n
+    7,0,0,0,0,0\n
+    100.0,0.0,0.0,0.0,0.0,0.0,20.0,760.0\n
+    3000.0,0.0,0.0,1,0\n
+    100.0,0.5,1,1,1,1,1,1,1\n
+    0,0,0,0,0,0\" > conditions.txt";
+  G4int stdout=system(degradCards.data());
+
+  /*Call Degrad with the input conditions file*/
+  stdout=system("./degrad < conditions.txt"); 
+  
+  /*Here the user should write a simple code in C++ just to read the Degrad ASCII file and get the electrons position and thermalization time. Remember that Degrad makes all interactions in (x0,y0,z0)=(0,0,0) and t0=0: the returned positions should be shifted according to interaction position and interaction time. Moreover, the Y and Z axes are swapped in Degrad relatively to Geant4. Distance units in Degrad are um and time is ps, whereas Geant4 uses mm and ns.*/
+  G4ThreeVector ep;
+  for (int electron=0;electron<NumberOfElectronsProduced; electron++) {
+    ep.setX(posXDegrad*0.001+ip.getX());
+    ep.setY(posZDegrad*0.001+ip.getY());
+    ep.setZ(posYDegrad*0.001+ip.getZ());
+    time=timeDegrad*0.001+t;
+   
+    /*Check if the electron position is inside the gas volume. Degrad does not use geometrical constraints*/
+    G4Navigator* theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+    G4VPhysicalVolume* myVolume = theNavigator->LocateGlobalPointAndSetup(myPoint); 
+    G4String name=myVolume->GetName();
+    /*gasName should be the name of the gas volume*/
+    if (name.contains("gasName")) { 
+      G4DynamicParticle electron(G4Electron::ElectronDefinition(),G4RandomDirection(),thermalizationEnergy*eV); 
+      /*Create secondary electron*/
+      G4Track *newTrack=fastStep.
+      CreateSecondaryTrack(electron, ep,time,false);
+      newTrack->SetTrackID(fastStep.GetNumberOfSecondaryTracks());
+    }
+  }
+}
+\end{lstlisting}
+
+
+
+\newpage
+
+\begin{thebibliography}{9}
+
+\bibitem{Geant4UserGuide} 
+Geant4 Collaboration, \textit{Book For Application Developers}, \url{http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/ForApplicationDeveloper/fo/BookForAppliDev.pdf}, 2017.
+
+\bibitem{Garfieldpp} 
+H. Schindler, \textit{Garfield++ User Guide}, \url{http://garfieldpp.web.cern.ch/garfieldpp/documentation/UserGuide.pdf}, 2017.
+
+\end{thebibliography}
+
+
+\end{document}
+\endinput
+%%
+%% End of file `elsarticle-template-num.tex'.
