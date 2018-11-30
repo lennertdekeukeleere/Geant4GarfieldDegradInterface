@@ -24,6 +24,7 @@
 #include "GasModelParameters.hh"
 #include "DetectorConstruction.hh"
 #include "GasBoxSD.hh"
+#include "G4ProcessManager.hh"
 
 
 const static G4double torr = 1. / 760. * atmosphere;
@@ -31,6 +32,7 @@ const static G4double torr = 1. / 760. * atmosphere;
 GarfieldVUVPhotonModel::GarfieldVUVPhotonModel(GasModelParameters* gmp, G4String modelName,G4Region* envelope,DetectorConstruction* dc,GasBoxSD* sd) :
 		G4VFastSimulationModel(modelName, envelope),detCon(dc),fGasBoxSD(sd) {
 	thermalE=gmp->GetThermalEnergy();
+	InitialisePhysics();
 }
 
 G4bool GarfieldVUVPhotonModel::IsApplicable(const G4ParticleDefinition& particleType) {	
@@ -76,7 +78,7 @@ void GarfieldVUVPhotonModel::GenerateVUVPhotons(const G4FastTrack& fastTrack, G4
 	G4double z0=garfPos.getZ()*0.1;
 	G4double t0=garfTime;
 	G4double e0=7.;// starting energy [eV]->I have chose 7 eV because is the energy cut in Degrad
-	
+	garfExcHitsCol = new GarfieldExcitationHitsCollection();
 	fAvalanche->AvalancheElectron(x0,y0,z0,t0, e0, 0., 0., 0.);
 
 	G4int nElastic, nIonising, nAttachment, nInelastic, nExcitation, nSuperelastic;
@@ -91,11 +93,13 @@ void GarfieldVUVPhotonModel::GenerateVUVPhotons(const G4FastTrack& fastTrack, G4
 		newExcHit->SetTime((*garfExcHitsCol)[i]->GetTime());
         fGasBoxSD->InsertGarfieldExcitationHit(newExcHit);
 		fastStep.SetNumberOfSecondaryTracks(1);	//1 photon per excitation
-		G4DynamicParticle VUVphoton(G4OpticalPhoton::OpticalPhotonDefinition(),G4RandomDirection(), 7.2*eV);
-		// Create photons track
-		G4Track *newTrack=fastStep.CreateSecondaryTrack(VUVphoton, myPoint, time,false);
-		
-							
+		if(i % (colHitsEntries/10) == 0){
+			G4DynamicParticle VUVphoton(G4OpticalPhoton::OpticalPhotonDefinition(),G4RandomDirection(), 7.2*eV);
+			// Create photons track
+			G4Track *newTrack=fastStep.CreateSecondaryTrack(VUVphoton, (*garfExcHitsCol)[i]->GetPos(),(*garfExcHitsCol)[i]->GetTime(),false);
+		//	G4ProcessManager* pm= newTrack->GetDefinition()->GetProcessManager();
+		//	G4ProcessVectorfAtRestDoItVector = pm->GetAtRestProcessVector(typeDoIt);
+		}						
 	}
 	delete garfExcHitsCol;
 }
@@ -115,7 +119,7 @@ void GarfieldVUVPhotonModel::InitialisePhysics(){
 	G4double detectorRadius=detCon->GetGasBoxR();//cm
 	G4double detectorHalfZ=detCon->GetGasBoxH()*0.5;//cm
 
-	Garfield::SolidTube* tube = new Garfield::SolidTube(0.0, detectorHalfZ,0.,0.0, detectorRadius,detectorHalfZ,0.,1.,0.);//Tube oriented in Y'axis (0.,1.,0.,)
+	Garfield::SolidTube* tube = new Garfield::SolidTube(0.0, detectorHalfZ/CLHEP::cm,0.,0.0, detectorRadius/CLHEP::cm,detectorHalfZ/CLHEP::cm,0.,1.,0.);//Tube oriented in Y'axis (0.,1.,0.,)
 
 	// Add the solid to the geometry, together with the medium inside
 	geo->AddSolid(tube, fMediumMagboltz);
@@ -151,9 +155,9 @@ void userHandle(double x, double y, double z, double t, int type, int level,Garf
 	Pos.setX(x*10);//back to cm to GEANT4
 	Pos.setY(y*10);//back to cm to GEANT4
 	Pos.setZ(z*10);//back to cm to GEANT4
-	newExcHit->SetPos (Pos);
+	newExcHit->SetPos(Pos);
 	newExcHit->SetTime(t);
-	garfExcHitsCol->insert( newExcHit );
+	garfExcHitsCol->insert(newExcHit);
 	//If choose to draw change the visualizer from OGL to HepRep in vis.mac file
 	//newExcHit->Draw();	
 	}// if level

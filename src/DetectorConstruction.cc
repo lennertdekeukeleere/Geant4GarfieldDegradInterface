@@ -188,7 +188,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   else if(setup == "xenon"){
       G4Material* air = man->FindOrBuildMaterial("G4_AIR");
       G4Material* lead = man->FindOrBuildMaterial("G4_Pb");
-      G4Material* Xenon = man->FindOrBuildMaterial("Xenon900Torr");
+      const static G4double Torr = 1. / 760. * atmosphere;
+      G4Material* Xenon = man->ConstructNewGasMaterial ("Xenon900Torr", "G4_Xe", 296.*kelvin, 900.*Torr, false);
       G4Material* glass= man->FindOrBuildMaterial("G4_MAGNESIUM_FLUORIDE");
       G4Material* kapton=man->FindOrBuildMaterial("G4_KAPTON");
       G4Material* fSteel = new G4Material("StainlessSteel", 7.80 * g/cm3, 3 /* components */);

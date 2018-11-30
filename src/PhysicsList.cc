@@ -97,6 +97,8 @@ PhysicsList::PhysicsList()
   fastSimulationPhysics = new G4FastSimulationPhysics("fastSimPhys");
   RegisterPhysics(fastSimulationPhysics);
 
+  RegisterPhysics(new G4OpticalPhysics());
+
   
 }
 

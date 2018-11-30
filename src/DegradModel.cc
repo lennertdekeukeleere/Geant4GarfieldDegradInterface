@@ -13,6 +13,8 @@
 #include "G4RandomDirection.hh"
 #include "GasModelParameters.hh"
 #include "GasBoxSD.hh"
+#include "XenonHit.hh"
+
 
 DegradModel::DegradModel(GasModelParameters* gmp, G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
     : G4VFastSimulationModel(modelName, envelope),detCon(dc), fGasBoxSD(sd){
@@ -53,10 +55,10 @@ void DegradModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
     G4int SEED=54217137*G4UniformRand();
     G4String seed = G4UIcommand::ConvertToString(SEED);
     G4String degradString="printf \"1,1,3,-1,"+seed+",5900.0,7.0,0.0\n7,0,0,0,0,0\n100.0,0.0,0.0,0.0,0.0,0.0,20.0,900.0\n3000.0,0.0,0.0,1,0\n100.0,0.5,1,1,1,1,1,1,1\n0,0,0,0,0,0\" > conditions_Degrad.txt";
-
+    G4cout << degradString << G4endl;
     stdout=system(degradString.data());
     const std::string degradpath = std::getenv("DEGRAD_HOME");
-    std::string exec = "/degrad < conditions_Degrad.txt";
+    std::string exec = "/Degrad < conditions_Degrad.txt";
     std::string full_path = degradpath + exec;
     const char *mychar = full_path.c_str();
     stdout=system(mychar);
@@ -85,7 +87,7 @@ void DegradModel::GetElectronsFromDegrad(G4FastStep& fastStep,G4ThreeVector degr
     G4cout<< "Working in "<<fname<<G4endl;
     
     nline=1;
-    G4int tester=0;
+    electronNumber=0;
     while (getline(inFile, line,'\n'))//o '\n' indica o caracter para delimitaro fim de linha
     {
         std::istringstream iss(line);//stream de strings
@@ -103,7 +105,6 @@ void DegradModel::GetElectronsFromDegrad(G4FastStep& fastStep,G4ThreeVector degr
         }
         if (nline ==2) //Ionizations
         {
-            electronNumber=0;
             while (iss >> n) //cada stream ira atribuir o valor a n
             {
                 v.push_back(n); //o n é adicionado ao vector
@@ -120,7 +121,7 @@ void DegradModel::GetElectronsFromDegrad(G4FastStep& fastStep,G4ThreeVector degr
                 posZ=posYDegrad*0.001+posZInitial;
                 //convert ps to ns
                 time=timeDegrad*0.001+timeInitial;
-                electronNumber++; //Numera os electroes primarios
+                
                 
                 G4ThreeVector myPoint;
                 myPoint.setX(posX);
@@ -134,21 +135,20 @@ void DegradModel::GetElectronsFromDegrad(G4FastStep& fastStep,G4ThreeVector degr
                 
                 G4String solidName=myVolume->GetName();
                 
-                if (solidName.contains("detectorPhysical") && tester<1){//AROUCA: APENAS PARA LIMITAR O NUMERO DE ELECTROES EM TESTES
+                if (solidName.contains("detectorPhysical")){//AROUCA: APENAS PARA LIMITAR O NUMERO DE ELECTROES EM TESTES
                     //G4cout<<"INSIDE"<<G4endl;
                     
                     //AROUCA: METER AQUI O ESPECTRO DE EMISSAO DO XENON
-                    
-                    G4DynamicParticle electron(G4Electron::ElectronDefinition(),G4RandomDirection(), 7.0*eV);
-                    
-                    // Create secondary electron
-                    G4Track *newTrack=fastStep.CreateSecondaryTrack(electron, myPoint, time,false);
-                    
-                    //G4cout<<"SECONDARY TRACKS: "<<fastStep.GetNumberOfSecondaryTracks ()<<G4endl;
-                    //AROUCA TESTER INCREMENT
-                    tester++;
-                    G4cout<<tester<<G4endl;
-                    
+                    electronNumber++;
+                    XenonHit* xh = new XenonHit();
+                    xh->SetPos(myPoint);
+                    xh->SetTime(time);
+                    fGasBoxSD->InsertXenonHit(xh);
+                        // Create secondary electron
+                    if(electronNumber % 50 == 0){    
+                        G4DynamicParticle electron(G4Electron::ElectronDefinition(),G4RandomDirection(), 7.0*eV);
+                        G4Track *newTrack=fastStep.CreateSecondaryTrack(electron, myPoint, time,false);
+                    }
                 }
             }
             v.clear(); //Faz reset ao vector senão vai continuar a adicionar os dadosadicionar os dados
@@ -160,6 +160,7 @@ void DegradModel::GetElectronsFromDegrad(G4FastStep& fastStep,G4ThreeVector degr
         
     }
     inFile.close();
+    G4cout << "Number of initial electrons: " << electronNumber << G4endl;
     
     
 }
