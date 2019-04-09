@@ -10,10 +10,20 @@
 #include "G4VProcess.hh"
 #include "DetectorConstruction.hh"
 #include "G4VPhysicalVolume.hh"
+#include "G4VVisManager.hh"
+#include "G4Polyline.hh"
+#include "G4Colour.hh"
+#include "G4VisAttributes.hh"
 
-GasBoxSD::GasBoxSD(G4String name) : G4VSensitiveDetector(name), fGasBoxHitsCollection(NULL){
+GasBoxSD::GasBoxSD(G4String name) : G4VSensitiveDetector(name), fGasBoxHitsCollection(NULL),
+    fXenonHitsCollection(NULL), fGarfieldExcitationHitsCollection(NULL){
     collectionName.insert("GBHC");
-    HCID=-1;
+    collectionName.insert("XHC");
+    collectionName.insert("GEHC");
+    
+    GBHCID=-1;
+    XHCID=-1;
+    GEHCID=-1;
 }
 
 GasBoxSD::~GasBoxSD(){}
@@ -21,41 +31,34 @@ GasBoxSD::~GasBoxSD(){}
 
 void GasBoxSD::Initialize(G4HCofThisEvent * HCE){
     fGasBoxHitsCollection = new GasBoxHitsCollection(SensitiveDetectorName, collectionName[0]);
-    if(HCID==-1)
-        HCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
-    HCE->AddHitsCollection(HCID,fGasBoxHitsCollection);
-	ef=0;
-	edep=0;
-    secEnergiesFirstGen.resize(0);
-    secEnergiesSecGen.resize(0);
+    fXenonHitsCollection = new XenonHitsCollection(SensitiveDetectorName, collectionName[1]);
+    fGarfieldExcitationHitsCollection = new GarfieldExcitationHitsCollection(SensitiveDetectorName, collectionName[2]);
+    if(GBHCID==-1){
+        GBHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
+        XHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[1]);
+        GEHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[2]);
+    }
+    HCE->AddHitsCollection(GBHCID,fGasBoxHitsCollection);
+    HCE->AddHitsCollection(XHCID,fXenonHitsCollection);
+    HCE->AddHitsCollection(GEHCID,fGarfieldExcitationHitsCollection);
+
+    G4cout << "GasBoxSD Intialized!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << G4endl;
 }
 
 G4bool GasBoxSD::ProcessHits(G4Step* aStep, G4TouchableHistory* hist){
     G4Track* aTrack = aStep->GetTrack();
-    G4StepPoint* thePrePoint = aStep->GetPreStepPoint();
-	edep+=aStep->GetTotalEnergyDeposit();
+    G4StepPoint* thePostPoint = aStep->GetPostStepPoint();
 
-    
-
-    if(aTrack->GetCurrentStepNumber() == 1 &&
-       aTrack->GetDefinition()->GetParticleName() == "e-" && aTrack->GetTrackID()>1){
-        GasBoxHit* hit = new GasBoxHit();
-        G4ThreeVector pos = thePrePoint->GetPosition();
-        hit->SetX(pos.x());
-        hit->SetY(pos.y());
-        hit->SetZ(pos.z());
-        
-        hit->SetEkin(thePrePoint->GetKineticEnergy());
+    if(aTrack->GetDefinition()->GetParticleName() == "e-"){
+        G4cout << "GasBox Hit!!" << G4endl;
+        G4cout << "Particle ID: " << aTrack->GetTrackID() << G4endl;
+        G4cout << "Energy electron: " << aTrack->GetKineticEnergy() << G4endl;
+    /*    GasBoxHit* hit = new GasBoxHit();
+        G4ThreeVector pos = thePostPoint->GetPosition();
+        hit->SetPos(pos);
         hit->SetTime(aTrack->GetGlobalTime());
-        hit->SetID(aTrack->GetTrackID());
-        hit->SetParentID(aTrack->GetParentID());
-        if(aTrack->GetCreatorProcess()->GetProcessName() == "eIoni")
-            hit->SetProcess(1);
-        else
-            hit->SetProcess(0);
-        
         fGasBoxHitsCollection->insert(hit);
-        return true;
+    */    return true;
     }
 
     return false;
@@ -63,23 +66,15 @@ G4bool GasBoxSD::ProcessHits(G4Step* aStep, G4TouchableHistory* hist){
     
 }
 
-G4bool GasBoxSD::AddSecondary(G4ThreeVector pos, G4double energy, G4double time, G4int id, G4int parentid, G4int process){
-
-    GasBoxHit* hit = new GasBoxHit();
-    hit->SetX(pos.x());
-    hit->SetY(pos.y());
-    hit->SetZ(pos.z());
-    
-//        G4ThreeVector mom = aTrack->GetMomentumDirection();
-//        hit->SetXmomentum(mom.x());
-//        hit->SetYmomentum(mom.y());
-//        hit->SetZmomentum(mom.z());
-    
-    hit->SetEkin(energy);
-    hit->SetTime(time);
-    hit->SetID(id);
-    hit->SetParentID(parentid);
-    hit->SetProcess(process);
-        
-    if(fGasBoxHitsCollection) fGasBoxHitsCollection->insert(hit);
+void GasBoxSD::EndOfEvent (G4HCofThisEvent * hce){
+    auto HC = static_cast<GasBoxHitsCollection*>(hce->GetHC(GBHCID));
+    int entries = HC->entries();
+    G4cout << "Number of Electrons: " << entries << G4endl;
+    for(int i=0;i<entries;i++){
+        auto hit = (*HC)[i];
+        G4cout << hit->GetPos() << " " << hit->GetTime() << G4endl;
+    }
+    DrawAll();
 }
+
+void GasBoxSD::DrawAll(){}

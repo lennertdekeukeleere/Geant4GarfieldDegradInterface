@@ -23,54 +23,59 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: PhysicsListMessenger.hh,v 1.3 2006-06-29 16:57:52 gunter Exp $
-// GEANT4 tag $Name: not supported by cvs2svn $
+// $Id: GarfieldFastSimulationModel.hh 9999994 2015-12-11 14:47:43Z dpfeiffe $
 //
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+/// \file GarfieldFastSimulationModel.hh
+/// \brief Definition of the GarfieldFastSimulationModel class
 
-#ifndef PhysicsListMessenger_h
-#define PhysicsListMessenger_h 1
+#ifndef GarfieldVUVPhotonModel_h
+#define GarfieldVUVPhotonModel_h 1
 
-#include "G4SystemOfUnits.hh"
-#include "G4UImessenger.hh"
+#include "G4VFastSimulationModel.hh"
+#include "Medium.hh"
+#include "GasBoxSD.hh"
+#include "MediumMagboltz.hh"
+#include "AvalancheMicroscopic.hh"
 
-#include "G4UIdirectory.hh"
-#include "G4UIcmdWithADoubleAndUnit.hh"
-#include "G4UIcmdWithADouble.hh"
-#include "G4UIcmdWithAnInteger.hh"
-#include "G4UIcmdWithAString.hh"
-#include "G4UIcmdWithABool.hh"
-/*! \class PhysicsListMessenger*/
-/*! class derived from G4UImessenger*/
-/*! taken from an example*/
+class GasModelParameters;
+class DetectorConstruction;
+class GasBoxSD;
 
-class G4UIcommand;
-class PhysicsList;
-class G4UIcmdWithoutParameter;
+class GarfieldVUVPhotonModel : public G4VFastSimulationModel
+{
+public:
+  //-------------------------
+  // Constructor, destructor
+  //-------------------------
+	GarfieldVUVPhotonModel(GasModelParameters*, G4String, G4Region*,DetectorConstruction*,GasBoxSD*);
+  ~GarfieldVUVPhotonModel (){};
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+  //void SetPhysics(degradPhysics* fdegradPhysics);
+  //void WriteGeometryToGDML(G4VPhysicalVolume* physicalVolume);
 
-class PhysicsListMessenger : public G4UImessenger {
- public:
-  PhysicsListMessenger(PhysicsList *);
-  ~PhysicsListMessenger();
+	virtual G4bool IsApplicable(const G4ParticleDefinition&);
+	virtual G4bool ModelTrigger(const G4FastTrack &);
+	virtual void DoIt(const G4FastTrack&, G4FastStep&);
+	void GenerateVUVPhotons(const G4FastTrack& fastTrack, G4FastStep& fastStep,G4ThreeVector garfPos,G4double garfTime);
+	G4ThreeVector garfPos;
+	G4double garfTime;
+	
+	
+	
+private:
+	void InitialisePhysics();
 
-  void SetNewValue(G4UIcommand *, G4String);
+	DetectorConstruction* detCon;
+	G4ThreeVector myPoint;
+	G4double time;
+	G4double thermalE;
+   //degradPhysics* fdegradPhysics;
 
- private:
-  PhysicsList *pPhysicsList;
+	Garfield::MediumMagboltz* fMediumMagboltz;
+	Garfield::AvalancheMicroscopic* fAvalanche;
 
-  G4UIdirectory *physDir;
-  G4UIcmdWithADoubleAndUnit *gammaCutCmd;
-  G4UIcmdWithADoubleAndUnit *electCutCmd;
-  G4UIcmdWithADoubleAndUnit *protoCutCmd;
-  G4UIcmdWithADoubleAndUnit *allCutCmd;
-  G4UIcmdWithAString *pListCmd;
-  G4UIcmdWithADoubleAndUnit *lowLimitECmd;
-  G4UIcmdWithoutParameter* addParamCmd;
+	GasBoxSD* fGasBoxSD;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-#endif
+void userHandle(double x, double y, double z, double t, int type, int level,Garfield::Medium * m);
+#endif /* GarfieldVUVPhotonModel_H_ */

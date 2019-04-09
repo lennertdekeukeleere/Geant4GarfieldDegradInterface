@@ -1,5 +1,6 @@
 #include "PhysicsListMessenger.hh"
 #include "PhysicsList.hh"
+#include "G4UIcmdWithoutParameter.hh"
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -37,13 +38,17 @@ PhysicsListMessenger::PhysicsListMessenger(PhysicsList* pPhys)
   allCutCmd->SetRange("cut>0.0");
   allCutCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  pListCmd = new G4UIcmdWithAString("/InterfaceExample/phys/ReplacePhysics", this);
+  pListCmd = new G4UIcmdWithAString("/InterfaceExample/phys/InitializePhysics", this);
   pListCmd->SetGuidance("Add modula physics list.");
   pListCmd->SetParameterName("PList", false);
   pListCmd->AvailableForStates(G4State_PreInit);
   pListCmd->SetCandidates(
       "local emstandard_opt0 emstandard_opt1 emstandard_opt2 emstandard_opt3 "
       "standardSS standardGS standardWVI emlivermore empenelope");
+
+  addParamCmd = new G4UIcmdWithoutParameter("/InterfaceExample/phys/AddParametrisation", this);
+  addParamCmd->SetGuidance("Add the parametrisation");
+  addParamCmd->AvailableForStates(G4State_PreInit);
 
   lowLimitECmd = new G4UIcmdWithADoubleAndUnit("/InterfaceExample/phys/setLowLimitE", this);
   lowLimitECmd->SetGuidance("Set lower limit for production energy");
@@ -64,6 +69,7 @@ PhysicsListMessenger::~PhysicsListMessenger() {
   delete pListCmd;
   delete lowLimitECmd;  
   delete physDir;
+  delete addParamCmd;
   G4cout << "Deleting PhysicsListMessenger" << G4endl;
 }
 
@@ -91,11 +97,14 @@ void PhysicsListMessenger::SetNewValue(G4UIcommand* command,
   }
 
   else if (command == pListCmd) {
-    pPhysicsList->ReplacePhysicsList(newValue);
+    pPhysicsList->InitializePhysicsList(newValue);
   } 
   else if(command == lowLimitECmd){
 	  pPhysicsList->SetLowerProductionLimit(
 		lowLimitECmd->GetNewDoubleValue(newValue));
+  }
+  else if(command == addParamCmd){
+    pPhysicsList->AddParametrisation();
   }
 }
 

@@ -23,54 +23,53 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: PhysicsListMessenger.hh,v 1.3 2006-06-29 16:57:52 gunter Exp $
-// GEANT4 tag $Name: not supported by cvs2svn $
+// $Id: LXeTrajectory.cc 72349 2013-07-16 12:13:16Z gcosmo $
 //
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-#ifndef PhysicsListMessenger_h
-#define PhysicsListMessenger_h 1
-
-#include "G4SystemOfUnits.hh"
-#include "G4UImessenger.hh"
-
-#include "G4UIdirectory.hh"
-#include "G4UIcmdWithADoubleAndUnit.hh"
-#include "G4UIcmdWithADouble.hh"
-#include "G4UIcmdWithAnInteger.hh"
-#include "G4UIcmdWithAString.hh"
-#include "G4UIcmdWithABool.hh"
-/*! \class PhysicsListMessenger*/
-/*! class derived from G4UImessenger*/
-/*! taken from an example*/
-
-class G4UIcommand;
-class PhysicsList;
-class G4UIcmdWithoutParameter;
+/// \file optical/LXe/src/LXeTrajectory.cc
+/// \brief Implementation of the LXeTrajectory class
+//
+//
+#include "DriftLineTrajectory.hh"
+#include "G4ParticleTable.hh"
+#include "G4ParticleTypes.hh"
+#include "DriftLineTrajectoryPoint.hh"
+#include "G4VProcess.hh"
+G4ThreadLocal G4Allocator<DriftLineTrajectory>* DriftLineTrajectoryAllocator = 0;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class PhysicsListMessenger : public G4UImessenger {
- public:
-  PhysicsListMessenger(PhysicsList *);
-  ~PhysicsListMessenger();
-
-  void SetNewValue(G4UIcommand *, G4String);
-
- private:
-  PhysicsList *pPhysicsList;
-
-  G4UIdirectory *physDir;
-  G4UIcmdWithADoubleAndUnit *gammaCutCmd;
-  G4UIcmdWithADoubleAndUnit *electCutCmd;
-  G4UIcmdWithADoubleAndUnit *protoCutCmd;
-  G4UIcmdWithADoubleAndUnit *allCutCmd;
-  G4UIcmdWithAString *pListCmd;
-  G4UIcmdWithADoubleAndUnit *lowLimitECmd;
-  G4UIcmdWithoutParameter* addParamCmd;
-};
+DriftLineTrajectory::DriftLineTrajectory()
+{
+  fpPointsContainer = new DriftLineTrajectoryPointContainer();
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#endif
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+DriftLineTrajectory::DriftLineTrajectory(DriftLineTrajectory &right)
+  :G4Trajectory(right)
+{
+  fpPointsContainer = new DriftLineTrajectoryPointContainer();
+  for(size_t i=0;i<right.fpPointsContainer->size();++i) {
+      DriftLineTrajectoryPoint* rightPoint
+          = (DriftLineTrajectoryPoint*)((*(right.fpPointsContainer))[i]);
+      fpPointsContainer->push_back(new DriftLineTrajectoryPoint(*rightPoint));
+  }
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+DriftLineTrajectory::~DriftLineTrajectory() {
+	for(size_t i=0;i<fpPointsContainer->size();++i){
+		delete  (*fpPointsContainer)[i];
+	}
+	fpPointsContainer->clear();
+
+	delete fpPointsContainer;
+}
+
+
+void DriftLineTrajectory::AppendStep(G4ThreeVector pos, G4double t){
+		fpPointsContainer->push_back(new DriftLineTrajectoryPoint(pos,t));
+}

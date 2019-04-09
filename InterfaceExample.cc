@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
   GasModelParameters* gmp = new GasModelParameters(detector);
   
   G4cout << "Creation of PhysicsList" << G4endl;
-  PhysicsList* physics = new PhysicsList(gmp);
+  PhysicsList* physics = new PhysicsList();
   runManager->SetUserInitialization(physics);
   
   runManager->SetUserInitialization(new MyUserActionInitialization());

@@ -31,18 +31,10 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* HPGeDet)
     setGasPressCmd->SetUnitCategory("Pressure");
     setGasPressCmd->SetDefaultValue(0.3 * bar);
     setGasPressCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-    //////////////////
-    setAddmixturePercCmd = new G4UIcmdWithADouble(
-      "/InterfaceExample/geometry/SetAddmixturePercentage", this);
-    setAddmixturePercCmd->SetGuidance(
-      "Set addmixture percentage of gas mixture to x, and the noble gas part is "
-      "set to 1-x");
-    setAddmixturePercCmd->SetDefaultValue(1.0);
-    setAddmixturePercCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
     ////////////////////
-    gasNameCmd = new G4UIcmdWithAString("/InterfaceExample/geometry/GasName", this);
-    gasNameCmd->SetGuidance("Set the mixture: HeIso or ArCO2");
-    gasNameCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+    setupNameCmd = new G4UIcmdWithAString("/InterfaceExample/geometry/setup", this);
+    setupNameCmd->SetGuidance("Set the geometry: either for TPC or for the photo-electric effect");
+    setupNameCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
     
 }
 
@@ -58,8 +50,6 @@ DetectorMessenger::~DetectorMessenger() {
 void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValues) {
   if (command == setGasPressCmd)
     detector->SetGasPressure(setGasPressCmd->GetNewDoubleValue(newValues));
-  else if (command == setAddmixturePercCmd)
-    detector->SetAddmixturePercentage(setAddmixturePercCmd->GetNewDoubleValue(newValues));
-  else if (command == gasNameCmd)
-      detector->SetGasName(newValues);
+  else if (command == setupNameCmd)
+      detector->SetSetup(newValues);
 }

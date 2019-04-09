@@ -56,7 +56,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 and GARFIELD++ libraries
 #
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 add_executable(InterfaceExample InterfaceExample.cc ${sources} ${headers})
 target_link_libraries(InterfaceExample -lGarfield -lgfortran ${ROOT_LIBRARIES} ${Geant4_LIBRARIES})
 #----------------------------------------------------------------------------
@@ -64,6 +64,12 @@ target_link_libraries(InterfaceExample -lGarfield -lgfortran ${ROOT_LIBRARIES} $
 # build B1. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
+
+set(InterfaceExample_SCRIPTS
+  vis.mac
+  run1.mac
+)
+
 foreach(_script ${InterfaceExample_SCRIPTS})
   configure_file(
     ${PROJECT_SOURCE_DIR}/${_script}

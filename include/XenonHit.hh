@@ -23,53 +23,86 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: PhysicsListMessenger.hh,v 1.3 2006-06-29 16:57:52 gunter Exp $
-// GEANT4 tag $Name: not supported by cvs2svn $
+// $Id: XenonHit.hh 69706 2013-05-13 09:12:40Z gcosmo $
 //
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+/// \file XenonHit.hh
+/// \brief Definition of the XenonHit class
 
-#ifndef PhysicsListMessenger_h
-#define PhysicsListMessenger_h 1
+#ifndef XenonHit_h
+#define XenonHit_h 1
 
-#include "G4SystemOfUnits.hh"
-#include "G4UImessenger.hh"
+#include "G4VHit.hh"
+#include "G4THitsCollection.hh"
+#include "G4Allocator.hh"
+#include "G4ThreeVector.hh"
+#include "tls.hh"
 
-#include "G4UIdirectory.hh"
-#include "G4UIcmdWithADoubleAndUnit.hh"
-#include "G4UIcmdWithADouble.hh"
-#include "G4UIcmdWithAnInteger.hh"
-#include "G4UIcmdWithAString.hh"
-#include "G4UIcmdWithABool.hh"
-/*! \class PhysicsListMessenger*/
-/*! class derived from G4UImessenger*/
-/*! taken from an example*/
+/// Tracker hit class
+///
+/// It defines data members to store the trackID, FibberNb, energy deposit,
+/// and position of charged particles in a selected volume:
+/// - fTrackID, fFibberNB, fEdep, fPos
 
-class G4UIcommand;
-class PhysicsList;
-class G4UIcmdWithoutParameter;
+class XenonHit : public G4VHit
+{
+  public:
+    XenonHit();
+    XenonHit(const XenonHit&);
+    virtual ~XenonHit();
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+    // operators
+    const XenonHit& operator=(const XenonHit&);
+    G4int operator==(const XenonHit&) const;
 
-class PhysicsListMessenger : public G4UImessenger {
- public:
-  PhysicsListMessenger(PhysicsList *);
-  ~PhysicsListMessenger();
+    inline void* operator new(size_t);
+    inline void  operator delete(void*);
 
-  void SetNewValue(G4UIcommand *, G4String);
+    // methods from base class
+    virtual void Draw();
+    virtual void Print();
 
- private:
-  PhysicsList *pPhysicsList;
+    // Set methods
+    void SetTrackID  (G4int track)      { fTrackID = track; };
+    void SetPos      (G4ThreeVector xyz){ fPos = xyz; };
+    void SetTime      (G4double t){ fTime = t; };
+    void SetPhotonEnergy (G4double e){ fEnergy = e; };
 
-  G4UIdirectory *physDir;
-  G4UIcmdWithADoubleAndUnit *gammaCutCmd;
-  G4UIcmdWithADoubleAndUnit *electCutCmd;
-  G4UIcmdWithADoubleAndUnit *protoCutCmd;
-  G4UIcmdWithADoubleAndUnit *allCutCmd;
-  G4UIcmdWithAString *pListCmd;
-  G4UIcmdWithADoubleAndUnit *lowLimitECmd;
-  G4UIcmdWithoutParameter* addParamCmd;
+    // Get methods
+    G4int GetTrackID() const     { return fTrackID; };
+    G4ThreeVector GetPos() const { return fPos; };
+     G4double GetTime() const     { return fTime; };
+      G4double GetPhotonEnergy() const     { return fEnergy; };
+
+  private:
+
+      G4int         fTrackID;
+      G4double      fTime;
+      G4ThreeVector fPos;
+      G4double      fEnergy;
+      
 };
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+typedef G4THitsCollection<XenonHit> XenonHitsCollection;
+
+extern G4ThreadLocal G4Allocator<XenonHit>* XenonHitAllocator;
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+inline void* XenonHit::operator new(size_t)
+{
+  if(!XenonHitAllocator)
+      XenonHitAllocator = new G4Allocator<XenonHit>;
+  return (void *) XenonHitAllocator->MallocSingle();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+inline void XenonHit::operator delete(void *hit)
+{
+  XenonHitAllocator->FreeSingle((XenonHit*) hit);
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

@@ -1,9 +1,3 @@
-/*
- * HeedModel.cpp
- *
- *  Created on: Apr 9, 2014
- *      Author: dpfeiffe
- */
 #include <iostream>
 #include "HeedModel.hh"
 #include "G4VPhysicalVolume.hh"
@@ -11,6 +5,12 @@
 #include "G4Gamma.hh"
 #include "G4SystemOfUnits.hh"
 #include "DetectorConstruction.hh"
+#include "G4RunManager.hh"
+#include <stdio.h>
+#include "DriftLineTrajectory.hh"
+#include "G4TrackingManager.hh"
+#include "G4EventManager.hh"
+#include "G4VVisManager.hh"
 
 #include "G4AutoLock.hh"
 namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
@@ -18,9 +18,8 @@ namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 const static G4double torr = 1. / 760. * atmosphere;
 
 
-HeedModel::HeedModel(G4String modelName, G4Region* envelope,DetectorConstruction* dc)
-: G4VFastSimulationModel(modelName, envelope), detCon(dc)	{
-    }
+HeedModel::HeedModel(G4String modelName, G4Region* envelope,DetectorConstruction* dc,GasBoxSD* sd)
+: G4VFastSimulationModel(modelName, envelope), detCon(dc), fGasBoxSD(sd)	{}
 
 HeedModel::~HeedModel() {}
 
@@ -57,8 +56,8 @@ void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 
 G4bool HeedModel::FindParticleName(G4String name) {
   MapParticlesEnergy::iterator it;
-  it = fMapParticlesEnergy->find(name);
-  if (it != fMapParticlesEnergy->end()) {
+  it = fMapParticlesEnergy.find(name);
+  if (it != fMapParticlesEnergy.end()) {
     return true;
   }
   return false;
@@ -68,7 +67,7 @@ G4bool HeedModel::FindParticleNameEnergy(G4String name,
                                              double ekin_keV) {
   MapParticlesEnergy::iterator it;
 //  it = fMapParticlesEnergy->find(name);
-  for (it=fMapParticlesEnergy->begin(); it!=fMapParticlesEnergy->end();++it) {
+  for (it=fMapParticlesEnergy.begin(); it!=fMapParticlesEnergy.end();++it) {
     if(it->first == name){
       EnergyRange_keV range = it->second;
       if (range.first <= ekin_keV && range.second >= ekin_keV) {
@@ -80,55 +79,43 @@ G4bool HeedModel::FindParticleNameEnergy(G4String name,
 }
 
 void HeedModel::InitialisePhysics(){
-  makeGas();
+  if(G4RunManager::GetRunManager()->GetRunManagerType() == G4RunManager::workerRM){
+    makeGas();
+      
+    buildBox();
     
-  buildBox();
-  
-  BuildCompField();
-  
-  BuildSensor();
-  
-  SetTracking();
-  
-  if(fVisualizeChamber) CreateChamberView();
-  if(fVisualizeSignal) CreateSignalView();
-  if(fVisualizeField) CreateFieldView();
+    BuildCompField();
+    
+    BuildSensor();
+    
+    SetTracking();
+    
+    if(fVisualizeChamber) CreateChamberView();
+    if(fVisualizeSignal) CreateSignalView();
+    if(fVisualizeField) CreateFieldView();
+  }
 }
 
 void HeedModel::makeGas(){
   fMediumMagboltz = new Garfield::MediumMagboltz();
   double pressure = detCon->GetGasPressure()/torr;
   double temperature = detCon->GetTemperature()/kelvin;
-  double addmixtPerc = detCon->GetAddmixturePercentage();
+  double neonPerc = detCon->GetNeonPercentage();
+  double co2Perc = detCon->GetCO2Percentage();
+  double n2Perc = 1-neonPerc-co2Perc;
   G4String gasName = detCon->GetGasName();
-  const std::string path = getenv("GARFIELD_HOME");
-  if(gasName=="HeIso"){
-    fMediumMagboltz->SetComposition("isobutane",addmixtPerc,"helium",
-          100.-addmixtPerc);
-    const double rPenning = 1;
-    const double lambdaPenning = 0.;
-    fMediumMagboltz->EnablePenningTransfer(rPenning, lambdaPenning, "helium");
-  }
-  else if(gasName=="ArCO2"){
-    fMediumMagboltz->SetComposition("CO2",addmixtPerc,"Ar",
-          100.-addmixtPerc);
-    const double rPenning = 0.51;
-    const double lambdaPenning = 0.;
-    fMediumMagboltz->EnablePenningTransfer(rPenning, lambdaPenning, "ar");
-  }
+  fMediumMagboltz->SetComposition("ne", neonPerc, "co2", co2Perc, "n2", n2Perc);
   fMediumMagboltz->SetTemperature(temperature);
   fMediumMagboltz->SetPressure(pressure); 
-    fMediumMagboltz->EnableDebugging();
-    fMediumMagboltz->Initialise(true);
+  fMediumMagboltz->EnableDebugging();
+  fMediumMagboltz->Initialise(true);
   fMediumMagboltz->DisableDebugging();
 
   G4cout << gasFile << G4endl;
+  const std::string path = getenv("GARFIELD_HOME");
   G4AutoLock lock(&aMutex);
-  if(gasName=="HeIso")
-    fMediumMagboltz->LoadIonMobility(path + "/Data/IonMobility_He+_He.txt");
-  else if(gasName=="ArCO2")
-    fMediumMagboltz->LoadIonMobility(path + "/Data/IonMobility_Ar+_Ar.txt");
-  
+  if(ionMobFile!="")
+    fMediumMagboltz->LoadIonMobility(path + "/Data/" + ionMobFile);
   if(gasFile!="")
       fMediumMagboltz->LoadGasFile(gasFile.c_str());
 }
@@ -137,7 +124,7 @@ void HeedModel::makeGas(){
 void HeedModel::buildBox(){
   geo = new Garfield::GeometrySimple();
 
-  box = new Garfield::SolidBox(0., 0., 0.,(detCon->GetGasBoxR())/CLHEP::cm,(detCon->GetGasBoxH()*0.5)/CLHEP::cm,(detCon->GetGasBoxR())/CLHEP::cm);
+  box = new Garfield::SolidTube(0.,0., 0.,0.,(detCon->GetGasBoxR())/CLHEP::cm,(detCon->GetGasBoxH()*0.5)/CLHEP::cm,0.,1.,0.);
   geo->AddSolid(box, fMediumMagboltz);
   
 }
@@ -156,7 +143,7 @@ void HeedModel::BuildCompField(){
     const double yg = 2. * gap + 0.3; // gate
     // Periodicity (wire spacing)
     const double period = 0.25;
-    const int nRep = 10;
+    const int nRep = 2;
     
     const double dc = period;
     const double dg = period / 2;
@@ -169,12 +156,30 @@ void HeedModel::BuildCompField(){
     comp = new Garfield::ComponentAnalyticField();
     comp->SetGeometry(geo);
     
+    comp->SetPeriodicityX(nRep * period);
+    for (int i = 0; i < nRep; ++i) {
+        comp->AddWire((i - 1) * period, (detCon->GetGasBoxH()*0.5)/CLHEP::cm - ys, dSens, vAnodeWires, "s");
+    }
+    for (int i = 0; i < nRep; ++i) {
+        comp->AddWire(dc * (i - 0.5),(detCon->GetGasBoxH()*0.5)/CLHEP::cm - yc, dCath, vCathodeWires, "c");
+    }
+    for (int i = 0; i < nRep * 2; ++i) {
+        const double xg = dg * (i - 1.5);
+        comp->AddWire(xg,(detCon->GetGasBoxH()*0.5)/CLHEP::cm - yg, dGate, vGate, "g", 100., 50., 19.3, 1);
+    }
+    // Add the planes.
+    comp->AddPlaneY((detCon->GetGasBoxH()*0.5)/CLHEP::cm, vPlaneLow, "pad_plane");
+    comp->AddPlaneY(-(detCon->GetGasBoxH()*0.5)/CLHEP::cm, vPlaneHV, "HV");
+    
+    // Set the magnetic field [T].
+    comp->SetMagneticField(0, 0.5, 0);
     
   
 }
 
 void HeedModel::BuildSensor(){
   fSensor = new Garfield::Sensor();
+  fSensor->AddComponent(comp);
   //fSensor->SetTimeWindow(0.,fBinWidth,fNbins); //Lowest time [ns], time bins [ns], number of bins
 }
 
@@ -184,14 +189,16 @@ void HeedModel::SetTracking(){
     fDriftRKF->SetSensor(fSensor);
     fDriftRKF->EnableDebugging();
   }
-  else{
+  else if(trackMicro){
     fAvalanche = new Garfield::AvalancheMicroscopic();
     fAvalanche->SetSensor(fSensor);
-    fAvalanche->EnableSignalCalculation();  
+    fAvalanche->EnableSignalCalculation();
+  }
+  else{  
     fDrift = new Garfield::AvalancheMC();
     fDrift->SetSensor(fSensor);
     fDrift->EnableSignalCalculation();
-    fDrift->SetDistanceSteps(2.e-4);
+    fDrift->SetDistanceSteps(2.e-3);
     if(createAval) fDrift->EnableAttachment();
     else fDrift->DisableAttachment();
   }
@@ -203,25 +210,36 @@ void HeedModel::SetTracking(){
 }
   
 void HeedModel::CreateChamberView(){
-  fChamber = new TCanvas("c", "Chamber View", 700, 700);
+  char str[30];
+  strcpy(str,name);
+  strcat(str,"_chamber");
+  fChamber = new TCanvas(str, "Chamber View", 700, 700);
   cellView = new Garfield::ViewCell();
   cellView->SetComponent(comp);
   cellView->SetCanvas(fChamber);
   cellView->Plot2d();
   fChamber->Update();
-  fChamber->Print("chamber_configuration.pdf");
+  char str2[30];
+  strcpy(str2,name);
+  strcat(str2,"_chamber.pdf");
+  fChamber->Print(str2);
 //  gSystem->ProcessEvents();
   cout << "CreateCellView()" << endl;
   
   viewDrift = new Garfield::ViewDrift();
   viewDrift->SetCanvas(fChamber);
-  fDrift->EnablePlotting(viewDrift);
+  if(driftRKF) fDriftRKF->EnablePlotting(viewDrift);
+  else if(trackMicro) fAvalanche->EnablePlotting(viewDrift);
+  else fDrift->EnablePlotting(viewDrift);
   fTrackHeed->EnablePlotting(viewDrift);
 
 }
 
 void HeedModel::CreateSignalView(){
-  fSignal = new TCanvas("c2", "Signal on the wire", 700, 700);
+  char str[30];
+  strcpy(str,name);
+  strcat(str,"_signal");
+  fSignal = new TCanvas(str, "Signal on the wire", 700, 700);
   viewSignal = new Garfield::ViewSignal();
   viewSignal->SetSensor(fSensor);
   viewSignal->SetCanvas(fSignal);
@@ -229,14 +247,68 @@ void HeedModel::CreateSignalView(){
 }
 
 void HeedModel::CreateFieldView(){
-  fField = new TCanvas("c3", "Weightingfield", 700, 700);
+  char str[30];
+  strcpy(str,name);
+  strcat(str,"_efield");
+  fField = new TCanvas(name, "Electric field", 700, 700);
   viewField = new Garfield::ViewField();
   viewField->SetCanvas(fField);
   viewField->SetComponent(comp);
-  viewField->SetArea(0.412,7.14,0.432,7.16);
-  viewField->SetWeightingFieldRange(0.,500);
   viewField->SetNumberOfContours(40);
-  viewField->PlotContourWeightingField("20","e");
+  viewField->PlotContour();
   fField->Update();
-  fField->Print("WeightingField_zoom_01mm.pdf");
+  char str2[30];
+  strcpy(str2,name);
+  strcat(str2,"_efield.pdf");
+  fField->Print(str2);
+}
+
+void HeedModel::Drift(double x, double y, double z, double t){
+    if(driftElectrons){
+        DriftLineTrajectory* dlt = new DriftLineTrajectory();
+        G4TrackingManager* fpTrackingManager = G4EventManager::GetEventManager()->GetTrackingManager();
+        fpTrackingManager->SetTrajectory(dlt);
+        if(driftRKF){
+            fDriftRKF->DriftElectron(x,y,z,t);
+            unsigned int n = fDriftRKF->GetNumberOfDriftLinePoints();
+            double xi,yi,zi,ti;
+            for(int i=0;i<n;i++){
+                fDriftRKF->GetDriftLinePoint(i,xi,yi,zi,ti);
+                if(G4VVisManager::GetConcreteInstance() && i % 1000 == 0)
+                  dlt->AppendStep(G4ThreeVector(xi*CLHEP::cm,yi*CLHEP::cm,zi*CLHEP::cm),ti);
+            }
+        }
+        else if(trackMicro){
+            fAvalanche->AvalancheElectron(x,y,z,t,0,0,0,0);
+            unsigned int nLines = fAvalanche->GetNumberOfElectronEndpoints();
+            for(int i=0;i<nLines;i++){
+                unsigned int n = fAvalanche->GetNumberOfElectronDriftLinePoints(i);
+                double xi,yi,zi,ti;
+                for(int j=0;j<n;j++){
+                    fAvalanche->GetElectronDriftLinePoint(xi,yi,zi,ti,j,i);
+                    if(G4VVisManager::GetConcreteInstance() && i % 1000 == 0)
+                      dlt->AppendStep(G4ThreeVector(xi*CLHEP::cm,yi*CLHEP::cm,zi*CLHEP::cm),ti);
+                }
+            }
+        }
+        else{
+            fDrift->DriftElectron(x,y,z,t);
+            unsigned int n = fDrift->GetNumberOfDriftLinePoints();
+            double xi,yi,zi,ti;
+            for(int i=0;i<n;i++){
+                fDrift->GetDriftLinePoint(i,xi,yi,zi,ti);
+                if(G4VVisManager::GetConcreteInstance() && i % 1000 == 0)
+                  dlt->AppendStep(G4ThreeVector(xi*CLHEP::cm,yi*CLHEP::cm,zi*CLHEP::cm),ti);
+            }
+        }
+    }
+}
+
+void HeedModel::PlotTrack(){
+    if(fVisualizeChamber){
+      G4cout << "PlotTrack" << G4endl;
+      viewDrift->Plot(true,false);
+      fChamber->Update();
+      fChamber->Print("PrimaryTrack.pdf");
+    }
 }

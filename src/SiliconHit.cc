@@ -1,33 +1,33 @@
-#include "GasBoxHit.hh"
+#include "SiliconHit.hh"
 #include "G4UnitsTable.hh"
 #include "G4VVisManager.hh"
 #include "G4Circle.hh"
 #include "G4Colour.hh"
 #include "G4VisAttributes.hh"
 
-G4ThreadLocal G4Allocator<GasBoxHit>* GasBoxHitAllocator;
+G4ThreadLocal G4Allocator<SiliconHit>* SiliconHitAllocator;
 
-GasBoxHit::GasBoxHit() : G4VHit(), fTime(-1),
+SiliconHit::SiliconHit() : G4VHit(), fTime(-1),
    fPos(G4ThreeVector()){}
 
-GasBoxHit::~GasBoxHit(){}
+SiliconHit::~SiliconHit(){}
 
-GasBoxHit::GasBoxHit(const GasBoxHit& rhs) : G4VHit() {
+SiliconHit::SiliconHit(const SiliconHit& rhs) : G4VHit() {
     fPos= rhs.fPos;
     fTime=rhs.fTime;
 }
 
-const GasBoxHit& GasBoxHit::operator=(const GasBoxHit& rhs){
+const SiliconHit& SiliconHit::operator=(const SiliconHit& rhs){
     fPos= rhs.fPos;
     fTime=rhs.fTime;
     return *this;
 }
 
-G4int GasBoxHit::operator==(const GasBoxHit& rhs) const{
+G4int SiliconHit::operator==(const SiliconHit& rhs) const{
     return (this==&rhs) ? 1 : 0;
 }
 
-void GasBoxHit::Draw()
+void SiliconHit::Draw()
 {
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if(pVVisManager)
@@ -44,6 +44,6 @@ void GasBoxHit::Draw()
   }
 }
 
-void GasBoxHit::Print(){
+void SiliconHit::Print(){
     G4cout << "Printing hits" << G4endl;
 }

@@ -55,7 +55,13 @@
 #include "G4MesonConstructor.hh"
 #include "G4BosonConstructor.hh"
 
-#include "GasModelParameters.hh"
+#include "G4FastSimulationPhysics.hh"
+#include "G4GlobalFastSimulationManager.hh"
+
+#include "HeedOnlyModel.hh"
+#include "HeedInterfaceModel.hh"
+#include "DegradModel.hh"
+#include "GarfieldVUVPhotonModel.hh"
 
 #ifdef theParticleIterator
 #undef theParticleIterator
@@ -63,8 +69,8 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PhysicsList::PhysicsList(GasModelParameters* gmp)
-    : G4VModularPhysicsList(), lowE(10.* eV), fGasModelParameters(gmp) {
+PhysicsList::PhysicsList()
+    : G4VModularPhysicsList(), lowE(-1){
   G4LossTableManager::Instance();
   defaultCutValue = 10. * um;
   cutForGamma = defaultCutValue;
@@ -88,6 +94,11 @@ PhysicsList::PhysicsList(GasModelParameters* gmp)
 
   RegisterPhysics(new G4StepLimiterPhysics());
 
+  fastSimulationPhysics = new G4FastSimulationPhysics("fastSimPhys");
+  RegisterPhysics(fastSimulationPhysics);
+
+  RegisterPhysics(new G4OpticalPhysics());
+
   
 }
 
@@ -102,13 +113,13 @@ PhysicsList::~PhysicsList() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PhysicsList::ReplacePhysicsList(const G4String& name) {
+void PhysicsList::InitializePhysicsList(const G4String& name) {
   if (verboseLevel > 1) {
     G4cout << "PhysicsList::AddPhysicsList: <" << name << ">" << G4endl;
   }
 
   if (name == "local") {
-        ReplacePhysics(new PhysListEmStandard(name));
+    ReplacePhysics(new PhysListEmStandard(name));
   } else if (name == "emstandard_opt0") {
     ReplacePhysics(new G4EmStandardPhysics(1));
   } else if (name == "emstandard_opt1") {
@@ -124,12 +135,7 @@ void PhysicsList::ReplacePhysicsList(const G4String& name) {
   } else if (name == "ionGasModels") {
     ReplacePhysics(new G4EmStandardPhysics(1));
     AddIonGasModels();
-  } else {
-    G4cout << "PhysicsList::AddPhysicsList: <" << name << ">"
-           << " is not defined" << G4endl;
-    ReplacePhysics(new G4EmStandardPhysics(1));
   }
-  AddParametrisation();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -144,7 +150,7 @@ void PhysicsList::SetCuts() {
   SetCutValue(cutForGamma, "gamma");
   SetCutValue(cutForElectron, "e-");
   SetCutValue(cutForPositron, "e+");
-  if(!(fGasModelParameters->NoParticlesForModel()))
+  if(lowE>0)
       G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(lowE, 100. * MeV);
   
   G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");
@@ -204,17 +210,11 @@ void PhysicsList::AddIonGasModels() {
   }
 }
 
-void PhysicsList::AddParametrisation() {
-    G4FastSimulationManagerProcess* fastSimProcess_garfield =
-    new G4FastSimulationManagerProcess("G4FSMP_gasmodel");
-    
+void PhysicsList::AddParametrisation() {   
     theParticleTable->GetIterator()->reset();
     while ((*theParticleTable->GetIterator())()) {
-        G4ParticleDefinition* particle = theParticleTable->GetIterator()->value();
-        G4ProcessManager* pmanager = particle->GetProcessManager();
-        if (fGasModelParameters->FindParticleName(particle->GetParticleName())) {
-            pmanager->AddDiscreteProcess(fastSimProcess_garfield);
-        }
+        G4String particleName = theParticleTable->GetIterator()->value()->GetParticleName();
+        fastSimulationPhysics->ActivateFastSimulation(particleName);
     }
 }
 

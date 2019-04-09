@@ -23,54 +23,62 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: PhysicsListMessenger.hh,v 1.3 2006-06-29 16:57:52 gunter Exp $
-// GEANT4 tag $Name: not supported by cvs2svn $
+// $Id: WLSTrajectoryPoint.cc 72065 2013-07-05 09:54:59Z gcosmo $
 //
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+/// \file optical/wls/src/WLSTrajectoryPoint.cc
+/// \brief Implementation of the WLSTrajectoryPoint class
+//
+//
+#include "DriftLineTrajectoryPoint.hh"
 
-#ifndef PhysicsListMessenger_h
-#define PhysicsListMessenger_h 1
+#include "G4Step.hh"
+#include "G4Track.hh"
+#include "G4VProcess.hh"
+#include "G4StepStatus.hh"
+#include "G4UnitsTable.hh"
+#include "G4AttValue.hh"
 
-#include "G4SystemOfUnits.hh"
-#include "G4UImessenger.hh"
 
-#include "G4UIdirectory.hh"
-#include "G4UIcmdWithADoubleAndUnit.hh"
-#include "G4UIcmdWithADouble.hh"
-#include "G4UIcmdWithAnInteger.hh"
-#include "G4UIcmdWithAString.hh"
-#include "G4UIcmdWithABool.hh"
-/*! \class PhysicsListMessenger*/
-/*! class derived from G4UImessenger*/
-/*! taken from an example*/
-
-class G4UIcommand;
-class PhysicsList;
-class G4UIcmdWithoutParameter;
+G4ThreadLocal G4Allocator<DriftLineTrajectoryPoint>* DriftLineTrajectoryPointAllocator=0;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class PhysicsListMessenger : public G4UImessenger {
- public:
-  PhysicsListMessenger(PhysicsList *);
-  ~PhysicsListMessenger();
-
-  void SetNewValue(G4UIcommand *, G4String);
-
- private:
-  PhysicsList *pPhysicsList;
-
-  G4UIdirectory *physDir;
-  G4UIcmdWithADoubleAndUnit *gammaCutCmd;
-  G4UIcmdWithADoubleAndUnit *electCutCmd;
-  G4UIcmdWithADoubleAndUnit *protoCutCmd;
-  G4UIcmdWithADoubleAndUnit *allCutCmd;
-  G4UIcmdWithAString *pListCmd;
-  G4UIcmdWithADoubleAndUnit *lowLimitECmd;
-  G4UIcmdWithoutParameter* addParamCmd;
-};
+DriftLineTrajectoryPoint::DriftLineTrajectoryPoint()
+      : fTime(0) { }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+DriftLineTrajectoryPoint::DriftLineTrajectoryPoint(G4ThreeVector pos, G4double t)
+      : G4TrajectoryPoint(pos), fTime(t){}
+
+
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+DriftLineTrajectoryPoint::DriftLineTrajectoryPoint(const DriftLineTrajectoryPoint &right)
+    : G4TrajectoryPoint(right)
+{
+     fTime = right.fTime;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+DriftLineTrajectoryPoint::~DriftLineTrajectoryPoint() { }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+std::vector<G4AttValue>* DriftLineTrajectoryPoint::CreateAttValues() const
+{
+  std::vector<G4AttValue>* values = new std::vector<G4AttValue>;
+  values->push_back(G4AttValue("Pos",G4BestUnit(GetPosition(),"Length"),""));
+  values->push_back
+    (G4AttValue("PreT",G4BestUnit(fTime,"Time"),""));
+  values->push_back
+    (G4AttValue("PostT",G4BestUnit(fTime,"Time"),""));
+
+#ifdef G4ATTDEBUG
+  G4cout << G4AttCheck(values,GetAttDefs());
 #endif
+
+  return values;
+}
