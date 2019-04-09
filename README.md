@@ -12,5 +12,5 @@
  Contributors
  ------------
  * Lennert De Keukeleere (lennert.dekeukeleere@kuleuven.be)
- * Dorothea Pfeiffer (Dorothea.Pfeiffer@cern.ch)`
+ * Dorothea Pfeiffer (Dorothea.Pfeiffer@cern.ch)
 
