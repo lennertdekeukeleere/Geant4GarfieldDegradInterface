@@ -23,11 +23,13 @@ HeedModel::HeedModel(G4String modelName, G4Region* envelope,DetectorConstruction
 
 HeedModel::~HeedModel() {}
 
+//Method called when a particle is created, checks if the model is applicable for this particle
 G4bool HeedModel::IsApplicable(const G4ParticleDefinition& particleType) {
   G4String particleName = particleType.GetParticleName();
   return FindParticleName(particleName);
 }
 
+//Method called in every step: checks if the conditions of the particle are met. If true the DoIt-method is called
 G4bool HeedModel::ModelTrigger(const G4FastTrack& fastTrack) {
   G4double ekin = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
   G4String particleName =
@@ -35,6 +37,7 @@ G4bool HeedModel::ModelTrigger(const G4FastTrack& fastTrack) {
   return FindParticleNameEnergy(particleName, ekin / keV);
 }
 
+//Implementation of the general model, the Run method, calles at the end is specifically implemented for the daughter classes
 void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 
   G4ThreeVector localdir = fastTrack.GetPrimaryTrackLocalDirection();
@@ -54,6 +57,7 @@ void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 	fastStep.SetTotalEnergyDeposited(ekin);
 }
 
+//Checks if the particle is in the list of particle for which the model is applicable (called by IsApplicable)
 G4bool HeedModel::FindParticleName(G4String name) {
   MapParticlesEnergy::iterator it;
   it = fMapParticlesEnergy.find(name);
@@ -63,6 +67,7 @@ G4bool HeedModel::FindParticleName(G4String name) {
   return false;
 }
 
+//Checks if the energy condition of the particle is in the list of conditions for which the model shoould be triggered (called by ModelTrigger)
 G4bool HeedModel::FindParticleNameEnergy(G4String name,
                                              double ekin_keV) {
   MapParticlesEnergy::iterator it;
@@ -78,6 +83,7 @@ G4bool HeedModel::FindParticleNameEnergy(G4String name,
   return false;
 }
 
+//Initialize the Garfield++ related geometries and physics/tracking mechanisms, this is specific for each use and should be re-implemented entirely
 void HeedModel::InitialisePhysics(){
   if(G4RunManager::GetRunManager()->GetRunManagerType() == G4RunManager::workerRM){
     makeGas();
@@ -96,6 +102,7 @@ void HeedModel::InitialisePhysics(){
   }
 }
 
+// Gas intialization (see Garfield++ documentation)
 void HeedModel::makeGas(){
   fMediumMagboltz = new Garfield::MediumMagboltz();
   double pressure = detCon->GetGasPressure()/torr;
@@ -120,7 +127,7 @@ void HeedModel::makeGas(){
       fMediumMagboltz->LoadGasFile(gasFile.c_str());
 }
   
-
+//Geometry (see Garfield++ documentation)
 void HeedModel::buildBox(){
   geo = new Garfield::GeometrySimple();
 
@@ -129,6 +136,7 @@ void HeedModel::buildBox(){
   
 }
 
+//Construction of the electric field (see Garfield++ documentation)
 void HeedModel::BuildCompField(){
     // Switch between IROC and OROC.
     const bool iroc = false;
@@ -177,12 +185,14 @@ void HeedModel::BuildCompField(){
   
 }
 
+//Build sensor (see Garfield++ documentation)
 void HeedModel::BuildSensor(){
   fSensor = new Garfield::Sensor();
   fSensor->AddComponent(comp);
   //fSensor->SetTimeWindow(0.,fBinWidth,fNbins); //Lowest time [ns], time bins [ns], number of bins
 }
 
+//Set which tracking mechanism to be used: Runge-kutta, Monte-Carlo or Microscopic (see Garfield++ documentation)
 void HeedModel::SetTracking(){
   if(driftRKF){
     fDriftRKF = new Garfield::DriftLineRKF();
@@ -208,7 +218,8 @@ void HeedModel::SetTracking(){
   fTrackHeed->EnableDeltaElectronTransport();
 
 }
-  
+
+// Set some visualization variables to see tracks and drift lines (see Garfield++ documentation)
 void HeedModel::CreateChamberView(){
   char str[30];
   strcpy(str,name);
@@ -235,6 +246,7 @@ void HeedModel::CreateChamberView(){
 
 }
 
+//Signal plotting (see Garfield++ documentation)
 void HeedModel::CreateSignalView(){
   char str[30];
   strcpy(str,name);
@@ -246,6 +258,7 @@ void HeedModel::CreateSignalView(){
 
 }
 
+//Electric field plotting (see Garfield++ documentation)
 void HeedModel::CreateFieldView(){
   char str[30];
   strcpy(str,name);
@@ -263,6 +276,7 @@ void HeedModel::CreateFieldView(){
   fField->Print(str2);
 }
 
+// Drift the electrons from point of creation towards the electrodes (This is common for both models, i.e. HeedInterface and HeedModel) (see Garfield++ documentation)
 void HeedModel::Drift(double x, double y, double z, double t){
     if(driftElectrons){
         DriftLineTrajectory* dlt = new DriftLineTrajectory();
@@ -304,6 +318,7 @@ void HeedModel::Drift(double x, double y, double z, double t){
     }
 }
 
+// Plot the track, only called when visualization is turned on by the user
 void HeedModel::PlotTrack(){
     if(fVisualizeChamber){
       G4cout << "PlotTrack" << G4endl;

@@ -47,18 +47,12 @@ void GasBoxSD::Initialize(G4HCofThisEvent * HCE){
 
 G4bool GasBoxSD::ProcessHits(G4Step* aStep, G4TouchableHistory* hist){
     G4Track* aTrack = aStep->GetTrack();
-    G4StepPoint* thePostPoint = aStep->GetPostStepPoint();
 
     if(aTrack->GetDefinition()->GetParticleName() == "e-"){
         G4cout << "GasBox Hit!!" << G4endl;
         G4cout << "Particle ID: " << aTrack->GetTrackID() << G4endl;
         G4cout << "Energy electron: " << aTrack->GetKineticEnergy() << G4endl;
-    /*    GasBoxHit* hit = new GasBoxHit();
-        G4ThreeVector pos = thePostPoint->GetPosition();
-        hit->SetPos(pos);
-        hit->SetTime(aTrack->GetGlobalTime());
-        fGasBoxHitsCollection->insert(hit);
-    */    return true;
+        return true;
     }
 
     return false;

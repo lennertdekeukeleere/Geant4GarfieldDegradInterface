@@ -37,6 +37,10 @@ include_directories($ENV{GARFIELD_HOME}/Include)
 include_directories($ENV{GARFIELD_HOME}/Heed)
 # Add additional libraries needed for GARFIELD++
 link_directories($ENV{GARFIELD_LIB})
+IF(APPLE)
+    # Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
+    LINK_DIRECTORIES(/usr/local/lib)
+ENDIF()
 #---------------------------------------------------------------------------
 #include the macro for generating dictionaries
 
@@ -68,6 +72,7 @@ target_link_libraries(InterfaceExample -lGarfield -lgfortran ${ROOT_LIBRARIES} $
 set(InterfaceExample_SCRIPTS
   vis.mac
   run1.mac
+  convertDegradFile.py
 )
 
 foreach(_script ${InterfaceExample_SCRIPTS})

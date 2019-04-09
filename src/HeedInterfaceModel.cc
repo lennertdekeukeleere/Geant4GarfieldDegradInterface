@@ -17,7 +17,7 @@
 #include "G4AutoLock.hh"
 namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 
-
+// HeedInterfaceModel derives from the HeedModel Class and uses the GasModelParameters Class to set some user-defined veriables
 HeedInterfaceModel::HeedInterfaceModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
     : HeedModel(modelName, envelope,dc,sd) {
         fMapParticlesEnergy = gmp->GetParticleNamesHeedInterface();
@@ -42,6 +42,7 @@ HeedInterfaceModel::HeedInterfaceModel(GasModelParameters* gmp,G4String modelNam
 
 HeedInterfaceModel::~HeedInterfaceModel() {}
 
+//This method is called in the DoIt-method in parent class HeedModel
 void HeedInterfaceModel::Run(G4String particleName, double ekin_keV, double t, double x_cm,
             double y_cm, double z_cm, double dx, double dy, double dz){
     double eKin_eV = ekin_keV * 1000;

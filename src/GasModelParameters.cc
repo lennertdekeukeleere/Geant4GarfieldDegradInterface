@@ -10,7 +10,7 @@ GasModelParameters::GasModelParameters(DetectorConstruction* dc){
 	dc->SetGasModelParameters(this);
 }
 
-
+//Add particles (with energy range) to be included in the HeedOnly Model
 void GasModelParameters::AddParticleNameHeedOnly(const G4String particleName,double ekin_min_keV,double ekin_max_keV){
     if (ekin_min_keV >= ekin_max_keV) {
         return;
@@ -19,7 +19,7 @@ void GasModelParameters::AddParticleNameHeedOnly(const G4String particleName,dou
                                 std::make_pair(particleName, std::make_pair(ekin_min_keV, ekin_max_keV)));
     G4cout << "HeedOnly: Particle added: " << ekin_min_keV << " " << ekin_max_keV << G4endl;
 }
-
+//Add particles (with energy range) to be included in the HeedInterface Model
 void GasModelParameters::AddParticleNameHeedInterface(const G4String particleName,double ekin_min_keV,double ekin_max_keV){
     if (ekin_min_keV >= ekin_max_keV) {
         return;

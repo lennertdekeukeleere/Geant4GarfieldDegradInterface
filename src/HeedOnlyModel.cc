@@ -18,6 +18,7 @@
 #include "G4AutoLock.hh"
 namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 
+// HeedOnlyModel derives from the HeedModel Class and uses the GasModelParameters Class to set some user-defined veriables
 HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
     : HeedModel(modelName, envelope,dc,sd)	{
         G4cout << "Copying the particle map" << G4endl;
@@ -45,6 +46,7 @@ HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Regio
 
 HeedOnlyModel::~HeedOnlyModel() {}
 
+//This method is called in the DoIt-method in parent class HeedModel
 void HeedOnlyModel::Run(G4String particleName, double ekin_keV, double t, double x_cm,
             double y_cm, double z_cm, double dx, double dy, double dz){
     double eKin_eV = ekin_keV * 1000;

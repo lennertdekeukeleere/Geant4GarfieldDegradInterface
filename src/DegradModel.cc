@@ -57,10 +57,13 @@ void DegradModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
     G4String degradString="printf \"1,1,3,-1,"+seed+",5900.0,7.0,0.0\n7,0,0,0,0,0\n100.0,0.0,0.0,0.0,0.0,0.0,20.0,900.0\n3000.0,0.0,0.0,1,0\n100.0,0.5,1,1,1,1,1,1,1\n0,0,0,0,0,0\" > conditions_Degrad.txt";
     G4cout << degradString << G4endl;
     stdout=system(degradString.data());
+    G4cout << degradString << G4endl;
     const std::string degradpath = std::getenv("DEGRAD_HOME");
+    G4cout << degradpath << G4endl;
     std::string exec = "/Degrad < conditions_Degrad.txt";
     std::string full_path = degradpath + exec;
     const char *mychar = full_path.c_str();
+    G4cout << mychar << G4endl;
     stdout=system(mychar);
     stdout=system("./convertDegradFile.py");
 

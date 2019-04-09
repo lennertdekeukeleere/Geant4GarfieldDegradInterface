@@ -111,7 +111,7 @@ return fTime;
 
 void GarfieldExcitationHit::Print()
 {
-	G4cout<<"Garf Exc HIT"<<G4endl;
+  G4cout<<"Garf Exc HIT"<<G4endl;
   G4cout<<   " Time: "<< std::setw(7) << G4BestUnit(fTime,"Time")<< " Position: "<< fPos<< G4endl;
 }
 

@@ -93,7 +93,8 @@ PhysicsList::PhysicsList()
   RegisterPhysics(new G4RadioactiveDecayPhysics());
 
   RegisterPhysics(new G4StepLimiterPhysics());
-
+  
+  //This is needed to notify Geant4 that the G4FastSimulationModel is to be used
   fastSimulationPhysics = new G4FastSimulationPhysics("fastSimPhys");
   RegisterPhysics(fastSimulationPhysics);
 
@@ -210,6 +211,7 @@ void PhysicsList::AddIonGasModels() {
   }
 }
 
+//This activates the G4FastSimulationPhysics for all particles and should be called by the user in the macro before '/run/initialize' (command: '/InterfaceExample/phys/AddParametrisation')
 void PhysicsList::AddParametrisation() {   
     theParticleTable->GetIterator()->reset();
     while ((*theParticleTable->GetIterator())()) {
