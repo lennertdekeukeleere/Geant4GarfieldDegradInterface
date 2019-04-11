@@ -43,11 +43,13 @@ int main(int argc, char** argv) {
   G4Random::setTheSeed(randseed);
   G4cout << "Setting the Random seed: " << randseed << G4endl;
   
+  G4cout << "Creation of the gas model parameter class" << G4endl;
+  GasModelParameters* gmp = new GasModelParameters();
+    
   G4cout << "Creation of DetectorConstruction" << G4endl;
-  DetectorConstruction* detector = new DetectorConstruction();
+  DetectorConstruction* detector = new DetectorConstruction(gmp);
   runManager->SetUserInitialization(detector);
 
-  GasModelParameters* gmp = new GasModelParameters(detector);
   
   G4cout << "Creation of PhysicsList" << G4endl;
   PhysicsList* physics = new PhysicsList();

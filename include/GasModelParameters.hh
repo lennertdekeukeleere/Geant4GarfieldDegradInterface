@@ -18,7 +18,7 @@ typedef std::multimap<const G4String, EnergyRange_keV> MapParticlesEnergy;
 class GasModelParameters{
 	public:
 	
-	GasModelParameters(DetectorConstruction*);
+	GasModelParameters();
 	~GasModelParameters();
     
     

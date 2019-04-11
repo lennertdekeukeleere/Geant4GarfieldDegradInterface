@@ -94,7 +94,7 @@ PhysicsList::PhysicsList()
 
   RegisterPhysics(new G4StepLimiterPhysics());
   
-  //This is needed to notify Geant4 that the G4FastSimulationModel is to be used
+  //This is needed to notify Geant4 that the G4FastSimulationModel is to be used as a possible physics process
   fastSimulationPhysics = new G4FastSimulationPhysics("fastSimPhys");
   RegisterPhysics(fastSimulationPhysics);
 
@@ -151,6 +151,7 @@ void PhysicsList::SetCuts() {
   SetCutValue(cutForGamma, "gamma");
   SetCutValue(cutForElectron, "e-");
   SetCutValue(cutForPositron, "e+");
+  
   if(lowE>0)
       G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(lowE, 100. * MeV);
   
@@ -159,6 +160,7 @@ void PhysicsList::SetCuts() {
   cuts->SetProductionCut(1 * um, G4ProductionCuts::GetIndex("gamma"));
   cuts->SetProductionCut(1 * um, G4ProductionCuts::GetIndex("e-"));
   cuts->SetProductionCut(1 * um, G4ProductionCuts::GetIndex("e+"));
+  
   if (region) {
     region->SetProductionCuts(cuts);
   }

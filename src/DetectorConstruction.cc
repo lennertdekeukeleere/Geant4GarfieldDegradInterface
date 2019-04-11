@@ -23,8 +23,10 @@
 #include "G4SDManager.hh"
 
 
-DetectorConstruction::DetectorConstruction()
-    : checkOverlaps(0),
+DetectorConstruction::DetectorConstruction(GasModelParameters* gmp)
+    :
+    fGasModelParameters(gmp),
+    checkOverlaps(0),
     worldHalfLength(3.*m), //World volume is a cube with side length = 3m;
     wallThickness(0.05*m), //thickness of the aluminum walls
     caloThickness(1.*mm), // thickness of the silicon detectors

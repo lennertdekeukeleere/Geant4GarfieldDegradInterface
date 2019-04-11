@@ -5,9 +5,8 @@
 #include "GasModelParametersMessenger.hh"
 #include "DetectorConstruction.hh"
 
-GasModelParameters::GasModelParameters(DetectorConstruction* dc){
+GasModelParameters::GasModelParameters(){
 	fMessenger = new GasModelParametersMessenger(this);
-	dc->SetGasModelParameters(this);
 }
 
 //Add particles (with energy range) to be included in the HeedOnly Model
