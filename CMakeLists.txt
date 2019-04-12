@@ -74,6 +74,8 @@ set(InterfaceExample_SCRIPTS
   run1.mac
   convertDegradFile.py
   Ne_90_CO2_10_N2_5_with_mg.gas
+  visALICE.mac
+  visXenon.mac
 )
 
 foreach(_script ${InterfaceExample_SCRIPTS})

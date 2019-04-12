@@ -180,10 +180,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
       new G4PVPlacement(myRotation,G4ThreeVector(0,-(gasboxH+wallThickness)/2.,0), logicWall2,
                         "solidWall2_phys",logicWorld,false,0,checkOverlaps);
 
-      logicGasBox->SetVisAttributes(green);
+      logicGasBox->SetVisAttributes(blue);
       logicWall1->SetVisAttributes(red);
-      logicWall2->SetVisAttributes(blue);
-      logicCalo->SetVisAttributes(yellow);
+      logicWall2->SetVisAttributes(red);
+      //logicCalo->SetVisAttributes(yellow);
       
       
   }
