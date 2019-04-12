@@ -14,11 +14,13 @@
 #include "GasModelParameters.hh"
 #include "GasBoxSD.hh"
 #include "XenonHit.hh"
+#include "G4VProcess.hh"
 
 
 DegradModel::DegradModel(GasModelParameters* gmp, G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
     : G4VFastSimulationModel(modelName, envelope),detCon(dc), fGasBoxSD(sd){
-      thermalE=gmp->GetThermalEnergy();
+        thermalE=gmp->GetThermalEnergy();
+        processOccured = false;
     }
 
 DegradModel::~DegradModel() {}
@@ -30,9 +32,11 @@ G4bool DegradModel::IsApplicable(const G4ParticleDefinition& particleType) {
 }
 
 G4bool DegradModel::ModelTrigger(const G4FastTrack& fastTrack) {
-  G4double ekin = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
-  if (ekin>thermalE)
-		return true;
+  G4String proc = fastTrack.GetPrimaryTrack()->GetCreatorProcess()->GetProcessName();
+    if (proc == "phot" && !processOccured){
+      processOccured = true;
+      return true;
+    }
   return false;
 
 }
@@ -48,8 +52,6 @@ void DegradModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
     fastStep.KillPrimaryTrack();
     fastStep.SetPrimaryTrackPathLength(0.0);
     G4cout<<"GLOBAL TIME "<<G4BestUnit(degradTime,"Time")<<" POSITION "<<G4BestUnit(degradPos,"Length")<<G4endl;
-    //CallDegrad();
-    //fastStep.SetTotalEnergyDeposited(fastTrack.GetPrimaryTrack()->GetKineticEnergy());
 
     G4int stdout;
     G4int SEED=54217137*G4UniformRand();

@@ -11,6 +11,8 @@
 #include "Analysis.hh"
 #include "SteppingAction.hh"
 #include "G4VPhysicalVolume.hh"
+#include "G4GlobalFastSimulationManager.hh"
+#include "DegradModel.hh"
 
 EventAction::EventAction() {
   
@@ -22,6 +24,7 @@ EventAction::~EventAction() {
 
 
 void EventAction::BeginOfEventAction(const G4Event *ev) {
+    ((DegradModel*)(G4GlobalFastSimulationManager::GetInstance()->GetFastSimulationModel("DegradModel")))->Reset();
 }
 
 void EventAction::EndOfEventAction(const G4Event *evt) {
