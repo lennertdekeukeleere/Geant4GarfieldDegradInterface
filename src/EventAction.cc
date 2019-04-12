@@ -24,7 +24,9 @@ EventAction::~EventAction() {
 
 
 void EventAction::BeginOfEventAction(const G4Event *ev) {
-    ((DegradModel*)(G4GlobalFastSimulationManager::GetInstance()->GetFastSimulationModel("DegradModel")))->Reset();
+    DegradModel* dm = (DegradModel*)(G4GlobalFastSimulationManager::GetInstance()->GetFastSimulationModel("DegradModel"));
+    if(dm)
+        dm->Reset();
 }
 
 void EventAction::EndOfEventAction(const G4Event *evt) {
