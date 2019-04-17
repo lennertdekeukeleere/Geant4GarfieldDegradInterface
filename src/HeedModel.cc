@@ -49,12 +49,9 @@ void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
   G4String particleName =
       fastTrack.GetPrimaryTrack()->GetParticleDefinition()->GetParticleName();
 
-  fastStep.KillPrimaryTrack();
-	fastStep.SetPrimaryTrackPathLength(0.0);
-  Run(particleName, ekin/keV, time, worldPosition.x() / CLHEP::cm,
+  Run(fastStep,particleName, ekin/keV, time, worldPosition.x() / CLHEP::cm,
       worldPosition.y() / CLHEP::cm, worldPosition.z() / CLHEP::cm,
       localdir.x(), localdir.y(), localdir.z());
-	fastStep.SetTotalEnergyDeposited(ekin);
 }
 
 //Checks if the particle is in the list of particle for which the model is applicable (called by IsApplicable)

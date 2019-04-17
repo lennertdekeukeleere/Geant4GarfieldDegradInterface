@@ -31,6 +31,7 @@
 class G4VPhysicalVolume;
 class DetectorConstruction;
 class HeedMessenger;
+class G4FastStep;
 
 class HeedModel : public G4VFastSimulationModel {
  public:
@@ -56,8 +57,7 @@ class HeedModel : public G4VFastSimulationModel {
 
  protected:
   void InitialisePhysics();
-  virtual void Run(G4String particleName, double ekin_keV, double t, double x_cm,
-            double y_cm, double z_cm, double dx, double dy, double dz) = 0;
+  virtual void Run(G4FastStep& fastStep, G4String particleName, double ekin_keV, double t, double x_cm, double y_cm, double z_cm, double dx, double dy, double dz) = 0;
   void PlotTrack();
   void Drift(double,double, double, double);
   DetectorConstruction* detCon;

@@ -43,7 +43,7 @@ HeedDeltaElectronModel::HeedDeltaElectronModel(GasModelParameters* gmp,G4String 
 HeedDeltaElectronModel::~HeedDeltaElectronModel() {}
 
 //This method is called in the DoIt-method in parent class HeedModel
-void HeedDeltaElectronModel::Run(G4String particleName, double ekin_keV, double t, double x_cm,
+void HeedDeltaElectronModel::Run(G4FastStep& fastStep, G4String particleName, double ekin_keV, double t, double x_cm,
             double y_cm, double z_cm, double dx, double dy, double dz){
     double eKin_eV = ekin_keV * 1000;
     int nc = 0, ni=0;
@@ -71,6 +71,9 @@ void HeedDeltaElectronModel::Run(G4String particleName, double ekin_keV, double 
             Drift(xe,ye,ze,te);
     }
     PlotTrack();
+    fastStep.KillPrimaryTrack();
+    fastStep.SetPrimaryTrackPathLength(0.0);
+    fastStep.SetTotalEnergyDeposited(ekin_keV*keV);
 
 }
 

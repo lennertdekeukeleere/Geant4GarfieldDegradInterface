@@ -5,7 +5,7 @@
 #/gasModelParameters/heed/heedinterface/addparticle gamma 0. 10000000
 /gasModelParameters/heed/heedonly/addparticle e- 0.1 100000.
 /gasModelParameters/heed/heedonly/addparticle e+ 1000. 100000.
-/gasModelParameters/heed/heedonly/addparticle p 1000. 1000000.
+/gasModelParameters/heed/heedonly/addparticle proton 1000. 1000000.
 /gasModelParameters/heed/heedonly/addparticle mu+ 1000. 1000000.
 /gasModelParameters/heed/heedonly/addparticle mu- 1000. 1000000.
 /gasModelParameters/heed/heedonly/addparticle mu 1000. 1000000.
@@ -54,9 +54,9 @@
 ####################################
 ########### Visualization ##########
 ####################################
-/gps/particle e-
+/gps/particle proton
 /gps/ene/type Mono
-/gps/ene/mono 1 MeV
+/gps/ene/mono 2000 MeV
 # Positioning and Angles
 #/gps/source/intensity 49000
 /gps/ang/type iso
