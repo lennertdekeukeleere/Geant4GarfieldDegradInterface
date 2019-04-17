@@ -276,7 +276,7 @@ void HeedModel::CreateFieldView(){
   fField->Print(str2);
 }
 
-// Drift the electrons from point of creation towards the electrodes (This is common for both models, i.e. HeedInterface and HeedModel) (see Garfield++ documentation)
+// Drift the electrons from point of creation towards the electrodes (This is common for both models, i.e. HeedDeltaElectron and HeedModel) (see Garfield++ documentation)
 void HeedModel::Drift(double x, double y, double z, double t){
     if(driftElectrons){
         DriftLineTrajectory* dlt = new DriftLineTrajectory();

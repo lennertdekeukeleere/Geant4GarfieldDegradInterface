@@ -1,11 +1,11 @@
 /*
- * HeedOnlyModel.cpp
+ * HeedNewTrackModel.cpp
  *
  *  Created on: Apr 9, 2014
  *      Author: dpfeiffe
  */
 #include <iostream>
-#include "HeedOnlyModel.hh"
+#include "HeedNewTrackModel.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4Electron.hh"
 #include "G4Gamma.hh"
@@ -18,12 +18,12 @@
 #include "G4AutoLock.hh"
 namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 
-// HeedOnlyModel derives from the HeedModel Class and uses the GasModelParameters Class to set some user-defined veriables
-HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
+// HeedNewTrackModel derives from the HeedModel Class and uses the GasModelParameters Class to set some user-defined veriables
+HeedNewTrackModel::HeedNewTrackModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
     : HeedModel(modelName, envelope,dc,sd)	{
         G4cout << "Copying the particle map" << G4endl;
-        G4cout << gmp->GetParticleNamesHeedOnly().size() << G4endl;
-        fMapParticlesEnergy = gmp->GetParticleNamesHeedOnly();
+        G4cout << gmp->GetParticleNamesHeedNewTrack().size() << G4endl;
+        fMapParticlesEnergy = gmp->GetParticleNamesHeedNewTrack();
         G4cout << "set the gas file" << G4endl;
         gasFile = gmp->GetGasFile();
         ionMobFile = gmp->GetIonMobilityFile();
@@ -40,14 +40,14 @@ HeedOnlyModel::HeedOnlyModel(GasModelParameters* gmp,G4String modelName, G4Regio
         vCathodeWires = gmp->GetVoltageCathodeWires();
         vGate = gmp->GetVoltageGate();
         vDeltaGate = gmp->GetVoltageDeltaGate();
-        name="HeedOnlyModel";
+        name="HeedNewTrackModel";
         InitialisePhysics();
     }
 
-HeedOnlyModel::~HeedOnlyModel() {}
+HeedNewTrackModel::~HeedNewTrackModel() {}
 
 //This method is called in the DoIt-method in parent class HeedModel
-void HeedOnlyModel::Run(G4String particleName, double ekin_keV, double t, double x_cm,
+void HeedNewTrackModel::Run(G4String particleName, double ekin_keV, double t, double x_cm,
             double y_cm, double z_cm, double dx, double dy, double dz){
     double eKin_eV = ekin_keV * 1000;
     int nc = 0, ni=0;
@@ -73,10 +73,10 @@ void HeedOnlyModel::Run(G4String particleName, double ekin_keV, double t, double
 
 
 
-void HeedOnlyModel::ProcessEvent(){
+void HeedNewTrackModel::ProcessEvent(){
 
 }
 
-void HeedOnlyModel::Reset(){
+void HeedNewTrackModel::Reset(){
 
 }

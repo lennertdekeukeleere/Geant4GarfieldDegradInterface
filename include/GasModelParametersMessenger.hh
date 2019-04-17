@@ -27,20 +27,20 @@ class GasModelParametersMessenger : public G4UImessenger {
 
  private:
 
-  void AddParticleHeedInterfaceCommand(G4String newValues);
-  void AddParticleHeedOnlyCommand(G4String newValues);
+  void AddParticleHeedDeltaElectronCommand(G4String newValues);
+  void AddParticleHeedNewTrackCommand(G4String newValues);
   void ConvertParameters(G4String newValues);
 
   GasModelParameters* fGasModelParameters;
   G4UIdirectory* GasModelParametersDir;
   G4UIdirectory* HeedDir;
   G4UIdirectory* DegradDir;
-  G4UIdirectory* HeedOnlyDir;
-  G4UIdirectory* HeedInterfaceDir;
+  G4UIdirectory* HeedNewTrackDir;
+  G4UIdirectory* HeedDeltaElectronDir;
 
   G4UIcommand* addParticleDegradCmd;
-  G4UIcommand* addParticleHeedInterfaceCmd;
-  G4UIcommand* addParticleHeedOnlyCmd;
+  G4UIcommand* addParticleHeedDeltaElectronCmd;
+  G4UIcommand* addParticleHeedNewTrackCmd;
   G4UIcmdWithAString* gasFileCmd;
   G4UIcmdWithAString* ionMobFileCmd;
   G4UIcmdWithABool* driftElectronsCmd;

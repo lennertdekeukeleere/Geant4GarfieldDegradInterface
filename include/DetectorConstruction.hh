@@ -2,7 +2,7 @@
 #define DetectorConstruction_hh 1
 
 #include "G4VUserDetectorConstruction.hh"
-#include "HeedInterfaceModel.hh"
+#include "HeedDeltaElectronModel.hh"
 #include "G4SystemOfUnits.hh"
 #include "DetectorMessenger.hh"
 #include "G4UserLimits.hh"

@@ -1,5 +1,5 @@
 /*
- * HeedOnlyModel.h
+ * HeedNewTrackModel.h
  *
  *  Created on: Apr 9, 2014
  *      Author: dpfeiffe
@@ -26,7 +26,7 @@
 
 class G4VPhysicalVolume;
 class DetectorConstruction;
-class HeedOnlyMessenger;
+class HeedNewTrackMessenger;
 class GasModelParameters;
 class GasBoxSD;
 
@@ -34,13 +34,13 @@ class GasBoxSD;
 typedef std::pair<double, double> EnergyRange_keV;
 typedef std::multimap<const G4String, EnergyRange_keV> MapParticlesEnergy;
 
-class HeedOnlyModel : public HeedModel {
+class HeedNewTrackModel : public HeedModel {
  public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  HeedOnlyModel(GasModelParameters*,G4String, G4Region*,DetectorConstruction*, GasBoxSD*);
-  ~HeedOnlyModel();
+  HeedNewTrackModel(GasModelParameters*,G4String, G4Region*,DetectorConstruction*, GasBoxSD*);
+  ~HeedNewTrackModel();
   
   /*The following public methods are user-dependent*/
 
@@ -60,4 +60,4 @@ class HeedOnlyModel : public HeedModel {
   
 };
 
-#endif /* HeedOnlyModel_H_ */
+#endif /* HeedNewTrackModel_H_ */

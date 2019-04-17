@@ -6,10 +6,6 @@ Below, you can find a detailed description of the different parts to be added to
 DetectorConstruction
 -----------------------------
 
-As mentioned above, the project involves two user cases: a TPC with charged readout and an optical TPC. The first one uses the setup from the ALICE TPC and generally follows the online example from the Garfield_ webpage. 
-
-.. _Garfield: http://garfieldpp.web.cern.ch/garfieldpp/examples/alicetpc/
-
 The following lines should be added to the *Construct*-method of your *G4VDetectorConstruction*-derived class, as a way to create a region where the Interface model should be applied.
 
 .. code-block:: cpp
@@ -35,8 +31,8 @@ For the purpos of making the project multi-threaded, it is desirable to implemen
       SetSensitiveDetector(logicGasBox,myGasBoxSD);
       ...
       G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");
-      new HeedOnlyModel(fGasModelParameters,"HeedOnlyModel",region,this,myGasBoxSD);
-      new HeedInterfaceModel(fGasModelParameters,"HeedInterfaceModel",region,this,myGasBoxSD);
+      new HeedNewTrackModel(fGasModelParameters,"HeedNewTrackModel",region,this,myGasBoxSD);
+      new HeedDeltaElectronModel(fGasModelParameters,"HeedDeltaElectronModel",region,this,myGasBoxSD);
       new DegradModel(fGasModelParameters,"DegradModel",region,this,myGasBoxSD);
       new GarfieldVUVPhotonModel(fGasModelParameters,"GarfieldVUVPhotonModel",region,this,myGasBoxSD);
    }
@@ -95,8 +91,37 @@ Where the variable, *lowE*, sets the minimum energy below which a secondary part
 G4VFastSimulationModel
 ------------------------------------
 
-There are four different *G4VFastSimulationModel*-objects in the project, three of them using Heed and/or Garfield++, and one of them using Degrad.
+There are four different *G4VFastSimulationModel*-objects in the project, three of them using Heed/Garfield++, and one of them using Degrad, each of which following one of the paths in the flow charts for :ref:`chargedParticles` and :ref:`photons` . The first two, *HeedNewTrackModel* and *HeedDeltaElectronModel*, both derive from class *HeedModel*, which in turn derives from the *G4VFastSimulationModel*-class. They are applied in conjunction with the :ref:`alicetpc` setup. Whereas the former follows the green path in the flow chart for charged particles, the latter follows the red path. The other two models are designed for the :ref:`opticaltpc` setup, and are called *DegradModel* and *GarfieldVUVPhotonModel*
+
+All models derive from the *G4VFastSimulationModel*-class, and should overwrite the following virtual methods:
+
+   - *IsApplicable(const G4ParticleDefinition&)*
+   - *ModelTrigger(const G4FastTrack&)*
+   - *DoIt(const G4FastTrack&, G4FastStep&)*
    
+The first method is called for each new track and checks if the model is applicable for a certain particle type. If so it should return *true*, otherwise it should return *false*. The second method is called in each step (of course only if *IsApplicable* has returned *true* for the track), and is used to check if the track conditions for triggering the model are fullfilled. The third method contains the actual model.
+
+*HeedNewTrackModel* and *HeedDeltaElectronModel* follow the same approach with respect to the first two methods. The user can provide the particle names together with lower and upper thresholds for the energy, as explained in :ref:`macro-label`. Each particle added to the model is saved in a map together with the corresponding energy thresholds. When a new track enters the gas region, the *IsApplicable*-method is called, which itself calls the internal method *FindParticleName(G4String particleName)*. The latter will search the map for *particleName* and returns *true* if present. The method *FindParticleNameEnergy(G4String particleName, double eKin)*, which is called by the *ModelTrigger*-method, will search the map for *particleName* with an energy *eKin* that lies in between the lower and upper threshold, and returns *true* if present. The larger part of the *DoIt*-method is also the same for both methods. The difference is in the *Run*-method called at the second to last line:
+
+.. code-block:: cpp
+
+   void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
+      G4ThreeVector localdir = fastTrack.GetPrimaryTrackLocalDirection();
+      G4ThreeVector worldPosition = fastTrack.GetPrimaryTrack()->GetPosition();
+      G4double ekin = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+      G4double time = fastTrack.GetPrimaryTrack()->GetGlobalTime();
+      G4String particleName =
+      fastTrack.GetPrimaryTrack()->GetParticleDefinition()->GetParticleName();
+      fastStep.KillPrimaryTrack();
+      fastStep.SetPrimaryTrackPathLength(0.0);
+      Run(particleName, ekin/keV, time, worldPosition.x() / CLHEP::cm,
+               worldPosition.y() / CLHEP::cm, worldPosition.z() / CLHEP::cm,
+               localdir.x(), localdir.y(), localdir.z());
+      fastStep.SetTotalEnergyDeposited(ekin);
+   }
+   
+The *Run*-method for the *HeedNewTrackModel*
+
 
 
 

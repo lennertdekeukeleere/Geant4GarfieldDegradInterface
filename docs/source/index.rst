@@ -10,6 +10,7 @@ Welcome to Geant4GarfieldDegradInterface's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   intro
    prerequisites
    code
    cmake

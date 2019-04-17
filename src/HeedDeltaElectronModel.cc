@@ -1,11 +1,11 @@
 /*
- * HeedInterfaceModel.cpp
+ * HeedDeltaElectronModel.cpp
  *
  *  Created on: Apr 9, 2014
  *      Author: dpfeiffe
  */
 #include <iostream>
-#include "HeedInterfaceModel.hh"
+#include "HeedDeltaElectronModel.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4Electron.hh"
 #include "G4Gamma.hh"
@@ -17,10 +17,10 @@
 #include "G4AutoLock.hh"
 namespace{G4Mutex aMutex = G4MUTEX_INITIALIZER;}
 
-// HeedInterfaceModel derives from the HeedModel Class and uses the GasModelParameters Class to set some user-defined veriables
-HeedInterfaceModel::HeedInterfaceModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
+// HeedDeltaElectronModel derives from the HeedModel Class and uses the GasModelParameters Class to set some user-defined veriables
+HeedDeltaElectronModel::HeedDeltaElectronModel(GasModelParameters* gmp,G4String modelName, G4Region* envelope,DetectorConstruction* dc, GasBoxSD* sd)
     : HeedModel(modelName, envelope,dc,sd) {
-        fMapParticlesEnergy = gmp->GetParticleNamesHeedInterface();
+        fMapParticlesEnergy = gmp->GetParticleNamesHeedDeltaElectron();
         gasFile = gmp->GetGasFile();
         ionMobFile = gmp->GetIonMobilityFile();
         driftElectrons = gmp->GetDriftElectrons();
@@ -36,14 +36,14 @@ HeedInterfaceModel::HeedInterfaceModel(GasModelParameters* gmp,G4String modelNam
         vCathodeWires = gmp->GetVoltageCathodeWires();
         vGate = gmp->GetVoltageGate();
         vDeltaGate = gmp->GetVoltageDeltaGate();
-        name="HeedInterfaceModel";
+        name="HeedDeltaElectronModel";
         InitialisePhysics();
     }
 
-HeedInterfaceModel::~HeedInterfaceModel() {}
+HeedDeltaElectronModel::~HeedDeltaElectronModel() {}
 
 //This method is called in the DoIt-method in parent class HeedModel
-void HeedInterfaceModel::Run(G4String particleName, double ekin_keV, double t, double x_cm,
+void HeedDeltaElectronModel::Run(G4String particleName, double ekin_keV, double t, double x_cm,
             double y_cm, double z_cm, double dx, double dy, double dz){
     double eKin_eV = ekin_keV * 1000;
     int nc = 0, ni=0;
@@ -74,11 +74,11 @@ void HeedInterfaceModel::Run(G4String particleName, double ekin_keV, double t, d
 
 }
 
-void HeedInterfaceModel::ProcessEvent(){
+void HeedDeltaElectronModel::ProcessEvent(){
 
 }
 
-void HeedInterfaceModel::Reset(){
+void HeedDeltaElectronModel::Reset(){
   
 }
 

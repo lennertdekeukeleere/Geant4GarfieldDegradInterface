@@ -1,5 +1,5 @@
 /*
- * HeedInterfaceModel.h
+ * HeedDeltaElectronModel.h
  *
  *  Created on: Apr 9, 2014
  *      Author: dpfeiffe
@@ -13,20 +13,20 @@
 
 class G4VPhysicalVolume;
 class DetectorConstruction;
-class HeedInterfaceMessenger;
+class HeedDeltaElectronMessenger;
 class GasModelParameters;
 class GasBoxSD;
 
 typedef std::pair<double, double> EnergyRange_keV;
 typedef std::multimap<const G4String, EnergyRange_keV> MapParticlesEnergy;
 
-class HeedInterfaceModel : public HeedModel {
+class HeedDeltaElectronModel : public HeedModel {
  public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-    HeedInterfaceModel(GasModelParameters *,G4String, G4Region*,DetectorConstruction*, GasBoxSD*);
-  ~HeedInterfaceModel();
+    HeedDeltaElectronModel(GasModelParameters *,G4String, G4Region*,DetectorConstruction*, GasBoxSD*);
+  ~HeedDeltaElectronModel();
   
 
   /*The following public methods are user-dependent*/
@@ -46,4 +46,4 @@ class HeedInterfaceModel : public HeedModel {
   
 };
 
-#endif /* HeedInterfaceModel_H_ */
+#endif /* HeedDeltaElectronModel_H_ */

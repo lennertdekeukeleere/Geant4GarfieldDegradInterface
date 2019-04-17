@@ -6,8 +6,8 @@
 #include <map>
 
 class DegradModel;
-class HeedInterfaceModel;
-class HeedOnlyModel;
+class HeedDeltaElectronModel;
+class HeedNewTrackModel;
 class GasModelParametersMessenger;
 class DetectorConstruction;
 class G4String;
@@ -23,8 +23,8 @@ class GasModelParameters{
     
     
     
-    void AddParticleNameHeedOnly(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
-    void AddParticleNameHeedInterface(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
+    void AddParticleNameHeedNewTrack(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
+    void AddParticleNameHeedDeltaElectron(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
     
     /*Getters and Setters*/
     inline void SetThermalEnergy(G4double d){thermalE=d;}
@@ -63,14 +63,14 @@ class GasModelParameters{
     inline void SetDriftRKF(bool b){driftRKF=b;};
     inline bool GetDriftRKF(){return driftRKF;};
     
-    inline MapParticlesEnergy GetParticleNamesHeedOnly(){return fMapParticlesEnergyHeedOnly;};
-    inline MapParticlesEnergy GetParticleNamesHeedInterface(){return fMapParticlesEnergyHeedInterface;};
+    inline MapParticlesEnergy GetParticleNamesHeedNewTrack(){return fMapParticlesEnergyHeedNewTrack;};
+    inline MapParticlesEnergy GetParticleNamesHeedDeltaElectron(){return fMapParticlesEnergyHeedDeltaElectron;};
 
 	
 	private:
 	GasModelParametersMessenger* fMessenger;
-    MapParticlesEnergy fMapParticlesEnergyHeedOnly;
-    MapParticlesEnergy fMapParticlesEnergyHeedInterface;
+    MapParticlesEnergy fMapParticlesEnergyHeedNewTrack;
+    MapParticlesEnergy fMapParticlesEnergyHeedDeltaElectron;
     
     G4String gasFile;
     G4String ionMobFile;

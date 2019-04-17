@@ -39,8 +39,8 @@
 #/random/setSeeds 0 0
 /run/initialize
 
-#/param/InActivateModel HeedOnlyModel
-#/param/InActivateModel HeedInterfaceModel
+#/param/InActivateModel HeedNewTrackModel
+#/param/InActivateModel HeedDeltaElectronModel
 /param/InActivateModel DegradModel
 /param/InActivateModel GarfieldVUVPhotonModel
 

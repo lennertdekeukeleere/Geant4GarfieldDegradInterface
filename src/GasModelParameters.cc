@@ -1,7 +1,7 @@
 #include "GasModelParameters.hh"
 #include "DegradModel.hh"
-#include "HeedInterfaceModel.hh"
-#include "HeedOnlyModel.hh"
+#include "HeedDeltaElectronModel.hh"
+#include "HeedNewTrackModel.hh"
 #include "GasModelParametersMessenger.hh"
 #include "DetectorConstruction.hh"
 
@@ -9,21 +9,21 @@ GasModelParameters::GasModelParameters(){
 	fMessenger = new GasModelParametersMessenger(this);
 }
 
-//Add particles (with energy range) to be included in the HeedOnly Model
-void GasModelParameters::AddParticleNameHeedOnly(const G4String particleName,double ekin_min_keV,double ekin_max_keV){
+//Add particles (with energy range) to be included in the HeedNewTrack Model
+void GasModelParameters::AddParticleNameHeedNewTrack(const G4String particleName,double ekin_min_keV,double ekin_max_keV){
     if (ekin_min_keV >= ekin_max_keV) {
         return;
     }
-    fMapParticlesEnergyHeedOnly.insert(
+    fMapParticlesEnergyHeedNewTrack.insert(
                                 std::make_pair(particleName, std::make_pair(ekin_min_keV, ekin_max_keV)));
-    G4cout << "HeedOnly: Particle added: " << ekin_min_keV << " " << ekin_max_keV << G4endl;
+    G4cout << "HeedNewTrack: Particle added: " << ekin_min_keV << " " << ekin_max_keV << G4endl;
 }
-//Add particles (with energy range) to be included in the HeedInterface Model
-void GasModelParameters::AddParticleNameHeedInterface(const G4String particleName,double ekin_min_keV,double ekin_max_keV){
+//Add particles (with energy range) to be included in the HeedDeltaElectron Model
+void GasModelParameters::AddParticleNameHeedDeltaElectron(const G4String particleName,double ekin_min_keV,double ekin_max_keV){
     if (ekin_min_keV >= ekin_max_keV) {
         return;
     }
-    fMapParticlesEnergyHeedInterface.insert(
+    fMapParticlesEnergyHeedDeltaElectron.insert(
                                 std::make_pair(particleName, std::make_pair(ekin_min_keV, ekin_max_keV)));
-    G4cout << "HeedInterface: Particle added: " << ekin_min_keV << " " << ekin_max_keV << G4endl;
+    G4cout << "HeedDeltaElectron: Particle added: " << ekin_min_keV << " " << ekin_max_keV << G4endl;
 }

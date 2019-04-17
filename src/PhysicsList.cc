@@ -58,8 +58,8 @@
 #include "G4FastSimulationPhysics.hh"
 #include "G4GlobalFastSimulationManager.hh"
 
-#include "HeedOnlyModel.hh"
-#include "HeedInterfaceModel.hh"
+#include "HeedNewTrackModel.hh"
+#include "HeedDeltaElectronModel.hh"
 #include "DegradModel.hh"
 #include "GarfieldVUVPhotonModel.hh"
 

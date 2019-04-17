@@ -11,8 +11,8 @@
 #include "G4PhysicalConstants.hh"
 #include "G4UIparameter.hh"
 #include "GasModelParameters.hh"
-#include "HeedInterfaceModel.hh"
-#include "HeedOnlyModel.hh"
+#include "HeedDeltaElectronModel.hh"
+#include "HeedNewTrackModel.hh"
 #include "HeedModel.hh"
 #include "DegradModel.hh"
 
@@ -27,48 +27,48 @@ GasModelParametersMessenger::GasModelParametersMessenger(GasModelParameters* gm)
   GasModelParametersDir->SetGuidance("GasModelParameters specific controls");
   HeedDir = new G4UIdirectory("/gasModelParameters/heed/");
   HeedDir->SetGuidance("Heed specific controls");
-  HeedOnlyDir = new G4UIdirectory("/gasModelParameters/heed/heedonly/");
-  HeedOnlyDir->SetGuidance("HeedOnly specific controls");
-  HeedInterfaceDir = new G4UIdirectory("/gasModelParameters/heed/heedinterface/");
-  HeedInterfaceDir->SetGuidance("HeedInterface specific controls");
+  HeedNewTrackDir = new G4UIdirectory("/gasModelParameters/heed/heedonly/");
+  HeedNewTrackDir->SetGuidance("HeedNewTrack specific controls");
+  HeedDeltaElectronDir = new G4UIdirectory("/gasModelParameters/heed/heedinterface/");
+  HeedDeltaElectronDir->SetGuidance("HeedDeltaElectron specific controls");
   DegradDir = new G4UIdirectory("/gasModelParameters/degrad/");
   HeedDir->SetGuidance("Degrad specific controls");
 
-  addParticleHeedInterfaceCmd = new G4UIcommand("/gasModelParameters/heed/heedinterface/addparticle",this);
-  addParticleHeedInterfaceCmd->SetGuidance("Set properties of the particle to be included");
-  addParticleHeedInterfaceCmd->SetGuidance("[usage] /gasModelParameters/heedinterface/addparticle P Emin Emax");
-  addParticleHeedInterfaceCmd->SetGuidance("        P:(String) particle name (e-, e+, p, mu+, mu-, mu, pi,...");
-  addParticleHeedInterfaceCmd->SetGuidance("        Emin:(double) Minimum energy for the model to be activated");
-  addParticleHeedInterfaceCmd->SetGuidance("        Emax:(double Maximum energy for the model to be activated");
+  addParticleHeedDeltaElectronCmd = new G4UIcommand("/gasModelParameters/heed/heedinterface/addparticle",this);
+  addParticleHeedDeltaElectronCmd->SetGuidance("Set properties of the particle to be included");
+  addParticleHeedDeltaElectronCmd->SetGuidance("[usage] /gasModelParameters/heedinterface/addparticle P Emin Emax");
+  addParticleHeedDeltaElectronCmd->SetGuidance("        P:(String) particle name (e-, e+, p, mu+, mu-, mu, pi,...");
+  addParticleHeedDeltaElectronCmd->SetGuidance("        Emin:(double) Minimum energy for the model to be activated");
+  addParticleHeedDeltaElectronCmd->SetGuidance("        Emax:(double Maximum energy for the model to be activated");
 
   G4UIparameter* paramHI;
   paramHI = new G4UIparameter("P",'s',false);
   paramHI->SetDefaultValue("e-");
-  addParticleHeedInterfaceCmd->SetParameter(paramHI);
+  addParticleHeedDeltaElectronCmd->SetParameter(paramHI);
   paramHI = new G4UIparameter("Emin",'d',true);
   paramHI->SetDefaultValue("0.001");
-  addParticleHeedInterfaceCmd->SetParameter(paramHI);
+  addParticleHeedDeltaElectronCmd->SetParameter(paramHI);
   paramHI = new G4UIparameter("Emax",'d',true);
   paramHI->SetDefaultValue("1000.");
-  addParticleHeedInterfaceCmd->SetParameter(paramHI);
+  addParticleHeedDeltaElectronCmd->SetParameter(paramHI);
 
-  addParticleHeedOnlyCmd = new G4UIcommand("/gasModelParameters/heed/heedonly/addparticle",this);
-  addParticleHeedOnlyCmd->SetGuidance("Set properties of the particle to be included");
-  addParticleHeedOnlyCmd->SetGuidance("[usage] /gasModelParameters/heed/heedonly/addparticle P Emin Emax");
-  addParticleHeedOnlyCmd->SetGuidance("        P:(String) particle name (e-, e+, p, mu+, mu-, mu, pi,...");
-  addParticleHeedOnlyCmd->SetGuidance("        Emin:(double) Minimum energy for the model to be activated");
-  addParticleHeedOnlyCmd->SetGuidance("        Emax:(double Maximum energy for the model to be activated");
+  addParticleHeedNewTrackCmd = new G4UIcommand("/gasModelParameters/heed/heedonly/addparticle",this);
+  addParticleHeedNewTrackCmd->SetGuidance("Set properties of the particle to be included");
+  addParticleHeedNewTrackCmd->SetGuidance("[usage] /gasModelParameters/heed/heedonly/addparticle P Emin Emax");
+  addParticleHeedNewTrackCmd->SetGuidance("        P:(String) particle name (e-, e+, p, mu+, mu-, mu, pi,...");
+  addParticleHeedNewTrackCmd->SetGuidance("        Emin:(double) Minimum energy for the model to be activated");
+  addParticleHeedNewTrackCmd->SetGuidance("        Emax:(double Maximum energy for the model to be activated");
 
   G4UIparameter* paramHO;
   paramHO = new G4UIparameter("P",'s',false);
   paramHO->SetDefaultValue("e-");
-  addParticleHeedOnlyCmd->SetParameter(paramHO);
+  addParticleHeedNewTrackCmd->SetParameter(paramHO);
   paramHO = new G4UIparameter("Emin",'d',true);
   paramHO->SetDefaultValue("0.001");
-  addParticleHeedOnlyCmd->SetParameter(paramHO);
+  addParticleHeedNewTrackCmd->SetParameter(paramHO);
   paramHO = new G4UIparameter("Emax",'d',true);
   paramHO->SetDefaultValue("1000.");
-  addParticleHeedOnlyCmd->SetParameter(paramHO);
+  addParticleHeedNewTrackCmd->SetParameter(paramHO);
 
   gasFileCmd =  new G4UIcmdWithAString("/gasModelParameters/heed/gasfile",this);
   gasFileCmd->SetGuidance("Set name of the gas file");
@@ -125,11 +125,11 @@ GasModelParametersMessenger::~GasModelParametersMessenger() {
   delete GasModelParametersDir;
   delete HeedDir;
   delete DegradDir;
-  delete HeedOnlyDir;
-  delete HeedInterfaceDir;
+  delete HeedNewTrackDir;
+  delete HeedDeltaElectronDir;
 
-  delete addParticleHeedInterfaceCmd;
-  delete addParticleHeedOnlyCmd;
+  delete addParticleHeedDeltaElectronCmd;
+  delete addParticleHeedNewTrackCmd;
   delete gasFileCmd;
   delete ionMobFileCmd;
   delete driftElectronsCmd;
@@ -152,10 +152,10 @@ GasModelParametersMessenger::~GasModelParametersMessenger() {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void GasModelParametersMessenger::SetNewValue(G4UIcommand* command, G4String newValues) {
-	  if(command == addParticleHeedInterfaceCmd)
-	  	AddParticleHeedInterfaceCommand(newValues);
-	  else if(command == addParticleHeedOnlyCmd)
-	  	AddParticleHeedOnlyCommand(newValues);
+	  if(command == addParticleHeedDeltaElectronCmd)
+	  	AddParticleHeedDeltaElectronCommand(newValues);
+	  else if(command == addParticleHeedNewTrackCmd)
+	  	AddParticleHeedNewTrackCommand(newValues);
 	  else if(command == gasFileCmd){
 	  	fGasModelParameters->SetGasFile(newValues);
 	  }
@@ -207,14 +207,14 @@ void GasModelParametersMessenger::SetNewValue(G4UIcommand* command, G4String new
 
 }
 
-void GasModelParametersMessenger::AddParticleHeedInterfaceCommand(G4String newValues){
+void GasModelParametersMessenger::AddParticleHeedDeltaElectronCommand(G4String newValues){
 	ConvertParameters(newValues);
-	fGasModelParameters->AddParticleNameHeedInterface(fParticleName,fEmin/keV,fEmax/keV);
+	fGasModelParameters->AddParticleNameHeedDeltaElectron(fParticleName,fEmin/keV,fEmax/keV);
 }
 
-void GasModelParametersMessenger::AddParticleHeedOnlyCommand(G4String newValues){
+void GasModelParametersMessenger::AddParticleHeedNewTrackCommand(G4String newValues){
 	ConvertParameters(newValues);
-	fGasModelParameters->AddParticleNameHeedOnly(fParticleName,fEmin/keV,fEmax/keV);
+	fGasModelParameters->AddParticleNameHeedNewTrack(fParticleName,fEmin/keV,fEmax/keV);
 }
 
 void GasModelParametersMessenger::ConvertParameters(G4String newValues){

@@ -16,8 +16,8 @@
 #include "DetectorMessenger.hh"
 #include "GasBoxSD.hh"
 #include "SiliconSD.hh"
-#include "HeedInterfaceModel.hh"
-#include "HeedOnlyModel.hh"
+#include "HeedDeltaElectronModel.hh"
+#include "HeedNewTrackModel.hh"
 #include "DegradModel.hh"
 #include "GarfieldVUVPhotonModel.hh"
 #include "G4SDManager.hh"
@@ -450,8 +450,8 @@ void DetectorConstruction::ConstructSDandField(){
   
   //These commands generate the four gas models and connect it to the GasRegion
   G4Region* region = G4RegionStore::GetInstance()->GetRegion("GasRegion");
-  new HeedOnlyModel(fGasModelParameters,"HeedOnlyModel",region,this,myGasBoxSD);
-  new HeedInterfaceModel(fGasModelParameters,"HeedInterfaceModel",region,this,myGasBoxSD);
+  new HeedNewTrackModel(fGasModelParameters,"HeedNewTrackModel",region,this,myGasBoxSD);
+  new HeedDeltaElectronModel(fGasModelParameters,"HeedDeltaElectronModel",region,this,myGasBoxSD);
   new DegradModel(fGasModelParameters,"DegradModel",region,this,myGasBoxSD);
   new GarfieldVUVPhotonModel(fGasModelParameters,"GarfieldVUVPhotonModel",region,this,myGasBoxSD);
 
