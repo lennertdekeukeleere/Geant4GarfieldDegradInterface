@@ -30,6 +30,7 @@ class HeedNewTrackMessenger;
 class GasModelParameters;
 class GasBoxSD;
 class G4FastStep;
+class G4FastTrack;
 
 
 typedef std::pair<double, double> EnergyRange_keV;
@@ -55,7 +56,7 @@ class HeedNewTrackModel : public HeedModel {
   
 
  private:
-    virtual void Run(G4FastStep& fastStep, G4String particleName, double ekin_keV, double t, double x_cm, double y_cm, double z_cm, double dx, double dy, double dz);
+    virtual void Run(G4FastStep& fastStep,const G4FastTrack& fastTrack, G4String particleName, double ekin_keV, double t, double x_cm, double y_cm, double z_cm, double dx, double dy, double dz);
   
   
 };

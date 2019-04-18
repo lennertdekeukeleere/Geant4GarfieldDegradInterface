@@ -89,7 +89,7 @@
 /tracking/storeTrajectory 1
 
 /gps/position 0. 0. 0. cm
-/gps/direction 1. 0. 0. 
+/gps/direction 1. 0. 1. 
 /gps/particle proton
 /gps/ene/type Mono
 /gps/ene/mono 2000. MeV

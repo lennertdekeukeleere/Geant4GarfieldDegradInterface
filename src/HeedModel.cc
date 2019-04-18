@@ -49,7 +49,7 @@ void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
   G4String particleName =
       fastTrack.GetPrimaryTrack()->GetParticleDefinition()->GetParticleName();
 
-  Run(fastStep,particleName, ekin/keV, time, worldPosition.x() / CLHEP::cm,
+  Run(fastStep, fastTrack, particleName, ekin/keV, time, worldPosition.x() / CLHEP::cm,
       worldPosition.y() / CLHEP::cm, worldPosition.z() / CLHEP::cm,
       dir.x(), dir.y(), dir.z());
 }
