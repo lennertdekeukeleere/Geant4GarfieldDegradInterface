@@ -120,7 +120,9 @@ The first method is called for each new track and checks if the model is applica
       fastStep.SetTotalEnergyDeposited(ekin);
    }
    
-The *Run*-method of the *HeedNewTrackModel*-class calls *NewTrack*, which is a member of the Garfield++ *TrackHeed*-class and is actually itself an interface class between Garfield++ and Heed. This method is intended for high energy charged particles in relatively thin gas absorbers as it does not take into account coulomb scattering. The *Run*-method of the *HeedDeltaElectronModel*-class calls *TransportDeltaElectron* (or *TransportPhoton* if the particle is a gamma-ray). This method does take into account coulomb scattering and is therefore intended for low energy particles. As shown in the paper, the *HeedDeltaElectronModel* should not be used for energies higher than a few tens of keV, as the simulated energy deposition by the primary particle will be off.
+The *Run*-method in the *HeedNewTrackModel*-class calls *NewTrack*, which is a member of the Garfield++ *TrackHeed*-class and is actually itself an interface class between Garfield++ and Heed. This method is intended for high energy charged particles in relatively thin gas absorbers as it does not take into account coulomb scattering. The *Run*-method in the *HeedDeltaElectronModel*-class calls *TransportDeltaElectron* (or *TransportPhoton* if the particle is a gamma-ray). This method does take into account coulomb scattering and is therefore intended for low energy particles. As shown in the paper, the *HeedDeltaElectronModel* should not be triggered for electron energies higher than a few tens of keV, as the simulated energy deposition distribution by the primary particle will be off. In addition to coulomb scattering, the *HeedDeltaElectronModel* has the advantage that the range of electrons sent to Garfield++ is of the order of ~100 um. Hence, the error introduced by a mismatch between the gas volume in Geant4, which can take an arbitrary shape, and Garfield++, which only has a few simple geometries, is minimal.
+
+
 
 
 

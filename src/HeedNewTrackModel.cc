@@ -61,7 +61,7 @@ void HeedNewTrackModel::Run(G4FastStep& fastStep, G4String particleName, double 
     int ncl = 0;
     while (fTrackHeed->GetCluster(xcl, ycl, zcl, tcl, ncl, ecl, extra)) {
         ekin_eV-=ecl;
-        std::cout << "New Cluster" << std::endl;
+        std::cout << "New Cluster: " << xcl << " " << ycl << " " << zcl << std::endl;
     // Retrieve the electrons of the cluster.
         for (int i = 0; i < ncl; ++i) {
             double x, y, z, te, ee, dxe, dye, dze;

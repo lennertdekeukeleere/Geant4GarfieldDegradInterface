@@ -40,7 +40,7 @@ G4bool HeedModel::ModelTrigger(const G4FastTrack& fastTrack) {
 //Implementation of the general model, the Run method, calles at the end is specifically implemented for the daughter classes
 void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 
-  G4ThreeVector localdir = fastTrack.GetPrimaryTrackLocalDirection();
+  G4ThreeVector dir = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
 
   G4ThreeVector worldPosition = fastTrack.GetPrimaryTrack()->GetPosition();
 
@@ -51,7 +51,7 @@ void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 
   Run(fastStep,particleName, ekin/keV, time, worldPosition.x() / CLHEP::cm,
       worldPosition.y() / CLHEP::cm, worldPosition.z() / CLHEP::cm,
-      localdir.x(), localdir.y(), localdir.z());
+      dir.x(), dir.y(), dir.z());
 }
 
 //Checks if the particle is in the list of particle for which the model is applicable (called by IsApplicable)
@@ -265,7 +265,7 @@ void HeedModel::CreateFieldView(){
   viewField->SetCanvas(fField);
   viewField->SetComponent(comp);
   viewField->SetNumberOfContours(40);
-  viewField->PlotContour();
+  viewField->PlotContour("e");
   fField->Update();
   char str2[30];
   strcpy(str2,name);
