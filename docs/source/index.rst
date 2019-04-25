@@ -12,8 +12,8 @@ Welcome to Geant4GarfieldDegradInterface's documentation!
 
    intro
    prerequisites
-   code
    cmake
+   code
    macro
 
 

@@ -31,10 +31,6 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* HPGeDet)
     setGasPressCmd->SetUnitCategory("Pressure");
     setGasPressCmd->SetDefaultValue(0.3 * bar);
     setGasPressCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-    ////////////////////
-    setupNameCmd = new G4UIcmdWithAString("/InterfaceExample/geometry/setup", this);
-    setupNameCmd->SetGuidance("Set the geometry: either for TPC or for the photo-electric effect");
-    setupNameCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
     
 }
 
@@ -43,6 +39,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction* HPGeDet)
 DetectorMessenger::~DetectorMessenger() {
     delete miniDir;
     delete geometryDir;
+    delete setGasPressCmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -50,6 +47,4 @@ DetectorMessenger::~DetectorMessenger() {
 void DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValues) {
   if (command == setGasPressCmd)
     detector->SetGasPressure(setGasPressCmd->GetNewDoubleValue(newValues));
-  else if (command == setupNameCmd)
-      detector->SetSetup(newValues);
 }

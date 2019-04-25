@@ -107,7 +107,6 @@ void HeedModel::makeGas(){
   double neonPerc = detCon->GetNeonPercentage();
   double co2Perc = detCon->GetCO2Percentage();
   double n2Perc = 1-neonPerc-co2Perc;
-  G4String gasName = detCon->GetGasName();
   fMediumMagboltz->SetComposition("ne", neonPerc, "co2", co2Perc, "n2", n2Perc);
   fMediumMagboltz->SetTemperature(temperature);
   fMediumMagboltz->SetPressure(pressure); 

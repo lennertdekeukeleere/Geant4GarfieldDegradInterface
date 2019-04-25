@@ -15,15 +15,9 @@
 #include "G4Colour.hh"
 #include "G4VisAttributes.hh"
 
-GasBoxSD::GasBoxSD(G4String name) : G4VSensitiveDetector(name), fGasBoxHitsCollection(NULL),
-    fXenonHitsCollection(NULL), fGarfieldExcitationHitsCollection(NULL){
+GasBoxSD::GasBoxSD(G4String name) : G4VSensitiveDetector(name), fGasBoxHitsCollection(NULL){
     collectionName.insert("GBHC");
-    collectionName.insert("XHC");
-    collectionName.insert("GEHC");
-    
     GBHCID=-1;
-    XHCID=-1;
-    GEHCID=-1;
 }
 
 GasBoxSD::~GasBoxSD(){}
@@ -31,17 +25,10 @@ GasBoxSD::~GasBoxSD(){}
 
 void GasBoxSD::Initialize(G4HCofThisEvent * HCE){
     fGasBoxHitsCollection = new GasBoxHitsCollection(SensitiveDetectorName, collectionName[0]);
-    fXenonHitsCollection = new XenonHitsCollection(SensitiveDetectorName, collectionName[1]);
-    fGarfieldExcitationHitsCollection = new GarfieldExcitationHitsCollection(SensitiveDetectorName, collectionName[2]);
     if(GBHCID==-1){
         GBHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
-        XHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[1]);
-        GEHCID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[2]);
     }
     HCE->AddHitsCollection(GBHCID,fGasBoxHitsCollection);
-    HCE->AddHitsCollection(XHCID,fXenonHitsCollection);
-    HCE->AddHitsCollection(GEHCID,fGarfieldExcitationHitsCollection);
-
     G4cout << "GasBoxSD Intialized!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << G4endl;
 }
 

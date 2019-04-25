@@ -1,5 +1,4 @@
 #include "GasModelParameters.hh"
-#include "DegradModel.hh"
 #include "HeedDeltaElectronModel.hh"
 #include "HeedNewTrackModel.hh"
 #include "GasModelParametersMessenger.hh"

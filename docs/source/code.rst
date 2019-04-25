@@ -91,7 +91,7 @@ Where the variable, *lowE*, sets the minimum energy below which a secondary part
 G4VFastSimulationModel
 ------------------------------------
 
-There are four different *G4VFastSimulationModel*-objects in the project, three of them using Heed/Garfield++, and one of them using Degrad, each of which following one of the paths in the flow charts for :ref:`chargedParticles` and :ref:`photons` . The first two, *HeedNewTrackModel* and *HeedDeltaElectronModel*, both derive from class *HeedModel*, which in turn derives from the *G4VFastSimulationModel*-class. They are applied in conjunction with the :ref:`alicetpc` setup. Whereas the former follows the green path in the flow chart for charged particles, the latter follows the red path. The other two models are designed for the :ref:`opticaltpc` setup, and are called *DegradModel* and *GarfieldVUVPhotonModel*
+There are four different *G4VFastSimulationModel*-objects in the project, three of them using Heed/Garfield++, and one of them using Degrad, each of which following one of the paths in the flow charts for :ref:`chargedParticles` and :ref:`photons` . The first two, *HeedNewTrackModel* and *HeedDeltaElectronModel*, both derive from the class *HeedModel*, which in turn derives from the *G4VFastSimulationModel*-class. They are applied in conjunction with the :ref:`alicetpc` setup. Whereas the former follows the green path in the flow chart for charged particles, the latter follows the red path. The other two models are designed for the :ref:`opticaltpc` setup, and are called *DegradModel* and *GarfieldVUVPhotonModel*
 
 All models derive from the *G4VFastSimulationModel*-class, and should overwrite the following virtual methods:
 
@@ -106,27 +106,112 @@ The first method is called for each new track and checks if the model is applica
 .. code-block:: cpp
 
    void HeedModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
-      G4ThreeVector localdir = fastTrack.GetPrimaryTrackLocalDirection();
+      G4ThreeVector dir = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
       G4ThreeVector worldPosition = fastTrack.GetPrimaryTrack()->GetPosition();
       G4double ekin = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
       G4double time = fastTrack.GetPrimaryTrack()->GetGlobalTime();
       G4String particleName =
       fastTrack.GetPrimaryTrack()->GetParticleDefinition()->GetParticleName();
-      fastStep.KillPrimaryTrack();
-      fastStep.SetPrimaryTrackPathLength(0.0);
-      Run(particleName, ekin/keV, time, worldPosition.x() / CLHEP::cm,
-               worldPosition.y() / CLHEP::cm, worldPosition.z() / CLHEP::cm,
-               localdir.x(), localdir.y(), localdir.z());
-      fastStep.SetTotalEnergyDeposited(ekin);
+      Run(fastStep, fastTrack, particleName, ekin/keV, time, worldPosition.x() / CLHEP::cm,
+      worldPosition.y() / CLHEP::cm, worldPosition.z() / CLHEP::cm,
+      dir.x(), dir.y(), dir.z());
    }
    
 The *Run*-method in the *HeedNewTrackModel*-class calls *NewTrack*, which is a member of the Garfield++ *TrackHeed*-class and is actually itself an interface class between Garfield++ and Heed. This method is intended for high energy charged particles in relatively thin gas absorbers as it does not take into account coulomb scattering. The *Run*-method in the *HeedDeltaElectronModel*-class calls *TransportDeltaElectron* (or *TransportPhoton* if the particle is a gamma-ray). This method does take into account coulomb scattering and is therefore intended for low energy particles. As shown in the paper, the *HeedDeltaElectronModel* should not be triggered for electron energies higher than a few tens of keV, as the simulated energy deposition distribution by the primary particle will be off. In addition to coulomb scattering, the *HeedDeltaElectronModel* has the advantage that the range of electrons sent to Garfield++ is of the order of ~100 um. Hence, the error introduced by a mismatch between the gas volume in Geant4, which can take an arbitrary shape, and Garfield++, which only has a few simple geometries, is minimal.
 
+As already mentioned above, the other two models, *DegradModel* and *GarfieldVUVPhotonModel*, are designed for the Xenon gas based optical TPC. The 5.9 keV X-ray originating from a Fe-55 source, are sent through a collimator into the gas volume. Here, Geant4 simulates the interaction of the X-ray with the gas. Upon interaction, the *DegradModel* is triggerred for all the so-created secondary particles, which are killed. In The *DoIt* method the location is saved and, subsequently, the X-ray interaction is re-simulated by Degrad. As Degrad is a Fortran software and writes its output to a result file, the simplest way to transfer information back to Geant4 is based on a file I/O chain: Geant4 runs Degrad with a parameter file and Degrad writes the simulation results to a text file. From this result file, Geant4 reads back the positions and production
+times of the electron-ion pairs. Degrad always assumes (x0, y0, z0) = (0, 0, 0) as the interaction position of the photon, and simulates an infinite volume. Therefore, the positions of the electron-ion pairs have to be corrected, using the stored interaction position of the X-ray from Geant4. If the corrected positions are within the gas volume of the detector, the CreateSecondaryTrack() method of the G4FastTrack class is called to create new 7 eV (the thermalization energy set in Degrad) secondary electrons in Geant4. 
+
+.. code-block:: cpp
+
+   void DegradModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
+      fastStep.KillPrimaryTrack();
+      if(!processOccured){
+         G4ThreeVector degradPos =fastTrack.GetPrimaryTrack()->GetVertexPosition();
+         G4double degradTime = fastTrack.GetPrimaryTrack()->GetGlobalTime();
+         fastStep.SetPrimaryTrackPathLength(0.0);
+         G4cout<<"GLOBAL TIME "<<G4BestUnit(degradTime,"Time")<<" POSITION "<<G4BestUnit(degradPos,"Length")<<G4endl;
+         G4int stdout;
+         G4int SEED=54217137*G4UniformRand();
+         G4String seed = G4UIcommand::ConvertToString(SEED);
+         G4String degradString="printf \"1,1,3,-1,"+seed+",5900.0,7.0,0.0\n7,0,0,0,0,0\n100.0,0.0,0.0,0.0,0.0,0.0,20.0,900.0\n3000.0,0.0,0.0,1,0\n100.0,0.5,1,1,1,1,1,1,1\n0,0,0,0,0,0\" > conditions_Degrad.txt";
+         G4cout << degradString << G4endl;
+         stdout=system(degradString.data());
+         G4cout << degradString << G4endl;
+         const std::string degradpath = std::getenv("DEGRAD_HOME");
+         G4cout << degradpath << G4endl;
+         std::string exec = "/Degrad < conditions_Degrad.txt";
+         std::string full_path = degradpath + exec;
+         const char *mychar = full_path.c_str();
+         G4cout << mychar << G4endl;
+         stdout=system(mychar);
+         stdout=system("./convertDegradFile.py");
+         GetElectronsFromDegrad(fastStep,degradPos,degradTime);
+         processOccured=true;
+      }
+
+   }
+
+For a simulation of the light production, now the *GarfieldVUVPhotonModel* that describes the simulation of secondary scintillation (electroluminescence) is used. The  model is triggered by the electrons created in the Degrad model, i.e. electrons with an energy of 7 eV. In the model, the *AvalancheMicroscopic* class in Garfield++ is used to microscopically track the electron-ion pairs created after the primary particle interaction, storing a list of the Xe excited states. 
+
+.. code-block:: cpp
+
+   void GarfieldVUVPhotonModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) 
+   {
+      ////The details of the Garfield model are implemented here
+      fastStep.KillPrimaryTrack();//KILL DEGRAD TRACKS
+      garfPos =fastTrack.GetPrimaryTrack()->GetVertexPosition();
+      garfTime = fastTrack.GetPrimaryTrack()->GetGlobalTime();
+      GenerateVUVPhotons(fastTrack,fastStep,garfPos,garfTime);
+   }
+
+   void GarfieldVUVPhotonModel::GenerateVUVPhotons(const G4FastTrack& fastTrack, G4FastStep& fastStep,G4ThreeVector garfPos,G4double garfTime)
+   {
+      G4double x0=garfPos.getX()*0.1;//Garfield length units are in cm
+      G4double y0=garfPos.getY()*0.1;
+      G4double z0=garfPos.getZ()*0.1;
+      G4double t0=garfTime;
+      G4double e0=7.;// starting energy [eV]->I have chose 7 eV because is the energy cut in Degrad
+      garfExcHitsCol = new GarfieldExcitationHitsCollection();
+      fAvalanche->AvalancheElectron(x0,y0,z0,t0, e0, 0., 0., 0.);
+      G4int nElastic, nIonising, nAttachment, nInelastic, nExcitation, nSuperelastic;
+      fMediumMagboltz->GetNumberOfElectronCollisions(nElastic, nIonising, nAttachment, nInelastic, nExcitation, nSuperelastic);
+      G4cout<<"NExcitation "<<nExcitation<<G4endl;   
+      G4int colHitsEntries=garfExcHitsCol->entries();
+      for (G4int i=0;i<colHitsEntries;i++){
+         GarfieldExcitationHit* newExcHit=new GarfieldExcitationHit();
+         newExcHit->SetPos((*garfExcHitsCol)[i]->GetPos());
+         newExcHit->SetTime((*garfExcHitsCol)[i]->GetTime());
+         fGasBoxSD->InsertGarfieldExcitationHit(newExcHit);
+         fastStep.SetNumberOfSecondaryTracks(1);   //1 photon per excitation
+         if(i % (colHitsEntries/10) == 0){
+            G4DynamicParticle VUVphoton(G4OpticalPhoton::OpticalPhotonDefinition(),G4RandomDirection(), 7.2*eV);
+            // Create photons track
+            G4Track *newTrack=fastStep.CreateSecondaryTrack(VUVphoton, (*garfExcHitsCol)[i]->GetPos(),(*garfExcHitsCol)[i]->GetTime(),false);
+            //   G4ProcessManager* pm= newTrack->GetDefinition()->GetProcessManager();
+            //   G4ProcessVectorfAtRestDoItVector = pm->GetAtRestProcessVector(typeDoIt);
+         }                  
+      }
+      delete garfExcHitsCol;
+   }
+
+The *SetUserHandleInelastic()*-method accepts a user-written call-back function, that has access to the time, position and excitation levels in each simulation step. This information is stored in a data structure. 
+
+.. code-block:: cpp
+
+   void userHandle(double x, double y, double z, double t, int type, int level,Garfield::Medium * m)
+   {
+      G4ThreeVector Pos;
+      if (level > 2 && level < 53){//XENON LEVELS
+         GarfieldExcitationHit* newExcHit=new GarfieldExcitationHit();
+         Pos.setX(x*10);//back to cm to GEANT4
+         Pos.setY(y*10);//back to cm to GEANT4
+         Pos.setZ(z*10);//back to cm to GEANT4
+         newExcHit->SetPos(Pos);
+         newExcHit->SetTime(t);
+         garfExcHitsCol->insert(newExcHit);
+      }
+   }
 
 
-
-
-
-   
-   
-
+In the case of pure noble gases, if one assumes that each excitation will produce a secondary scintillation photon, the production of light can be computed in a straightforward way. For each element of the data structure filled in the call-back function, a secondary optical photon is produced in Geant4. The optical photon tracking will then be carried out by Geant4. For gas mixtures, a more detailed model should be adopted in Garfield++ in order to include the quenching of the Xenon excimers by the admixture.

@@ -8,7 +8,6 @@
 class G4VPhysicalVolume;
 class SteppingAction;
 class G4Event;
-class GarfieldVUVPhotonModel;
 
 
 class EventAction : public G4UserEventAction {
@@ -22,7 +21,6 @@ class EventAction : public G4UserEventAction {
   
 
  private:
-	GarfieldVUVPhotonModel* fGarfieldVUVPhotonModel;
 	
 };
 

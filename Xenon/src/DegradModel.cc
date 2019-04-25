@@ -32,9 +32,8 @@ G4bool DegradModel::IsApplicable(const G4ParticleDefinition& particleType) {
 }
 
 G4bool DegradModel::ModelTrigger(const G4FastTrack& fastTrack) {
-  G4String proc = fastTrack.GetPrimaryTrack()->GetCreatorProcess()->GetProcessName();
-    if (proc == "phot" && !processOccured){
-      processOccured = true;
+  G4int id = fastTrack.GetPrimaryTrack()->GetParentID();
+    if (id == 1){
       return true;
     }
   return false;
@@ -44,29 +43,32 @@ G4bool DegradModel::ModelTrigger(const G4FastTrack& fastTrack) {
 void DegradModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
 
     fastStep.KillPrimaryTrack();
-    G4ThreeVector degradPos =fastTrack.GetPrimaryTrack()->GetVertexPosition();
-    G4double degradTime = fastTrack.GetPrimaryTrack()->GetGlobalTime();
-    
-    fastStep.SetPrimaryTrackPathLength(0.0);
-    G4cout<<"GLOBAL TIME "<<G4BestUnit(degradTime,"Time")<<" POSITION "<<G4BestUnit(degradPos,"Length")<<G4endl;
+    if(!processOccured){
+        G4ThreeVector degradPos =fastTrack.GetPrimaryTrack()->GetVertexPosition();
+        G4double degradTime = fastTrack.GetPrimaryTrack()->GetGlobalTime();
+        
+        fastStep.SetPrimaryTrackPathLength(0.0);
+        G4cout<<"GLOBAL TIME "<<G4BestUnit(degradTime,"Time")<<" POSITION "<<G4BestUnit(degradPos,"Length")<<G4endl;
 
-    G4int stdout;
-    G4int SEED=54217137*G4UniformRand();
-    G4String seed = G4UIcommand::ConvertToString(SEED);
-    G4String degradString="printf \"1,1,3,-1,"+seed+",5900.0,7.0,0.0\n7,0,0,0,0,0\n100.0,0.0,0.0,0.0,0.0,0.0,20.0,900.0\n3000.0,0.0,0.0,1,0\n100.0,0.5,1,1,1,1,1,1,1\n0,0,0,0,0,0\" > conditions_Degrad.txt";
-    G4cout << degradString << G4endl;
-    stdout=system(degradString.data());
-    G4cout << degradString << G4endl;
-    const std::string degradpath = std::getenv("DEGRAD_HOME");
-    G4cout << degradpath << G4endl;
-    std::string exec = "/Degrad < conditions_Degrad.txt";
-    std::string full_path = degradpath + exec;
-    const char *mychar = full_path.c_str();
-    G4cout << mychar << G4endl;
-    stdout=system(mychar);
-    stdout=system("./convertDegradFile.py");
+        G4int stdout;
+        G4int SEED=54217137*G4UniformRand();
+        G4String seed = G4UIcommand::ConvertToString(SEED);
+        G4String degradString="printf \"1,1,3,-1,"+seed+",5900.0,7.0,0.0\n7,0,0,0,0,0\n100.0,0.0,0.0,0.0,0.0,0.0,20.0,900.0\n3000.0,0.0,0.0,1,0\n100.0,0.5,1,1,1,1,1,1,1\n0,0,0,0,0,0\" > conditions_Degrad.txt";
+        G4cout << degradString << G4endl;
+        stdout=system(degradString.data());
+        G4cout << degradString << G4endl;
+        const std::string degradpath = std::getenv("DEGRAD_HOME");
+        G4cout << degradpath << G4endl;
+        std::string exec = "/Degrad < conditions_Degrad.txt";
+        std::string full_path = degradpath + exec;
+        const char *mychar = full_path.c_str();
+        G4cout << mychar << G4endl;
+        stdout=system(mychar);
+        stdout=system("./convertDegradFile.py");
 
-    GetElectronsFromDegrad(fastStep,degradPos,degradTime);
+        GetElectronsFromDegrad(fastStep,degradPos,degradTime);
+        processOccured=true;
+    }
 
 }
 

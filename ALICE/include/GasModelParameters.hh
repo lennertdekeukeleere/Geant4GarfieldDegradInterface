@@ -5,7 +5,6 @@
 #include "G4String.hh"
 #include <map>
 
-class DegradModel;
 class HeedDeltaElectronModel;
 class HeedNewTrackModel;
 class GasModelParametersMessenger;
@@ -27,8 +26,6 @@ class GasModelParameters{
     void AddParticleNameHeedDeltaElectron(const G4String particleName,double ekin_min_keV,double ekin_max_keV);
     
     /*Getters and Setters*/
-    inline void SetThermalEnergy(G4double d){thermalE=d;}
-    inline G4double GetThermalEnergy(){return thermalE;};
     //Name of the Magboltz file to be used (if needed)
     inline void SetGasFile(G4String s) { gasFile = s;};
     inline G4String GetGasFile() {return gasFile;};
@@ -89,9 +86,6 @@ class GasModelParameters{
     double vCathodeWires;
     double vGate;
     double vDeltaGate;
-
-    G4double thermalE;
-
 };
 
 #endif
