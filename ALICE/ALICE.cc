@@ -1,6 +1,6 @@
 /**
- *\file InterfaceExample.cc
- *\brief Main program of InterfaceExample simulation
+ *\file ALICE.cc
+ *\brief Main program of ALICE simulation
  *\author Claire Couratin
  *\date December 2014
 

@@ -31,9 +31,9 @@ GasModelParametersMessenger::GasModelParametersMessenger(GasModelParameters* gm)
   HeedDeltaElectronDir = new G4UIdirectory("/gasModelParameters/heed/heedinterface/");
   HeedDeltaElectronDir->SetGuidance("HeedDeltaElectron specific controls");
 
-  addParticleHeedDeltaElectronCmd = new G4UIcommand("/gasModelParameters/heed/heedinterface/addparticle",this);
+  addParticleHeedDeltaElectronCmd = new G4UIcommand("/gasModelParameters/heed/heeddeltaelectron/addparticle",this);
   addParticleHeedDeltaElectronCmd->SetGuidance("Set properties of the particle to be included");
-  addParticleHeedDeltaElectronCmd->SetGuidance("[usage] /gasModelParameters/heedinterface/addparticle P Emin Emax");
+  addParticleHeedDeltaElectronCmd->SetGuidance("[usage] /gasModelParameters/heed/heeddeltaelectron/addparticle P Emin Emax");
   addParticleHeedDeltaElectronCmd->SetGuidance("        P:(String) particle name (e-, e+, p, mu+, mu-, mu, pi,...");
   addParticleHeedDeltaElectronCmd->SetGuidance("        Emin:(double) Minimum energy for the model to be activated");
   addParticleHeedDeltaElectronCmd->SetGuidance("        Emax:(double Maximum energy for the model to be activated");
@@ -49,9 +49,9 @@ GasModelParametersMessenger::GasModelParametersMessenger(GasModelParameters* gm)
   paramHDE->SetDefaultValue("1000.");
   addParticleHeedDeltaElectronCmd->SetParameter(paramHDE);
 
-  addParticleHeedNewTrackCmd = new G4UIcommand("/gasModelParameters/heed/heedonly/addparticle",this);
+  addParticleHeedNewTrackCmd = new G4UIcommand("/gasModelParameters/heed/heednewtrack/addparticle",this);
   addParticleHeedNewTrackCmd->SetGuidance("Set properties of the particle to be included");
-  addParticleHeedNewTrackCmd->SetGuidance("[usage] /gasModelParameters/heed/heedonly/addparticle P Emin Emax");
+  addParticleHeedNewTrackCmd->SetGuidance("[usage] /gasModelParameters/heed/heednewtrack/addparticle P Emin Emax");
   addParticleHeedNewTrackCmd->SetGuidance("        P:(String) particle name (e-, e+, p, mu+, mu-, mu, pi,...");
   addParticleHeedNewTrackCmd->SetGuidance("        Emin:(double) Minimum energy for the model to be activated");
   addParticleHeedNewTrackCmd->SetGuidance("        Emax:(double Maximum energy for the model to be activated");

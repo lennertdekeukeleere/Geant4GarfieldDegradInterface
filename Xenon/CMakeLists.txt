@@ -25,7 +25,7 @@ list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 #
 find_package(ROOT QUIET REQUIRED COMPONENTS RIO Net)
 if(NOT ROOT_FOUND)
-  message(STATUS "InterfaceExample: ROOT package not found. --> InterfaceExample disabled")  
+  message(STATUS "Xenon: ROOT package not found. --> Xenon disabled")  
   return()
 endif()
 include(${ROOT_USE_FILE})

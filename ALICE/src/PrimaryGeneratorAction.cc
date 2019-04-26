@@ -1,6 +1,6 @@
 //
 //  PrimaryGeneratorAction.cpp
-//  InterfaceExample
+//  ALICE
 //
 //  Created by Lennert De Keukeleere on 25/10/2018.
 //

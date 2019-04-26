@@ -15,17 +15,17 @@
 
 DetectorMessenger::DetectorMessenger(DetectorConstruction* HPGeDet)
     : detector(HPGeDet) {
-    miniDir = new G4UIdirectory("/InterfaceExample/");
-    miniDir->SetGuidance("InterfaceExample specific controls");
+    miniDir = new G4UIdirectory("/Xenon/");
+    miniDir->SetGuidance("Xenon specific controls");
 
     ////////////////////
-    geometryDir = new G4UIdirectory("/InterfaceExample/geometry/");
-    geometryDir->SetGuidance("InterfaceExample geometry specific controls");
+    geometryDir = new G4UIdirectory("/Xenon/geometry/");
+    geometryDir->SetGuidance("Xenon geometry specific controls");
 
 
     ////////////////////
     setGasPressCmd =
-      new G4UIcmdWithADoubleAndUnit("/InterfaceExample/geometry/SetGasPressure", this);
+      new G4UIcmdWithADoubleAndUnit("/Xenon/geometry/SetGasPressure", this);
 
     setGasPressCmd->SetGuidance("Set gas pressure.");
     setGasPressCmd->SetUnitCategory("Pressure");

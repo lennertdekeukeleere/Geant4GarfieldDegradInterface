@@ -1,15 +1,14 @@
-/InterfaceExample/geometry/SetGasPressure 0.6 bar
-/InterfaceExample/geometry/setup TPC
+/ALICE/geometry/SetGasPressure 0.6 bar
 
-#/gasModelParameters/heed/heedinterface/addparticle e- 0. 0.001
-#/gasModelParameters/heed/heedinterface/addparticle gamma 0. 10000000
-/gasModelParameters/heed/heedonly/addparticle e- 0.1 100000.
-/gasModelParameters/heed/heedonly/addparticle e+ 1000. 100000.
-/gasModelParameters/heed/heedonly/addparticle proton 1000. 1000000.
-/gasModelParameters/heed/heedonly/addparticle mu+ 1000. 1000000.
-/gasModelParameters/heed/heedonly/addparticle mu- 1000. 1000000.
-/gasModelParameters/heed/heedonly/addparticle mu 1000. 1000000.
-#/gasModelParameters/heed/heedonly/addparticle pi+ 100. 1000000.
+/gasModelParameters/heed/heeddeltaelectron/addparticle e- 0. 0.001
+/gasModelParameters/heed/heeddeltaelectron/addparticle gamma 0. 10000000
+/gasModelParameters/heed/heednewtrack/addparticle e- 0.1 100000.
+/gasModelParameters/heed/heednewtrack/addparticle e+ 1000. 100000.
+/gasModelParameters/heed/heednewtrack/addparticle proton 1000. 1000000.
+/gasModelParameters/heed/heednewtrack/addparticle mu+ 1000. 1000000.
+/gasModelParameters/heed/heednewtrack/addparticle mu- 1000. 1000000.
+/gasModelParameters/heed/heednewtrack/addparticle mu 1000. 1000000.
+#/gasModelParameters/heed/heednewtrack/addparticle pi+ 100. 1000000.
 
 /gasModelParameters/heed/gasfile /mnt/ksf9/H2/user/u0111340/linux/AliceTPC/AliceTPC/Ne_90_CO2_10_N2_5_with_mg.gas
 /gasModelParameters/heed/ionmobilityfile IonMobility_Ne+_Ne.txt
@@ -26,21 +25,20 @@
 /gasModelParameters/heed/voltagecathodewire 0.
 /gasModelParameters/heed/voltagegate -70.
 /gasModelParameters/heed/voltagedeltagate 90.
-/gasModelParameters/degrad/thermalenergy 10. eV
 
 /run/numberOfThreads 1
 /control/cout/ignoreThreadsExcept 0
 #/control/cout/setCoutFile output.dmp
-/InterfaceExample/phys/setLowLimitE 20. eV
-/InterfaceExample/phys/InitializePhysics emlivermore
-/InterfaceExample/phys/AddParametrisation
+/ALICE/phys/setLowLimitE 20. eV
+/ALICE/phys/InitializePhysics emlivermore
+/ALICE/phys/AddParametrisation
 /process/em/AddPAIRegion all RegionGasBox PAIPhoton
 
 #/random/setSeeds 0 0
 /run/initialize
 
-/param/InActivateModel DegradModel
-/param/InActivateModel GarfieldVUVPhotonModel
+#/param/InActivateModel HeedNewTrackModel
+#/param/InActivateModel HeedDeltaElectronModel
 
 /analysis/setFileName test
 
@@ -59,15 +57,5 @@
 /gps/direction 1. 0. 0.
 /gps/ene/type Mono
 /gps/ene/mono 2000 MeV
-# Positioning and Angles
-#/gps/source/intensity 49000
-#/gps/ang/type iso
-#/gps/ang/minphi 240 deg
-#/gps/ang/maxphi 300 deg
-#/gps/pos/type Volume
-#/gps/pos/shape Cylinder
-#/gps/pos/radius 1 mm
-#/gps/pos/halfz 30 nm
-#/gps/pos/rot2 0 0 1
 
 /run/beamOn 1

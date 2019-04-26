@@ -19,20 +19,20 @@ class G4UIcmdWith3Vector;
 /*! \class DetectorMessenger*/
 /*! class derived from G4UImessenger*/
 /*! List of available commands*/
-/*!/InterfaceExample/geometry/SetGasPressure*/
-/*!/InterfaceExample/geometry/SetNrUpperPlanes*/
-/*!/InterfaceExample/geometry/SetMaxStep*/
-/*!/InterfaceExample/geometry/SetBField*/
-/*!/InterfaceExample/geometry/EMField_version */
-/*!/InterfaceExample/geometry/ConstructWires */
-/*!/InterfaceExample/geometry/ConstructSlits5Vertical */
-/*!/InterfaceExample/geometry/ConstructSlits3Vertical */
-/*!/InterfaceExample/geometry/ConstructSlitVertical */
-/*!/InterfaceExample/geometry/ConstructSlitHorizontal */
-/*!/InterfaceExample/geometry/buildCells*/
-/*!/InterfaceExample/geometry/BuildUpperScint*/
-/*!/InterfaceExample/geometry/BuildLowerScint*/
-/*!/InterfaceExample/geometry/update */
+/*!/Xenon/geometry/SetGasPressure*/
+/*!/Xenon/geometry/SetNrUpperPlanes*/
+/*!/Xenon/geometry/SetMaxStep*/
+/*!/Xenon/geometry/SetBField*/
+/*!/Xenon/geometry/EMField_version */
+/*!/Xenon/geometry/ConstructWires */
+/*!/Xenon/geometry/ConstructSlits5Vertical */
+/*!/Xenon/geometry/ConstructSlits3Vertical */
+/*!/Xenon/geometry/ConstructSlitVertical */
+/*!/Xenon/geometry/ConstructSlitHorizontal */
+/*!/Xenon/geometry/buildCells*/
+/*!/Xenon/geometry/BuildUpperScint*/
+/*!/Xenon/geometry/BuildLowerScint*/
+/*!/Xenon/geometry/update */
 
 class DetectorMessenger : public G4UImessenger {
  public:
@@ -44,8 +44,8 @@ class DetectorMessenger : public G4UImessenger {
  private:
   DetectorConstruction* detector;
 
-  G4UIdirectory* miniDir;      ///<\brief /InterfaceExample/
-  G4UIdirectory* geometryDir;  ///<\brief /InterfaceExample/geometry/
+  G4UIdirectory* miniDir;      ///<\brief /Xenon/
+  G4UIdirectory* geometryDir;  ///<\brief /Xenon/geometry/
 
   G4UIcmdWithADoubleAndUnit* setGasPressCmd;
     

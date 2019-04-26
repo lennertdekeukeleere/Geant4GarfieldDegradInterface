@@ -20,7 +20,7 @@ Garfield_ simulates the secondary interactions in the gas such as ionization, el
 Degrad
 --------
 
-Degrad_ is the most detailed software package on the market regarding the interaction of particles with a gas medium. It includes a variety of processes subsequent to the primary ionization among which are, Auger, Coster-Kronig, shake-off and fluorescence emission. As mentioned above, the user can run the Interface project without an installation of Degrad, e.g. if the user is not interested in running a detailed simulation of ionisation and subsequent de-excitation processes. To run the Degrad part of the interface program an environment variable DEGRAD_HOME has to be defined, pointing to the folder containing the executable. For example, when using bash, this line should be added to your .bashrc file:
+Degrad_ is the most detailed software package on the market regarding the interaction of particles with a gas medium. It includes a variety of processes subsequent to the primary ionization among which are, Auger, Coster-Kronig, shake-off and fluorescence emission. As mentioned above, the user can run the Interface project without an installation of Degrad, e.g. if the user is not interested in running a detailed simulation of ionisation and subsequent de-excitation processes. To run the Degrad part of the project an environment variable DEGRAD_HOME has to be defined, pointing to the folder containing the executable. For example, when using bash, this line should be added to your .bashrc file:
 
 .. code-block:: bash
 

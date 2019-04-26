@@ -7,38 +7,38 @@
 
 PhysicsListMessenger::PhysicsListMessenger(PhysicsList* pPhys)
     : pPhysicsList(pPhys) {
-  physDir = new G4UIdirectory("/InterfaceExample/phys/");
-  physDir->SetGuidance("InterfaceExample physics list commands");
+  physDir = new G4UIdirectory("/Xenon/phys/");
+  physDir->SetGuidance("Xenon physics list commands");
 
-  gammaCutCmd = new G4UIcmdWithADoubleAndUnit("/InterfaceExample/phys/setGCut", this);
+  gammaCutCmd = new G4UIcmdWithADoubleAndUnit("/Xenon/phys/setGCut", this);
   gammaCutCmd->SetGuidance("Set gamma cut.");
   gammaCutCmd->SetParameterName("Gcut", false);
   gammaCutCmd->SetUnitCategory("Length");
   gammaCutCmd->SetRange("Gcut>0.0");
   gammaCutCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  electCutCmd = new G4UIcmdWithADoubleAndUnit("/InterfaceExample/phys/setECut", this);
+  electCutCmd = new G4UIcmdWithADoubleAndUnit("/Xenon/phys/setECut", this);
   electCutCmd->SetGuidance("Set electron cut.");
   electCutCmd->SetParameterName("Ecut", false);
   electCutCmd->SetUnitCategory("Length");
   electCutCmd->SetRange("Ecut>0.0");
   electCutCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  protoCutCmd = new G4UIcmdWithADoubleAndUnit("/InterfaceExample/phys/setPCut", this);
+  protoCutCmd = new G4UIcmdWithADoubleAndUnit("/Xenon/phys/setPCut", this);
   protoCutCmd->SetGuidance("Set positron cut.");
   protoCutCmd->SetParameterName("Pcut", false);
   protoCutCmd->SetUnitCategory("Length");
   protoCutCmd->SetRange("Pcut>0.0");
   protoCutCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  allCutCmd = new G4UIcmdWithADoubleAndUnit("/InterfaceExample/phys/setCuts", this);
+  allCutCmd = new G4UIcmdWithADoubleAndUnit("/Xenon/phys/setCuts", this);
   allCutCmd->SetGuidance("Set cut for all.");
   allCutCmd->SetParameterName("cut", false);
   allCutCmd->SetUnitCategory("Length");
   allCutCmd->SetRange("cut>0.0");
   allCutCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 
-  pListCmd = new G4UIcmdWithAString("/InterfaceExample/phys/InitializePhysics", this);
+  pListCmd = new G4UIcmdWithAString("/Xenon/phys/InitializePhysics", this);
   pListCmd->SetGuidance("Add modula physics list.");
   pListCmd->SetParameterName("PList", false);
   pListCmd->AvailableForStates(G4State_PreInit);
@@ -46,11 +46,11 @@ PhysicsListMessenger::PhysicsListMessenger(PhysicsList* pPhys)
       "local emstandard_opt0 emstandard_opt1 emstandard_opt2 emstandard_opt3 "
       "standardSS standardGS standardWVI emlivermore empenelope");
 
-  addParamCmd = new G4UIcmdWithoutParameter("/InterfaceExample/phys/AddParametrisation", this);
+  addParamCmd = new G4UIcmdWithoutParameter("/Xenon/phys/AddParametrisation", this);
   addParamCmd->SetGuidance("Add the parametrisation");
   addParamCmd->AvailableForStates(G4State_PreInit);
 
-  lowLimitECmd = new G4UIcmdWithADoubleAndUnit("/InterfaceExample/phys/setLowLimitE", this);
+  lowLimitECmd = new G4UIcmdWithADoubleAndUnit("/Xenon/phys/setLowLimitE", this);
   lowLimitECmd->SetGuidance("Set lower limit for production energy");
   lowLimitECmd->SetParameterName("Energy", false);
   lowLimitECmd->SetDefaultUnit("eV");

@@ -1,6 +1,6 @@
 /**
- *\file InterfaceExample.cc
- *\brief Main program of InterfaceExample simulation
+ *\file Xenon.cc
+ *\brief Main program of Xenon simulation
  *\author Claire Couratin
  *\date December 2014
 
