@@ -1,0 +1,70 @@
+/Xenon/geometry/SetGasPressure 1. bar
+
+/gasModelParameters/degrad/thermalenergy 10. eV
+
+/run/numberOfThreads 1
+/control/cout/ignoreThreadsExcept 0
+#/control/cout/setCoutFile output.dmp
+/Xenon/phys/setLowLimitE 20. eV
+/Xenon/phys/InitializePhysics emlivermore
+/Xenon/phys/AddParametrisation
+/process/em/AddPAIRegion all RegionGasBox PAIphoton
+
+#/random/setSeeds 0 0
+/run/initialize
+
+#/param/InActivateModel DegradModel
+#/param/InActivateModel GarfieldVUVPhotonModel
+
+/analysis/setFileName test
+
+####################################
+############ Verbosities ###########
+####################################
+/tracking/verbose 0
+/run/verbose 1
+/event/verbose 1
+/vis/verbose 6
+####################################
+########### Visualization ##########
+####################################
+#/vis/open VRML2FILE
+/vis/open OGL 600x600-0+0
+#/vis/open OGLSX
+# Draw geometry:
+/vis/drawVolume
+/vis/scene/add/trajectories smooth
+/vis/scene/add/hits
+/vis/viewer/set/lightsThetaPhi 90. 0.
+/vis/viewer/set/viewpointThetaPhi 150. 90.
+/vis/viewer/set/style surface
+/vis/viewer/set/hiddenEdge true
+# Draw smooth trajectories at end of event.
+# Gamma-rays represented in red.
+#/vis/modeling/trajectories/create/drawByParticleID
+#/vis/modeling/trajectories/drawByParticleID-0/set e- green
+#/vis/modeling/trajectories/drawByParticleID-0/verbose 1
+/vis/modeling/trajectories/create/drawByCharge
+/vis/modeling/trajectories/drawByCharge-0/set 0 green
+/vis/modeling/trajectories/drawByCharge-0/verbose 1
+#/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+#/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 6
+
+/vis/scene/endOfEventAction accumulate 1
+#/vis/scene/endOfRunAction accumulate
+/vis/geometry/set/forceWireframe collimatorLogical -1 1
+/vis/geometry/set/forceWireframe collimatorLogical2 -1 1
+/vis/geometry/set/forceWireframe windowLogical -1 1
+/vis/geometry/set/forceWireframe detectorLogical -1 1
+/vis/geometry/set/forceWireframe macorLogical -1 1
+/vis/geometry/set/forceWireframe pmtLogical -1 1
+/tracking/storeTrajectory 1
+
+/gps/position 0. -3.3 0. cm
+/gps/direction 0. 1. 0 
+/gps/particle gamma
+/gps/ene/type Mono
+/gps/ene/mono 6.9 keV
+
+/run/beamOn 1
+

@@ -1,0 +1,37 @@
+/Xenon/geometry/SetGasPressure 0.6 bar
+
+/gasModelParameters/degrad/thermalenergy 10. eV
+
+/run/numberOfThreads 1
+/control/cout/ignoreThreadsExcept 0
+#/control/cout/setCoutFile output.dmp
+/Xenon/phys/setLowLimitE 20. eV
+/Xenon/phys/InitializePhysics emlivermore
+/Xenon/phys/AddParametrisation
+/process/em/AddPAIRegion all RegionGasBox PAIPhoton
+
+#/random/setSeeds 0 0
+/run/initialize
+
+#/param/InActivateModel DegradModel
+#/param/InActivateModel GarfieldVUVPhotonModel
+
+/analysis/setFileName test
+
+####################################
+############ Verbosities ###########
+####################################
+/tracking/verbose 0
+/run/verbose 1
+/event/verbose 0
+
+####################################
+########### Visualization ##########
+####################################
+/gps/particle proton
+/gps/position 0. 0. 0. cm
+/gps/direction 1. 0. 0.
+/gps/ene/type Mono
+/gps/ene/mono 2000 MeV
+
+/run/beamOn 1

@@ -1,0 +1,94 @@
+/ALICE/geometry/SetGasPressure 1. bar
+
+/gasModelParameters/heed/heeddeltaelectron/addparticle e- 0. 0.001
+/gasModelParameters/heed/heeddeltaelectron/addparticle gamma 0. 10000000
+/gasModelParameters/heed/heednewtrack/addparticle e- 0.1 100000.
+/gasModelParameters/heed/heednewtrack/addparticle e+ 1000. 100000.
+/gasModelParameters/heed/heednewtrack/addparticle proton 1000. 1000000.
+/gasModelParameters/heed/heednewtrack/addparticle mu+ 1000. 1000000.
+/gasModelParameters/heed/heednewtrack/addparticle mu- 1000. 1000000.
+/gasModelParameters/heed/heednewtrack/addparticle mu 1000. 1000000.
+#/gasModelParameters/heed/heednewtrack/addparticle pi+ 100. 1000000.
+
+/gasModelParameters/heed/gasfile Ne_90_CO2_10_N2_5_with_mg.gas
+/gasModelParameters/heed/ionmobilityfile IonMobility_Ne+_Ne.txt
+/gasModelParameters/heed/drift 1
+/gasModelParameters/heed/driftRKF 0
+/gasModelParameters/heed/trackmicroscopic 0
+/gasModelParameters/heed/createAval 0
+/gasModelParameters/heed/visualizechamber 0
+/gasModelParameters/heed/visualizesignals 0
+/gasModelParameters/heed/visualizefield 1
+/gasModelParameters/heed/voltageplanehv -100000
+/gasModelParameters/heed/voltageplanelow 0
+/gasModelParameters/heed/voltageanodewire 1460.
+/gasModelParameters/heed/voltagecathodewire 0.
+/gasModelParameters/heed/voltagegate -70.
+/gasModelParameters/heed/voltagedeltagate 90.
+
+/run/numberOfThreads 1
+/control/cout/ignoreThreadsExcept 0
+#/control/cout/setCoutFile output.dmp
+/ALICE/phys/setLowLimitE 20. eV
+/ALICE/phys/InitializePhysics emlivermore
+/ALICE/phys/AddParametrisation
+/process/em/AddPAIRegion all RegionGasBox PAIphoton
+
+#/random/setSeeds 0 0
+/run/initialize
+
+#/param/InActivateModel HeedNewTrackModel
+#/param/InActivateModel HeedDeltaElectronModel
+
+/analysis/setFileName test
+
+####################################
+############ Verbosities ###########
+####################################
+/tracking/verbose 0
+/run/verbose 1
+/event/verbose 1
+/vis/verbose 6
+####################################
+########### Visualization ##########
+####################################
+/vis/open VRML2FILE
+#/vis/open OGL 600x600-0+0
+#/vis/open OGLSX
+# Draw geometry:
+/vis/drawVolume
+/vis/scene/add/trajectories smooth
+/vis/scene/add/hits
+/vis/viewer/set/lightsThetaPhi 90. 0.
+/vis/viewer/set/viewpointThetaPhi 150. 90.
+/vis/viewer/set/style surface
+/vis/viewer/set/hiddenEdge true
+# Draw smooth trajectories at end of event.
+# Gamma-rays represented in red.
+#/vis/modeling/trajectories/create/drawByParticleID
+#/vis/modeling/trajectories/drawByParticleID-0/set e- green
+#/vis/modeling/trajectories/drawByParticleID-0/verbose 1
+/vis/modeling/trajectories/create/drawByCharge
+/vis/modeling/trajectories/drawByCharge-0/set -1 green
+/vis/modeling/trajectories/drawByCharge-0/set +1 yellow
+/vis/modeling/trajectories/drawByCharge-0/verbose 1
+#/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+#/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 6
+
+/vis/scene/endOfEventAction accumulate 1
+
+/vis/geometry/set/forceWireframe solidGasBox_log -1 1
+/vis/geometry/set/forceWireframe solidCalo_log -1 1
+/vis/geometry/set/forceWireframe solidWall1_log -1 1
+/vis/geometry/set/forceWireframe solidWall2_log -1 1
+
+/tracking/storeTrajectory 1
+
+/gps/position 0. 0. 0. cm
+/gps/direction 0. 0. 1. 
+/gps/particle e-
+/gps/ene/type Mono
+/gps/ene/mono 1. MeV
+
+/run/beamOn 1
+
