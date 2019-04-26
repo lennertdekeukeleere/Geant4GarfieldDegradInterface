@@ -7,7 +7,9 @@
  
  Documentation
  -------------
- Please check ... for a complete description of the implementation
+ Please check https://geant4garfielddegradinterface.readthedocs.io_ for a complete description of the implementation.
+ 
+ .. _https://geant4garfielddegradinterface.readthedocs.io: https://geant4garfielddegradinterface.readthedocs.io/en/latest/
  
  Contributors
  ------------
