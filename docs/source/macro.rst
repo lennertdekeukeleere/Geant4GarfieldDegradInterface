@@ -30,7 +30,7 @@ Where <setup> should be replaced with either *ALICE* or *Xenon*, depending on wh
    
    /<setup>/phys/AddParametrisation
 
-This will call the *AddParametrisation*-method in the *PhysicsList* as already explained in :ref:`physicslist-label`. The final macro command for this class is
+This will call the *AddParametrisation*-method in the *PhysicsList* as already explained in :ref:`physicslist-label`. Keep in mind that this command should be run before the */run/initialize*-command. The final macro command for this class is
 
 .. code-block:: cpp
 
@@ -61,6 +61,15 @@ This will set which physics list is to be used to model electromagnetic processe
    | *G4EmStandardPhysics*  +      |    ionGasModels         | 
    | *AddIonGasModels()*           |                         | 
    +-------------------------------+-------------------------+
+
+In addition to these custom common commands, the Geant4 code also provides a useful messenger class for parametrisation applications, i.e. *G4FastSimulationMessenger.cc*. Two useful commands activate/deactivate the *G4VFastSimulationModels* that are implemented in the user's application:
+
+.. code-block:: cpp
+
+   /param/InActivateModel <model name>
+   /param/ActivateModel <model name>
+   
+Where <model name> is the name given to the model constructor.
 
 ALICE commands
 ----------------------------
