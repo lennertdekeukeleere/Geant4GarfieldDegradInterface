@@ -82,7 +82,7 @@ G4bool HeedModel::FindParticleNameEnergy(G4String name,
 
 //Initialize the Garfield++ related geometries and physics/tracking mechanisms, this is specific for each use and should be re-implemented entirely
 void HeedModel::InitialisePhysics(){
-  if(G4RunManager::GetRunManager()->GetRunManagerType() == G4RunManager::workerRM){
+  if(G4RunManager::GetRunManager()->GetRunManagerType() == G4RunManager::workerRM || G4RunManager::GetRunManager()->GetRunManagerType() == G4RunManager::sequentialRM){
     makeGas();
       
     buildBox();
